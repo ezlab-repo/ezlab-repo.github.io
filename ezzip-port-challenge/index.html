@@ -1,0 +1,1130 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>From WPF to Avalonia: Taking ezZip to macOS</title>
+<!-- 파비콘: 원본 동그라미 그대로, 색만 글 끝 서울 그림의 하늘색 계열(색상 약 209°)에서 진하게 고른 #5fa0dc (사용자 결정 2026-10-10). 외부 파일 없이 인라인 SVG -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%2714%27 fill=%27%235fa0dc%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root { 
+    --fg:#17171a; 
+    --muted:#5b5a55; 
+    --line:#dcdad3; 
+    --bg:#ffffff; 
+    --code:#ecebe6; 
+    --ava:#2a45c7; 
+    --accent:#2a45c7; 
+    --engine:#7590e0; 
+    --neutral:#94938c; 
+    --accent-soft:#edf2fc; 
+    --accent-line:#bacdf8; 
+    --neutral-soft:#dcdad3; 
+    --font-sans:"Noto Sans KR", "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif; 
+    --font-data:"Space Grotesk", "Noto Sans KR", sans-serif;
+  }
+  * { box-sizing:border-box; }
+  html:lang(zh-Hant) { --font-sans:"Noto Sans TC", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft JhengHei", "PingFang TC", sans-serif; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:400 16px/1.8 var(--font-sans); overflow-wrap:break-word; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+  html:lang(ko) body { word-break:keep-all; }
+  html:lang(en) h1 { font-size:33px; } /* 영어 제목은 글자 수가 많아 한 줄에 맞게 줄인다 */
+  html:lang(ja) body, html:lang(zh-Hant) body { line-break:strict; }
+  main { max-width:752px; margin:0 auto; padding:340px 16px 32px; }
+  h1 { font-size:36px; line-height:1.3; letter-spacing:-0.025em; margin:0; font-weight:700; white-space:nowrap; }
+  /* 제목 위 아이콘: Tabler "transform"(같은 것을 다른 모양으로), 강조색 (사용자 결정 2026-10-08) */
+  /* 아이콘은 제목 위 빈 여백(340px) 안에 놓는다: 높이(64)+아래 간격(28)만큼 위로 당겨 제목 위치는 그대로. 왼쪽 -8px로 그림을 제목 첫 글자에 맞춤 */
+  .title-mark { display:block; width:64px; height:64px; margin:-92px 0 28px -8px; color:#5fa0dc; } /* 파비콘과 같은 서울 그림 하늘색 계열(색상 약 209°) (사용자 결정 2026-10-10) */
+  @media (max-width:767px) { .title-mark { display:none; } } /* 모바일에서는 숨긴다 */
+  .meta { margin:24px 0 40px; }
+  .meta-author { margin:0 0 4px; color:var(--fg); font-size:16px; font-weight:600; line-height:1.5; }
+  .meta-details { display:flex; align-items:baseline; flex-wrap:wrap; gap:6px 10px; color:var(--muted); font-size:13px; line-height:1.6; }
+  .meta-company { font-size:12px; letter-spacing:0.025em; }
+  .meta-details time, .meta-readtime { white-space:nowrap; }
+  .meta-separator { color:var(--neutral); }
+  /* 회사·날짜·읽는 시간 앞의 단색 선 아이콘 (글자 크기를 따른다) */
+  .meta-ico { width:1.1em; height:1.1em; margin-right:0.35em; vertical-align:-0.18em; fill:none; stroke:currentColor; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; }
+  /* 메일·웹: 위 줄(회사·날짜·읽는 시간)과 같은 모양 — 단색 선 아이콘 + 보조색 글자, "/" 구분 (사용자 결정 2026-10-08) */
+  .meta-links { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 10px; margin:4px 0 0; padding:0; list-style:none; font-size:13px; line-height:1.6; }
+  .meta-links li { margin:0; }
+  .meta-links li + li::before { content:"/"; margin-right:10px; color:var(--neutral); }
+  .meta-icon { position:relative; display:inline; padding:0; border:0; background:none; color:var(--muted); font:inherit; cursor:pointer; text-decoration:none; }
+  .meta-icon svg { width:1.1em; height:1.1em; margin-right:0.35em; vertical-align:-0.18em; fill:none; stroke:currentColor; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; }
+  .meta-icon .icon-check { display:none; }
+  .meta-icon.is-copied .icon-mail { display:none; }
+  .meta-icon.is-copied .icon-check { display:inline; }
+  .meta-icon:hover, .meta-icon.is-copied { color:var(--accent); text-decoration:none; }
+  .meta-icon:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:2px; }
+  /* 터치 화면: 아이콘 모양은 28px 그대로, 누르는 영역만 44px */
+  @media (pointer:coarse) { .meta-icon::before { content:""; position:absolute; inset:-8px; } }
+  .skip-link { position:absolute; left:16px; top:-48px; z-index:20; padding:8px 12px; border-radius:6px; background:var(--fg); color:var(--bg); font-size:14px; }
+  .skip-link:focus { top:16px; text-decoration:none; }
+  @media(max-width:680px) { h1 { white-space:normal; font-size:26px; } }
+  h2 { font-size:28px; line-height:1.4; margin:64px 0 16px; letter-spacing:-0.015em; font-weight:700; text-wrap:balance; }
+  h3 { font-size:21px; line-height:1.45; margin:40px 0 12px; font-weight:700; letter-spacing:-0.01em; }
+  p { margin:0 0 20px; line-height:1.7; font-size:17px; letter-spacing:-0.005em; text-wrap:pretty; }
+  a { color:var(--accent); text-decoration:none; }
+  a:hover { text-decoration:underline; text-underline-offset:3px; }
+  code { font-family:ui-monospace, "Cascadia Code", "Cascadia Mono", Menlo, Consolas, monospace; font-size:0.9em; }
+  p code, td code, li code { background:var(--code); border:1px solid var(--line); padding:1px 5px; border-radius:4px; font-size:0.88em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border:1px solid var(--line); border-radius:8px; padding:14px 16px; overflow-x:auto; font:14px/1.65 ui-monospace, "Cascadia Code", "Cascadia Mono", Menlo, Consolas, monospace; margin:0; max-width:100%; }
+  pre code { font-size:inherit; }
+  .code-part + .code-part { margin-top:20px; }
+  .code-part h4 { margin:0 0 8px; font-size:13.5px; font-weight:600; line-height:1.6; }
+  .code-part h4 span { font-weight:400; }
+
+  figure { margin:28px 0 36px; padding:20px; border:1px solid var(--line); border-radius:10px; background:var(--bg); }
+  figure img { width:100%; height:auto; border-radius:6px; display:block; border:1px solid var(--line); }
+  figcaption { font-size:14px; color:var(--muted); margin-top:10px; line-height:1.6; }
+  figcaption b { color:var(--fg); font-family:var(--font-data); font-size:13px; letter-spacing:0.04em; margin-right:4px; }
+  #fig-a > figcaption { margin-top:24px; }
+  #architecture > figcaption { margin-top:20px; }
+  #fig-a { padding-bottom:12px; }
+  #fig-a > .measure-details:not([open]) > summary { margin-bottom:0; }
+  figcaption .cond { color:var(--muted); display:block; }
+  figcaption code { overflow-wrap:anywhere; }
+  .perf-explainer { margin:0 0 12px; color:var(--muted); font-size:13px; }
+  .perf-section { margin:16px 0 0; }
+  #fig-a > .perf-section:first-of-type { margin-top:28px; }
+  .perf-section + .perf-section { margin-top:22px; padding-top:16px; border-top:1px solid var(--line); }
+  .perf-section h4 { margin:0 0 10px; color:var(--fg); font-size:18px; font-weight:700; line-height:1.5; }
+  .perf-section .perf-result:last-child { margin-bottom:0; }
+  .perf-result { margin:0 0 14px; }
+  .result-heading { display:flex; justify-content:space-between; align-items:baseline; gap:12px; font-size:14px; font-weight:600; }
+  .result-speed { margin-left:8px; white-space:nowrap; font-size:11.5px; font-weight:500; color:var(--accent); background:var(--accent-soft); padding:1px 6px; border-radius:3px; display:inline-block; line-height:1.4; vertical-align:1px; }
+  .result-speed b { font-family:var(--font-data); font-size:12px; font-weight:700; color:var(--accent); margin-right:1px; font-variant-numeric:tabular-nums; }
+  .decomp-legend { display:flex; flex-wrap:wrap; gap:5px 16px; font-size:13px; color:var(--muted); margin-bottom:6px; }
+  .decomp-legend > span { display:flex; align-items:center; gap:5px; }
+  .decomp-legend i { width:10px; height:10px; display:inline-block; border-radius:2px; }
+  .key-wpf { background:var(--neutral); }
+  .fontchart + .decomp-legend { margin-top:18px; } /* FIG H 범례: FIG E처럼 그래픽 아래·캡션 위 */
+  .key-ava, .segment-ava { background:var(--ava); }
+  .key-engine, .segment-engine { background:var(--engine); }
+  .decomp-chart { margin-top:4px; }
+  .decomp-row { display:grid; grid-template-columns:100px minmax(0,1fr) 152px; gap:10px; align-items:center; font-size:13px; margin:4px 0; }
+  .decomp-row > span:first-child { white-space:nowrap; color:var(--muted); font-size:12.5px; font-weight:500; }
+  .decomp-value { position:absolute; top:50%; transform:translateY(-50%); margin-left:10px; white-space:nowrap; font-family:var(--font-data); font-size:13px; font-weight:700; letter-spacing:-0.01em; font-variant-numeric:tabular-nums; }
+  .decomp-baseline, .decomp-current { height:16px; border-radius:3px; }
+  .decomp-baseline { background:var(--neutral); }
+  .decomp-current { display:flex; overflow:hidden; }
+  .decomp-current > i { display:block; height:100%; flex-shrink:0; }
+  .decomp-track { position:relative; min-width:0; }
+  .decomp-annotation { margin-left:110px; margin-right:162px; padding:2px 0 4px; }
+  .perf-readable .decomp-annotation p { margin:0; text-align:left; font-size:12px; color:var(--muted); line-height:1.4; }
+  .decomp-annotation b { color:var(--accent); font-family:var(--font-data); font-size:12px; font-weight:700; }
+  .decomp-annotation b.engine { color:var(--muted); font-weight:500; font-family:var(--font-sans); }
+  .decomp-annotation p > span { white-space:nowrap; }
+  @media(max-width:480px) {
+    .decomp-row { grid-template-columns:64px minmax(0,1fr) 92px; gap:6px; min-height:40px; }
+    .decomp-row > span:first-child { white-space:normal; line-height:1.3; }
+    .result-speed { display:block; width:max-content; margin:2px 0 0; }
+    .decomp-annotation { margin-left:70px; margin-right:98px; }
+    .decomp-annotation p > span { display:block; }
+  }
+  .measure-details { margin-top:14px; }
+  .measure-details p { font-size:13.5px; margin-bottom:12px; }
+  .measure-overview { margin:16px 0; font-size:13.5px; line-height:1.65; }
+  .measure-overview > div { display:grid; grid-template-columns:88px minmax(0,1fr); gap:12px; padding:10px 0; border-bottom:1px solid var(--line); }
+  .measure-overview dt { font-weight:600; color:var(--fg); }
+  .measure-overview dd { margin:0; }
+  .contribution-steps { margin:0 0 12px; padding-left:20px; font-size:inherit; line-height:inherit; } /* 전역 ol 17px 를 받아 측정 상세 13.5px 사이에서 혼자 컸다 */
+  .contribution-steps li { margin-bottom:10px; }
+  .measure-overview .contribution-formula { margin:12px 0; line-height:1.8; }
+  .measure-overview dd > p:last-child { margin-bottom:0; }
+  .measure-details .measure-caveat { color:var(--muted); line-height:1.65; margin:16px 0; }
+  @media(max-width:480px) { .measure-overview > div { grid-template-columns:1fr; gap:4px; } }
+  /* 한국어 외 언어의 화면 줄바꿈 보정 (한국어 배치는 건드리지 않는다, 사용자 결정 2026-10-10).
+     영어·일본어 항목명은 88px 칸에서 단어 중간이 잘렸다(Interpretatio/n, ウィンドウ表/示).
+     제목은 마지막 줄에 한 단어만 남지 않게 균형 있게, 일본어는 단어(문절) 단위로 끊는다 */
+  @media(min-width:481px) { html:not([data-lang="ko"]) .measure-overview > div { grid-template-columns:128px minmax(0,1fr); } }
+  html:not([data-lang="ko"]) .measure-overview dt { overflow-wrap:normal; }
+  html:not([data-lang="ko"]) :is(h1, h3, dt, .lbl) { text-wrap:balance; }
+  html:not([data-lang="ko"]) figcaption, html:not([data-lang="ko"]) dd, html:not([data-lang="ko"]) li { text-wrap:pretty; }
+  html[data-lang="ja"] :is(h1, h2, h3, h4, figcaption, dt, .lbl) { word-break:auto-phrase; }
+
+  .timing { display:grid; grid-template-columns:90px minmax(0,1fr) 80px; gap:8px; align-items:center; margin:7px 0; font-size:13px; }
+  .timing > span:first-child { color:var(--muted); font-size:12.5px; font-weight:500; white-space:nowrap; }
+  .timing .value { text-align:right; white-space:nowrap; font-family:var(--font-data); font-size:13px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .timing-track { min-width:0; height:8px; background:var(--code); border-radius:4px; overflow:hidden; }
+  .timing-bar { display:block; height:100%; border-radius:4px; }
+  .timing-wpf { background:var(--neutral); } .timing-w { background:#a8baf0; } .timing-j { background:#5f7ad6; } /* Avalonia 빌드: OTF→TTF→서브셋 순으로 진해지는 파랑 */ .timing-a { background:var(--ava); }
+  .fontchart { padding:0; border:0; }
+  .fontchart h4 { margin:22px 0 10px; font-size:15px; }
+  .fontchart h4:first-child { margin-top:0; }
+  .stack { display:grid; gap:12px; }
+  .lbl { font-size:12.5px; font-weight:600; color:var(--muted); margin-bottom:4px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:start; }
+  .grid2 .wide { grid-column:1 / -1; }
+  .mac-progress-pair { display:grid; grid-template-columns:2.611111fr 3.302752fr; gap:10px; align-items:start; }
+  .mac-progress-pair img { min-width:0; border:0; }
+  details summary { cursor:pointer; font-size:13.5px; color:var(--muted); margin:0 0 8px; }
+  details summary:hover { color:var(--accent); }
+  ul, ol { padding-left:22px; margin:0 0 20px; font-size:17px; line-height:1.7; }
+  li { margin-bottom:8px; }
+  .article-footer { margin-top:64px; padding-top:8px; border-top:1px solid var(--line); }
+  .footer-top-row { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:0; }
+  /* 글 끝 줄: 왼쪽 끝에 글 제목을 작게, 오른쪽에 맨 위로 (사용자 결정 2026-10-08) */
+  .footer-title { min-width:0; color:var(--muted); font-size:15px; font-weight:700; }
+  .footer-top { flex:none; white-space:nowrap; display:inline-flex; align-items:center; gap:6px; min-height:36px; color:var(--muted); font-size:13px; text-decoration:none; }
+  .footer-top:hover { color:var(--fg); text-decoration:none; } /* 밑줄·파란색 없이 글자만 진하게 */
+  .footer-top:focus-visible { outline:2px solid var(--accent); outline-offset:5px; border-radius:2px; }
+  svg text { font-family:var(--font-sans); }
+  @media (max-width:600px) { figure { padding:12px; } .grid2 { grid-template-columns:1fr; } .timing { grid-template-columns:72px minmax(0,1fr) 72px; } }
+  .architecture-scroll { overflow-x:auto; }
+  .architecture-chart { display:block; width:100%; min-width:540px; height:auto; }
+  .architecture-chart .node { fill:var(--bg); stroke:var(--neutral-soft); stroke-width:1.2; rx:8; }
+  .architecture-chart .shared { fill:var(--accent-soft); stroke:var(--accent-line); stroke-width:1.2; rx:8; }
+  .architecture-chart .heading { font-family:var(--font-data), var(--font-sans); font-size:15px; font-weight:700; fill:var(--fg); letter-spacing:-0.01em; }
+  .architecture-chart .label { font-size:14px; font-weight:400; fill:var(--fg); }
+  .architecture-chart .subtext { font-size:12px; font-weight:400; fill:var(--muted); }
+  .architecture-chart .link { fill:none; stroke:var(--accent); stroke-width:1.8; }
+  .architecture-key { background:var(--accent); }
+  #article-title { scroll-margin-top:100vh; } /* 들어가며 = 맨 위 */
+  /* 다운로드 버튼: popo 포트폴리오처럼 언어 옆 동그라미 (사용자 결정 2026-10-08) */
+  .dl-btn { flex:none; width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border-radius:50%; color:var(--muted); }
+  .dl-btn svg { width:auto; height:16px; } /* viewBox 를 그림 좌우 끝에 맞춰 잘랐다: 아이콘도 글자처럼 상자 여백만으로 간격이 정해진다 (사용자 결정 2026-10-10) */
+  .dl-btn:hover { color:var(--fg); text-decoration:none; }
+  .dl-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  /* 언어 버튼: 챕터 칩과 같은 글자 버튼 — 각 언어 고유 이름(English·繁中·日本語·한국어), 선택은 검정 굵게. 코드 표기(EN·ZH…)는 낡아 보여 교체 (사용자 결정 2026-10-10) */
+  .lang-btn { flex:none; min-width:32px; height:36px; display:inline-flex; align-items:center; justify-content:center; padding:0 4px; border:0; background:transparent; color:var(--muted); font:500 14px/1 var(--font-sans); white-space:nowrap; cursor:pointer; }
+  .lang-btn:hover { color:var(--fg); }
+  .lang-btn.is-active, .lang-btn.is-active:hover { color:#000; font-weight:700; }
+  .lang-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+
+  /* 데스크톱 헤더(768px 이상): popo 포트폴리오 데스크톱 헤더를 옮겼다 (사용자 결정 2026-10-08).
+     본문 칼럼보다 조금 넓은 폭에 챕터 번호 칩(현재 절만 번호 + 제목, 검정 굵게)과 언어·다운로드 동그라미.
+     바 자체는 바탕이 없고, 스크롤하면 화면 위 180px이 바 뒤 점진 흐림(2·6·14px)과 흰 덮개로 덮인다 */
+  /* 흐림 띠는 데스크톱·모바일 공통, 모바일은 높이만 줄인다 (모바일 알약 대신, 사용자 결정 2026-10-10) */
+  .bar-blur { position:fixed; left:0; right:0; top:0; height:180px; pointer-events:none; z-index:19; opacity:0; }
+  .blur-tint, .bar-blur::before, .bar-blur::after { position:absolute; inset:0; }
+  .blur-tint { background:linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, transparent), color-mix(in srgb, var(--bg) 35%, transparent) 55%, transparent); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px); -webkit-mask-image:linear-gradient(to bottom, #000 60%, transparent 100%); mask-image:linear-gradient(to bottom, #000 60%, transparent 100%); }
+  .bar-blur::before, .bar-blur::after { content:""; }
+  .bar-blur::before { -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); -webkit-mask-image:linear-gradient(to bottom, #000 45%, transparent 85%); mask-image:linear-gradient(to bottom, #000 45%, transparent 85%); }
+  .bar-blur::after { -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); -webkit-mask-image:linear-gradient(to bottom, #000 25%, transparent 65%); mask-image:linear-gradient(to bottom, #000 25%, transparent 65%); }
+  .bar-blur.is-on { opacity:1; }
+  .pbar { display:none; }
+  @media (min-width:768px) {
+    h1[id], h2[id] { scroll-margin-top:96px; }
+    .pbar { position:fixed; top:16px; left:0; right:0; z-index:20; display:flex; align-items:center; justify-content:space-between; gap:16px; max-width:1012px; margin:0 auto; padding:12px 16px; }
+    .pbar-nav { display:flex; align-items:center; gap:6px; min-width:0; overflow-x:auto; scrollbar-width:none; }
+    .pbar-nav::-webkit-scrollbar { display:none; }
+    .pbar-ch { flex:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; min-width:44px; height:44px; padding:0 4px; color:var(--fg); font:500 15px/1 var(--font-sans); white-space:nowrap; text-decoration:none; }
+    .pbar-num { font:500 13px/1 var(--font-data); font-variant-numeric:tabular-nums; }
+    .pbar-title { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+    .pbar-ch.is-on { padding:0 18px 0 16px; color:#000; font-weight:700; }
+    .pbar-ch.is-on .pbar-num { font-weight:700; }
+    .pbar-ch.is-on .pbar-title { position:static; width:auto; height:auto; overflow:visible; clip:auto; }
+    .pbar-ch:hover { text-decoration:none; }
+    .pbar-ch:focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:999px; }
+    .pbar-tools { flex:none; display:flex; align-items:center; gap:2px; margin-left:auto; }
+    .pbar .dl-btn { width:auto; height:44px; padding:0 8px; margin-left:-14px; } /* 언어 버튼과 같은 규칙(좌우 8px), 바 간격 16px 을 상쇄해 언어 버튼 사이 간격 2px 와 같게 한다 (사용자 결정 2026-10-10) */
+    .pbar .lang-btn { min-width:0; height:44px; padding:0 8px; }
+ }
+  @media (min-width:768px) and (max-width:1279px) {
+    .pbar { gap:8px; }
+    .pbar-nav { gap:0; }
+    .pbar-ch { font-size:14px; }
+    .pbar .lang-btn { padding:0 6px; }
+    .pbar .dl-btn { padding:0 6px; margin-left:-6px; }
+  }
+  /* 모바일 위 바: 데스크톱 헤더와 같은 글자 버튼 줄 (사용자 결정 2026-10-10).
+     바 자체는 바탕이 없고, 스크롤하면 데스크톱과 같은 흐림 띠가 뒤를 덮는다. 메뉴를 열면 흐림 띠를 목차 끝까지 늘려 그 위에 목차를 펼친다 */
+  .mbar, .mbar-scrim { display:none; }
+  @media (max-width:767px) {
+    main { padding-top:151px; } /* 위 바(64px) 아래 87px 띄운다 — 60px 로 줄이면 제목이 바에 붙는다 (사용자 재지적 2026-10-10) */
+    h1[id], h2[id] { scroll-margin-top:92px; }
+    .bar-blur { height:116px; }
+    .mbar { position:fixed; top:0; left:0; right:0; z-index:20; display:flex; flex-wrap:wrap; justify-content:center; width:max-content; margin:0 auto; padding:20px 0 0; } /* zoom:.9 는 버튼을 40px·글자 11.7px 로 줄여 뺐다 (사용자 결정 2026-10-10) */
+    .mbar.is-open { width:auto; padding-bottom:12px; }
+    /* 메뉴를 열면 흰 판 대신 흐림 띠를 목차 아래 끝(--menu-h, JS 가 잰다)까지 늘린다. 끝 48px 만 흐려지며 사라진다 (사용자 결정 2026-10-10) */
+    .bar-blur.is-menu { opacity:1; height:var(--menu-h); }
+    .bar-blur.is-menu .blur-tint { background:color-mix(in srgb, var(--bg) 78%, transparent); }
+    .bar-blur.is-menu .blur-tint, .bar-blur.is-menu::before, .bar-blur.is-menu::after { -webkit-mask-image:linear-gradient(to bottom, #000 calc(100% - 48px), transparent); mask-image:linear-gradient(to bottom, #000 calc(100% - 48px), transparent); }
+    /* 버튼은 모두 같은 규칙: 좌우 13px, 사이 0. 아이콘 버튼도 38px 폭 × 44px 높이가 되어 손가락으로 누르기 쉽다.
+       8px 이면 아이콘 버튼 폭이 29px 로 좁았다. 13px 이면 바 폭 약 343px — 360px 화면까지 한 줄 (사용자 재지적 2026-10-10) */
+    .mbar-lang { display:flex; gap:0; order:1; }
+    .mbar-btn { flex:none; width:44px; height:44px; display:inline-flex; align-items:center; justify-content:center; padding:0; border:0; background:transparent; color:var(--muted); font:500 14px/1 var(--font-sans); cursor:pointer; }
+    .mbar-btn.is-active { color:#000; font-weight:700; }
+    .mbar-lang .mbar-btn { width:auto; padding:0 13px; font:500 14px/1 var(--font-sans); white-space:nowrap; }
+    .mbar-lang .mbar-btn.is-active { font-weight:700; }
+    .mbar-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+    .mbar-btn svg { width:auto; height:16px; }
+    .mbar-dl, .mbar-menu { width:auto; padding:0 13px; }
+    @media (max-width:359px) { .mbar-lang .mbar-btn, .mbar-dl, .mbar-menu { padding:0 9px; } }
+    /* 글 끝 줄: 한 줄에 두면 제목이 두 줄로 꺾여 찌그러진다. 제목 아래에 맨 위로를 두고, 누르는 높이 44px */
+    .footer-top-row { flex-direction:column; align-items:flex-start; gap:8px; }
+    .footer-title { padding-top:8px; font-size:14px; }
+    .footer-top { min-height:44px; font-size:15px; } /* 13px 는 손가락 대상으로 작았다 (사용자 지적 2026-10-10) */
+    .mbar-dl { order:2; }
+    .mbar-menu { order:3; }
+    .mbar.is-open .mbar-menu { color:#000; }
+    .mbar-menu .ico-close, .mbar.is-open .mbar-menu .ico-open { display:none; }
+    .mbar.is-open .mbar-menu .ico-close { display:block; }
+    .mbar-nav { display:none; }
+    .mbar.is-open .mbar-nav { counter-reset:mtoc -1; display:flex; order:4; width:0; min-width:100%; flex-direction:column; gap:2px; padding:8px 16px 0 var(--en-left, 16px); } /* 목차 왼쪽을 EN 글자 왼쪽에 맞춘다 — 위치는 메뉴를 열 때 JS 가 잰다 (사용자 결정 2026-10-10) */
+    .mbar-nav a { display:flex; align-items:baseline; min-height:44px; padding:11px 0; font-size:16px; font-weight:500; line-height:1.35; color:var(--fg); text-decoration:none; }
+    .mbar-nav a.is-active { color:#000; font-weight:700; }
+    /* 데스크톱 목차와 같은 00~08 번호 */
+    .mbar-nav a { counter-increment:mtoc; }
+    .mbar-nav a::before { content:counter(mtoc, decimal-leading-zero); flex:none; width:26px; font:500 12px/1.65 var(--font-data); color:var(--muted); }
+    .mbar-nav a.is-active::before { color:#000; font-weight:700; }
+    .mbar-scrim.is-on { display:block; position:fixed; inset:0; z-index:19; }
+  }
+  /* 다국어: html[data-lang] 와 다른 언어 블록을 숨긴다 */
+  html:not([data-lang="en"]) [data-lang="en"],
+  html:not([data-lang="zh-Hant"]) [data-lang="zh-Hant"],
+  html:not([data-lang="ko"]) [data-lang="ko"],
+  html:not([data-lang="ja"]) [data-lang="ja"] { display:none !important; }
+  /* 글 끝 그래픽: Higgsfield의 화이트·아이스블루 서울 픽셀 파노라마. 화면 전체 폭·높이 300px. */
+  .seoul-band { position:relative; z-index:0; display:flex; justify-content:center; width:100%; height:300px; margin:220px 0 0; overflow:hidden; pointer-events:none; }
+  main { position:relative; z-index:1; }
+  /* 높이 300px에 맞춘 크기(약 1940px 폭)로만 그린다. 화면이 더 넓어도 키우지 않고 가운데 두며, 좁으면 양옆을 자른다 */
+  .seoul-band img { display:block; flex:none; width:auto; max-width:none; height:100%; }
+  /* 모바일: 위 간격 48px. 보이는 간격은 main 아래 여백 32px 와 그림 위 빈 하늘(약 86px)이 더해진 값이라, 그 합(맨 위로 → 스카이라인 약 166px)을 기준으로 정했다. 가운데 자르기는 남산타워(그림 폭 30% 지점)가 잘려 나가므로 28% 지점 기준으로 자른다 (사용자 결정 2026-10-10) */
+  @media (max-width:767px) {
+    .seoul-band { margin-top:48px; }
+    .seoul-band img { width:100%; object-fit:cover; object-position:28% 50%; }
+  }
+</style>
+</head>
+<body id="page-top">
+<a class="skip-link" href="#article-title"><span data-lang="en">Skip to content</span><span data-lang="zh-Hant">跳至內文</span><span data-lang="ko">본문 바로가기</span><span data-lang="ja">本文へスキップ</span></a>
+<div class="mbar-scrim" aria-hidden="true"></div>
+<div class="mbar">
+  <div class="mbar-lang" role="group" aria-label="Language selection" data-label-en="Language selection" data-label-zh-hant="語言選擇" data-label-ko="언어 선택" data-label-ja="言語の選択">
+    <button type="button" class="mbar-btn" data-set-lang="en" lang="en" aria-label="English" title="English">English</button>
+    <button type="button" class="mbar-btn" data-set-lang="zh-Hant" lang="zh-Hant" aria-label="繁體中文" title="繁體中文">繁中</button>
+    <button type="button" class="mbar-btn" data-set-lang="ja" lang="ja" aria-label="日本語" title="日本語">日本語</button>
+    <button type="button" class="mbar-btn" data-set-lang="ko" lang="ko" aria-label="한국어" title="한국어">한국어</button>
+  </div>
+  <a class="mbar-btn mbar-dl" href="#try" aria-label="Download ezZip" data-label-en="Download ezZip" data-label-zh-hant="下載 ezZip" data-label-ko="ezZip 다운로드" data-label-ja="ezZipをダウンロード"><svg viewBox="1.7 0 12.6 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v8m-3-3 3 3 3-3M2.5 10.5v3h11v-3"/></svg></a>
+  <button type="button" class="mbar-btn mbar-menu" aria-expanded="false" aria-controls="mbar-nav" aria-label="Contents" data-label-en="Contents" data-label-zh-hant="目錄" data-label-ko="목차" data-label-ja="目次"><svg class="ico-open" viewBox="1.6 0 12.8 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 5.5h11M2.5 10.5h11"/></svg><svg class="ico-close" viewBox="1.6 0 12.8 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9"/></svg></button>
+  <nav class="mbar-nav" id="mbar-nav" aria-label="Contents" data-label-en="Contents" data-label-zh-hant="目錄" data-label-ko="목차" data-label-ja="目次"></nav>
+</div>
+<div class="bar-blur" aria-hidden="true"><div class="blur-tint"></div></div>
+<header class="pbar">
+  <nav class="pbar-nav" aria-label="Contents" data-label-en="Contents" data-label-zh-hant="目錄" data-label-ko="목차" data-label-ja="目次">
+    <a class="pbar-ch" href="#article-title"><span class="pbar-num">00</span><span class="pbar-title"><span data-lang="en">Introduction</span><span data-lang="zh-Hant">前言</span><span data-lang="ko">들어가며</span><span data-lang="ja">はじめに</span></span></a>
+    <a class="pbar-ch" href="#result"><span class="pbar-num">01</span><span class="pbar-title"><span data-lang="en">Results first</span><span data-lang="zh-Hant">先看結果</span><span data-lang="ko">결과부터 보면</span><span data-lang="ja">まず結果から</span></span></a>
+    <a class="pbar-ch" href="#why-avalonia"><span class="pbar-num">02</span><span class="pbar-title"><span data-lang="en">Why Avalonia</span><span data-lang="zh-Hant">為什麼選擇 Avalonia</span><span data-lang="ko">왜 Avalonia였나</span><span data-lang="ja">なぜAvaloniaだったのか</span></span></a>
+    <a class="pbar-ch" href="#ui"><span class="pbar-num">03</span><span class="pbar-title"><span data-lang="en">Carrying over existing screens</span><span data-lang="zh-Hant">延續既有畫面</span><span data-lang="ko">기존 화면을 이어 쓰기</span><span data-lang="ja">既存画面の継承</span></span></a>
+    <a class="pbar-ch" href="#core"><span class="pbar-num">04</span><span class="pbar-title"><span data-lang="en">Core logic tied to Windows</span><span data-lang="zh-Hant">綁定 Windows 的核心處理</span><span data-lang="ko">Windows에 묶여 있던 핵심 처리</span><span data-lang="ja">Windowsに依存していたコア処理</span></span></a>
+    <a class="pbar-ch" href="#native-aot"><span class="pbar-num">05</span><span class="pbar-title"><span data-lang="en">Shipping with Native AOT</span><span data-lang="zh-Hant">以 Native AOT 發佈</span><span data-lang="ko">Native AOT로 배포하기까지</span><span data-lang="ja">Native AOTでの配布まで</span></span></a>
+    <a class="pbar-ch" href="#fonts"><span class="pbar-num">06</span><span class="pbar-title"><span data-lang="en">Unexpected font challenges</span><span data-lang="zh-Hant">出乎意料的字型問題</span><span data-lang="ko">예상과 달랐던 폰트 문제</span><span data-lang="ja">予想外だったフォントの課題</span></span></a>
+    <a class="pbar-ch" href="#ai"><span class="pbar-num">07</span><span class="pbar-title"><span data-lang="en">Dividing work with AI</span><span data-lang="zh-Hant">與 AI 的分工</span><span data-lang="ko">AI와 사람이 나눈 일</span><span data-lang="ja">AIと人が分担した作業</span></span></a>
+    <a class="pbar-ch" href="#try"><span class="pbar-num">08</span><span class="pbar-title"><span data-lang="en">Try it</span><span data-lang="zh-Hant">下載試用</span><span data-lang="ko">받아서 써보기</span><span data-lang="ja">ダウンロードして試す</span></span></a>
+  </nav>
+  <div class="pbar-tools" role="group" aria-label="Language selection" data-label-en="Language selection" data-label-zh-hant="語言選擇" data-label-ko="언어 선택" data-label-ja="言語の選択">
+    <button type="button" class="lang-btn is-active" data-set-lang="en" lang="en" aria-label="English" title="English">English</button>
+    <button type="button" class="lang-btn" data-set-lang="zh-Hant" lang="zh-Hant" aria-label="繁體中文" title="繁體中文">繁中</button>
+    <button type="button" class="lang-btn" data-set-lang="ja" lang="ja" aria-label="日本語" title="日本語">日本語</button>
+    <button type="button" class="lang-btn" data-set-lang="ko" lang="ko" aria-label="한국어" title="한국어">한국어</button>
+  </div>
+  <!-- 다운로드: 배포 링크가 생기면 OS를 자동 인식해 ezZip 설치 파일로 바꾼다. 지금은 "받아서 써보기" 절로 이동 -->
+  <a class="dl-btn" href="#try" aria-label="Download ezZip" data-label-en="Download ezZip" data-label-zh-hant="下載 ezZip" data-label-ko="ezZip 다운로드" data-label-ja="ezZipをダウンロード"><svg viewBox="1.7 0 12.6 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v8m-3-3 3 3 3-3M2.5 10.5v3h11v-3"/></svg></a>
+</header>
+<main>
+
+<!-- Tabler Icons "transform" — MIT License, Copyright (c) 2020-2024 Paweł Kuna (https://tabler.io/icons) -->
+<svg class="title-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/><path d="M21 11v-3a2 2 0 0 0 -2 -2h-6l3 3m0 -6l-3 3"/><path d="M3 13v3a2 2 0 0 0 2 2h6l-3 -3m0 6l3 -3"/><path d="M15 18a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></svg>
+<h1 id="article-title" tabindex="-1"><span data-lang="en">From WPF to Avalonia: Taking ezZip to macOS</span><span data-lang="zh-Hant">從 WPF 到 Avalonia：將 ezZip 帶到 macOS</span><span data-lang="ko">WPF에서 Avalonia로, ezZip을 macOS까지</span><span data-lang="ja">WPFからAvaloniaへ、ezZipをmacOSまで</span></h1>
+<div class="meta">
+  <div class="meta-author"><span data-lang="en">Min-gyu Jang</span><span data-lang="zh-Hant">張珉暌</span><span data-lang="ko">장민규</span><span data-lang="ja">チャン・ミンギュ</span><!-- F-024 --></div>
+  <div class="meta-details"><span class="meta-company"><svg class="meta-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 14V3h6.5v11M9.5 6.5H13V14M1.5 14h13M5 5.5h2M5 8h2M5 10.5h2"/></svg>MOBSOFT</span><span class="meta-separator" aria-hidden="true">/</span><time datetime="2026-10-07"><svg class="meta-ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/></svg><span data-lang="en">October 7, 2026</span><span data-lang="zh-Hant">2026年10月7日</span><span data-lang="ko">2026년 10월 7일</span><span data-lang="ja">2026年10月7日</span></time><span class="meta-separator" aria-hidden="true">/</span><span class="meta-readtime"><svg class="meta-ico" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.75"/><path d="M8 5v3.2l2.2 1.4"/></svg><span data-lang="en">13 min read</span><span data-lang="zh-Hant">閱讀約 13 分鐘</span><span data-lang="ko">13분</span><span data-lang="ja">読了時間 13分</span></span></div>
+  <ul class="meta-links">
+    <li><button type="button" class="meta-icon" data-copy="mg.jang@ezlab.im" aria-label="Copy email address: mg.jang@ezlab.im" data-label-en="Copy email address: mg.jang@ezlab.im" data-label-zh-hant="複製電子郵件地址：mg.jang@ezlab.im" data-label-ko="이메일 주소 복사: mg.jang@ezlab.im" data-label-ja="メールアドレスをコピー：mg.jang@ezlab.im"><svg class="icon-mail" viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="4" width="16" height="12" rx="2"/><path d="m3 5 7 5 7-5"/></svg><svg class="icon-check" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10.5 3.5 3.5 7-7"/></svg><span>mg.jang@ezlab.im</span></button></li>
+    <li><a class="meta-icon" href="https://ezlab.im/ko/tool/ezzip" data-ezlab target="_blank" rel="noopener" aria-label="Open ezZip website: ezlab.im/tool/ezzip" data-label-en="Open ezZip website: ezlab.im/tool/ezzip" data-label-zh-hant="開啟 ezZip 網站：ezlab.im/tool/ezzip" data-label-ko="ezZip 웹사이트 열기: ezlab.im/tool/ezzip" data-label-ja="ezZipのウェブサイトを開く：ezlab.im/tool/ezzip"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M2 10h16M10 2c2.2 2.3 3.2 5 3.2 8s-1 5.7-3.2 8c-2.2-2.3-3.2-5-3.2-8s1-5.7 3.2-8z"/></svg><span>ezlab.im</span></a></li>
+  </ul><!-- F-101 -->
+</div>
+
+<p data-lang="en">ezZip is a desktop utility for compressing and extracting files, used by up to around 80,000 people every day.<!-- F-105 --> It started as a Windows-only app built with WPF. It couldn't run on Mac, and even on Windows it required a separate .NET 8 desktop runtime installation.<!-- F-010 F-021 --> To make it usable on Mac while keeping the existing workflow, I started moving it to Avalonia UI in spring 2026.<!-- F-007 --></p>
+<p data-lang="zh-Hant">ezZip 是一款用於壓縮與解壓縮檔案的桌面工具程式，每天最多約有 8 萬人使用。<!-- F-105 -->它最初是以 WPF 開發、僅支援 Windows 的應用程式，無法在 Mac 上執行，即使在 Windows 上也需要另外安裝 .NET 8 Desktop 執行階段。<!-- F-010 F-021 -->為了在維持既有使用流程的同時也能在 Mac 上使用，我從 2026 年春季開始將它移植到 Avalonia UI。<!-- F-007 --></p>
+<p data-lang="ko">ezZip은 파일을 압축하고 푸는 데스크톱 유틸리티로, 매일 최대 약 8만 명이 이용하고 있습니다.<!-- F-105 --> 처음에는 WPF로 만든 Windows 전용 앱이었습니다. Mac에서는 사용할 수 없었고, Windows에서도 .NET 8 데스크톱 런타임을 따로 설치해야 했습니다.<!-- F-010 F-021 --> 기존 사용 흐름을 유지하면서 Mac에서도 쓸 수 있도록, 2026년 봄부터 Avalonia UI로 옮기기 시작했습니다.<!-- F-007 --></p>
+<p data-lang="ja">ezZipは、ファイルを圧縮・解凍するデスクトップ用ユーティリティで、毎日最大約8万人に利用されています。<!-- F-105 -->当初はWPFで作られたWindows専用アプリでした。Macでは使えず、Windowsでも.NET 8デスクトップランタイムを別途インストールする必要がありました。<!-- F-010 F-021 -->これまでの使い慣れた操作感を保ちながらMacでも使えるよう、2026年春からAvalonia UIへの移植を始めました。<!-- F-007 --></p>
+
+<p data-lang="en">Today, a single codebase on Avalonia UI 12.1.3 and .NET 10 produces both the Windows and macOS editions, compiled with Native AOT to run standalone without any external .NET runtime.<!-- F-010 F-021 F-102 --> The main window keeps the same set of features, and on Mac I made the Finder context menu and toolbar, progress gauges on file icons, the Dock progress bar, and menu bar shortcuts available.<!-- F-029 F-030 F-034 F-056 --> Virus scanning before extraction remains Windows-only for now.<!-- F-037 --> The Windows and macOS editions are nearly complete; iOS and Android work is planned for next year, and Linux is under consideration at the company level.<!-- F-010 F-084 F-104 --></p>
+<p data-lang="zh-Hant">如今，單一程式碼基底以 Avalonia UI 12.1.3 與 .NET 10 同時產出 Windows 與 macOS 版本，兩者皆以 Native AOT 編譯，無需外部 .NET 執行階段即可執行。<!-- F-010 F-021 F-102 -->主視窗的功能組成維持不變，在 Mac 上則可以使用 Finder 的右鍵選單與工具列、檔案圖示上的進度指示、Dock 進度列，以及選單列的快速鍵。<!-- F-029 F-030 F-034 F-056 -->解壓縮前的防毒掃描目前仍僅支援 Windows。<!-- F-037 -->Windows 與 macOS 版本已接近完成；iOS 與 Android 預計於明年著手，Linux 則在公司層級評估中。<!-- F-010 F-084 F-104 --></p>
+<p data-lang="ko">지금은 Avalonia UI 12.1.3과 .NET 10 기반의 코드 한 벌로 Windows와 macOS 버전을 만들고, 두 버전 모두 Native AOT로 컴파일해 별도의 .NET 런타임 없이 실행합니다.<!-- F-010 F-021 F-102 --> 메인 창의 기능 구성은 유지하되, Mac에서는 Finder 우클릭 메뉴와 툴바, 파일 아이콘의 진행 게이지, Dock 진행 막대, 메뉴 바 단축키를 사용할 수 있게 했습니다.<!-- F-029 F-030 F-034 F-056 --> 압축 풀기 전 바이러스 검사는 아직 Windows에서만 지원합니다.<!-- F-037 --> Windows와 macOS 버전은 거의 완성됐고, 내년에는 iOS와 Android를 작업할 예정이며 Linux도 회사 차원에서 검토 중입니다.<!-- F-010 F-084 F-104 --></p>
+<p data-lang="ja">現在は、Avalonia UI 12.1.3と.NET 10をベースにした一つのコードからWindows版とmacOS版をビルドし、どちらもNative AOTでコンパイルして、別途.NETランタイムを用意せずに実行しています。<!-- F-010 F-021 F-102 -->メインウィンドウの機能構成は維持しつつ、MacではFinderの右クリックメニューとツールバー、ファイルアイコンの進捗ゲージ、Dockの進捗バー、メニューバーのショートカットを使えるようにしました。<!-- F-029 F-030 F-034 F-056 -->解凍前のウイルス検査は、現時点ではWindowsのみの対応です。<!-- F-037 -->Windows版とmacOS版はほぼ完成しており、来年はiOSとAndroidに取り組む予定で、Linuxも会社として検討しています。<!-- F-010 F-084 F-104 --></p>
+
+<p data-lang="en">I did this work alone, using several AI services,<!-- F-023 F-060 --> and it took about 4.5 months.<!-- F-025 --> This article covers the parts I moved over as they were, the parts I redesigned, and the problems I ran into during the port and how I solved them. It also covers the work I left to AI and the points where a person had to make the decision.</p>
+<p data-lang="zh-Hant">我運用多個 AI 服務獨自完成了這次移植，<!-- F-023 F-060 -->歷時約 4.5 個月。<!-- F-025 -->本文整理哪些部分沿用既有實作、哪些部分重新設計，以及移植過程中遇到的問題與解決方式，也會談到交給 AI 的工作與需要由人判斷的地方。</p>
+<p data-lang="ko">혼자서 여러 AI 서비스를 활용해 작업했고,<!-- F-023 F-060 --> 작업 기간은 약 4.5개월입니다.<!-- F-025 --> 이 글에서는 기존 구현을 그대로 옮긴 부분과 다시 설계한 부분, 이식 중 겪은 문제와 해결 과정을 정리합니다. AI에 맡긴 작업과 사람이 판단해야 했던 지점도 함께 다룹니다.</p>
+<p data-lang="ja">複数のAIサービスを活用して1人で作業を進め、<!-- F-023 F-060 -->作業期間は約4.5か月でした。<!-- F-025 -->本稿では、既存の実装をそのまま移した部分と設計し直した部分、移植中に直面した問題とその解決過程をまとめます。AIに任せた作業と、人が判断しなければならなかった点についても取り上げます。</p>
+
+<h2 id="result"><span data-lang="en">Results first</span><span data-lang="zh-Hant">先看結果</span><span data-lang="ko">결과부터 보면</span><span data-lang="ja">まず結果から</span></h2>
+
+<p data-lang="en">The first thing I tried to keep during the port was the screens and task order that existing users were used to. Comparing the Windows screens below, the main window's features and their layout are almost unchanged after the framework changed from WPF to Avalonia UI. The settings window also keeps the same layout, as shown at the bottom of FIG A.<!-- F-056 --></p>
+<p data-lang="zh-Hant">移植時最優先的目標，是保留使用者熟悉的介面與操作流程。如下方 Windows 上的比較所示，將框架從 WPF 換成 Avalonia UI 後，主視窗的功能組成與配置幾乎維持原樣。設定視窗也維持了原有結構，如 FIG A 下排所示。<!-- F-056 --></p>
+<p data-lang="ko">이식하면서 가장 먼저 지키려 한 것은 기존 사용자가 익숙한 화면과 작업 순서였습니다. 아래의 Windows 화면을 비교하면, WPF에서 Avalonia UI로 프레임워크를 바꾼 뒤에도 메인 창의 기능 구성과 배치는 거의 그대로입니다. 설정 창도 같은 구성을 유지했으며, FIG A의 하단에서 확인할 수 있습니다.<!-- F-056 --></p>
+<p data-lang="ja">移植にあたって最優先したのは、既存ユーザーが慣れ親しんだ画面と操作の流れを守ることでした。下のWindows版の画面を比べると、WPFからAvalonia UIへフレームワークを移行した後も、メインウィンドウの機能構成と配置はほぼそのままです。設定画面も同じ構成を維持しており、FIG Aの下段で確認できます。<!-- F-056 --></p>
+
+<figure>
+  <div class="stack">
+    <div><div class="lbl"><span data-lang="en">WPF Version</span><span data-lang="zh-Hant">WPF 版</span><span data-lang="ko">WPF 버전</span><span data-lang="ja">WPF版</span></div><img src="assets/before_main.png" alt="ezZip main window, WPF version" data-alt-en="ezZip main window, WPF version" data-alt-zh-hant="ezZip 主視窗，WPF 版" data-alt-ko="ezZip 메인 창, WPF 버전" data-alt-ja="ezZipのメインウィンドウ、WPF版" width="940" height="527" loading="lazy" decoding="async"></div>
+    <div><div class="lbl"><span data-lang="en">Avalonia Version</span><span data-lang="zh-Hant">Avalonia 版</span><span data-lang="ko">Avalonia 버전</span><span data-lang="ja">Avalonia版</span></div><img src="assets/after_win_main.png" alt="ezZip main window, Avalonia version" data-alt-en="ezZip main window, Avalonia version" data-alt-zh-hant="ezZip 主視窗，Avalonia 版" data-alt-ko="ezZip 메인 창, Avalonia 버전" data-alt-ja="ezZipのメインウィンドウ、Avalonia版" width="940" height="527" loading="lazy" decoding="async"></div>
+  </div>
+  <div class="stack" style="grid-template-columns:1fr 1fr;margin-top:16px">
+    <div><div class="lbl"><span data-lang="en">Settings, WPF Version</span><span data-lang="zh-Hant">設定視窗，WPF 版</span><span data-lang="ko">설정 창, WPF 버전</span><span data-lang="ja">設定画面、WPF版</span></div><img src="assets/before_settings.png" alt="ezZip settings window, WPF version" data-alt-en="ezZip settings window, WPF version" data-alt-zh-hant="ezZip 設定視窗，WPF 版" data-alt-ko="ezZip 설정 창, WPF 버전" data-alt-ja="ezZipの設定画面、WPF版" width="630" height="570" loading="lazy" decoding="async"></div>
+    <div><div class="lbl"><span data-lang="en">Settings, Avalonia Version</span><span data-lang="zh-Hant">設定視窗，Avalonia 版</span><span data-lang="ko">설정 창, Avalonia 버전</span><span data-lang="ja">設定画面、Avalonia版</span></div><img src="assets/after_win_settings.png" alt="ezZip settings window, Avalonia version on Windows" data-alt-en="ezZip settings window, Avalonia version on Windows" data-alt-zh-hant="ezZip 設定視窗，Windows 上的 Avalonia 版" data-alt-ko="ezZip 설정 창, Windows의 Avalonia 버전" data-alt-ja="ezZipの設定画面、Windows上のAvalonia版" width="630" height="570" loading="lazy" decoding="async"></div>
+  </div>
+  <figcaption data-lang="en"><b>FIG A</b> Main window, WPF version (top) and Avalonia version (bottom); settings window, WPF (left) and Avalonia (right)<span class="cond">Windows 11 · English UI · Same window dimensions</span></figcaption>
+<figcaption data-lang="zh-Hant"><b>FIG A</b> 主視窗的 WPF 版（上）與 Avalonia 版（下），設定視窗的 WPF（左）與 Avalonia（右）<span class="cond">Windows 11 · 英文介面 · 相同尺寸</span></figcaption>
+<figcaption data-lang="ko"><b>FIG A</b> 메인 창의 WPF 버전(위)과 Avalonia 버전(아래), 설정 창의 WPF 버전(왼쪽)과 Avalonia 버전(오른쪽)<span class="cond">Windows 11 · 영어 UI · 같은 창 크기</span></figcaption>
+<figcaption data-lang="ja"><b>FIG A</b> メインウィンドウ、WPF版（上）とAvalonia版（下）、設定画面、WPF版（左）とAvalonia版（右）<span class="cond">Windows 11 · 英語UI · 同一ウィンドウサイズ</span></figcaption>
+</figure>
+
+<p data-lang="en">Comparing the toolbar up close makes this clearer. I kept the order and grouping of the 11 functions, from opening an archive to settings, so existing users do not have to learn the menu positions again.<!-- F-056 --> However, the 'Compress' and 'Extract' icons, which had been swapped in the WPF version, are corrected in the Avalonia UI version.<!-- F-080 --></p>
+<p data-lang="zh-Hant">放大工具列比較會更清楚。從開啟壓縮檔到設定，我保留了十一項功能的順序與分組，讓既有使用者不必重新熟悉選單位置。<!-- F-056 -->不過，WPF 版中互相對調的「壓縮」與「解壓縮」圖示，已在 Avalonia UI 版中修正。<!-- F-080 --></p>
+<p data-lang="ko">도구 모음을 확대해 비교하면 더 분명합니다. 압축 파일 열기부터 설정까지 11개 기능의 순서와 묶음을 유지해, 기존 사용자가 메뉴 위치를 다시 익히지 않아도 되도록 했습니다.<!-- F-056 --> 다만 WPF 버전에서 서로 뒤바뀌어 있던 ‘압축하기’와 ‘압축 풀기’ 아이콘은 Avalonia UI 버전에서 바로잡았습니다.<!-- F-080 --></p>
+<p data-lang="ja">ツールバーを拡大して比べると、さらにはっきりします。圧縮ファイルを開く操作から設定まで、11の機能の順序とまとまりを維持し、既存ユーザーがメニューの位置を覚え直さなくて済むようにしました。<!-- F-056 -->ただし、WPF版で入れ替わっていた「圧縮」と「解凍」のアイコンは、Avalonia UI版で正しく直しました。<!-- F-080 --></p>
+
+<figure>
+  <div class="stack">
+    <div><div class="lbl"><span data-lang="en">WPF Version</span><span data-lang="zh-Hant">WPF 版</span><span data-lang="ko">WPF 버전</span><span data-lang="ja">WPF版</span></div><img src="assets/before_toolbar.png" alt="Toolbar close-up, WPF version" data-alt-en="Toolbar close-up, WPF version" data-alt-zh-hant="工具列特寫，WPF 版" data-alt-ko="툴바 확대, WPF 버전" data-alt-ja="ツールバーの拡大、WPF版" width="940" height="122" loading="lazy" decoding="async"></div>
+    <div><div class="lbl"><span data-lang="en">Avalonia Version</span><span data-lang="zh-Hant">Avalonia 版</span><span data-lang="ko">Avalonia 버전</span><span data-lang="ja">Avalonia版</span></div><img src="assets/after_win_toolbar.png" alt="Toolbar close-up, Avalonia version" data-alt-en="Toolbar close-up, Avalonia version" data-alt-zh-hant="工具列特寫，Avalonia 版" data-alt-ko="툴바 확대, Avalonia 버전" data-alt-ja="ツールバーの拡大、Avalonia版" width="940" height="122" loading="lazy" decoding="async"></div>
+  </div>
+  <figcaption data-lang="en"><b>FIG B</b> Toolbar detail<span class="cond">Retained functional order and layout, while correcting previously reversed compress/extract icons<!-- F-080 --></span></figcaption>
+<figcaption data-lang="zh-Hant"><b>FIG B</b> 工具列細節<span class="cond">保留順序與配置，並修正先前對調的壓縮／解壓縮圖示<!-- F-080 --></span></figcaption>
+<figcaption data-lang="ko"><b>FIG B</b> 도구 모음 확대<span class="cond">기능 순서와 배치는 유지하고, 뒤바뀌어 있던 압축하기·압축 풀기 아이콘은 수정했습니다<!-- F-080 --></span></figcaption>
+<figcaption data-lang="ja"><b>FIG B</b> ツールバーの拡大<span class="cond">機能の順序と配置は維持し、入れ替わっていた圧縮・解凍アイコンを修正しました<!-- F-080 --></span></figcaption>
+</figure>
+
+<h3><span data-lang="en">Extending to Finder and Dock on Mac</span><span data-lang="zh-Hant">在 Mac 上延伸至 Finder 與 Dock</span><span data-lang="ko">Mac에서는 Finder와 Dock까지</span><span data-lang="ja">MacではFinderとDockまで</span></h3>
+
+<p data-lang="en">The macOS version uses the same main screen, but the way tasks are started and progress is checked from outside the app follows the Mac. Compression can be started from the Finder context menu and toolbar, and progress can be seen on file icons and in the Dock. Mac shortcuts are mapped to the menu bar.<!-- F-029 F-030 F-034 --></p>
+<p data-lang="zh-Hant">macOS 版也使用相同的主畫面，但從應用程式外開始作業、查看進度的方式則配合 Mac 調整。可以從 Finder 的右鍵選單與工具列開始壓縮，並在檔案圖示與 Dock 上查看進度。選單列也對應了 Mac 的快速鍵。<!-- F-029 F-030 F-034 --></p>
+<p data-lang="ko">macOS 버전도 같은 메인 화면을 사용하지만, 앱 밖에서 작업을 시작하고 진행 상황을 확인하는 방식은 Mac에 맞췄습니다. Finder의 우클릭 메뉴와 툴바에서 압축 작업을 시작하고, 파일 아이콘과 Dock에서 진행 상황을 볼 수 있습니다. 메뉴 바에는 Mac 단축키를 연결했습니다.<!-- F-029 F-030 F-034 --></p>
+<p data-lang="ja">macOS版も同じメイン画面を使いますが、アプリの外から作業を始めたり進捗を確認したりする方法はMacに合わせました。Finderの右クリックメニューとツールバーから圧縮を開始でき、ファイルアイコンとDockで進捗を確認できます。メニューバーにはMacのショートカットを割り当てました。<!-- F-029 F-030 F-034 --></p>
+
+<figure>
+  <div class="grid2">
+    <img class="wide" src="assets/after_mac_main.png" alt="ezZip main window, macOS version" data-alt-en="ezZip main window, macOS version" data-alt-zh-hant="ezZip 主視窗，macOS 版" data-alt-ko="ezZip 메인 창, macOS 버전" data-alt-ja="ezZipのメインウィンドウ、macOS版" width="1880" height="1054" loading="lazy" decoding="async">
+    <img class="wide" src="assets/after_mac_finder_toolbar.png" alt="ezZip menu in the Finder toolbar" data-alt-en="ezZip menu in the Finder toolbar" data-alt-zh-hant="Finder 工具列中的 ezZip 選單" data-alt-ko="Finder 툴바의 ezZip 메뉴" data-alt-ja="FinderツールバーのezZipメニュー" width="2200" height="890" loading="lazy" decoding="async">
+    <div class="wide mac-progress-pair">
+      <img src="assets/after_mac_finder_gauge.png" alt="Finder progress gauge on a zip icon during compression" data-alt-en="Finder progress gauge on a zip icon during compression" data-alt-zh-hant="壓縮時 zip 圖示上的 Finder 進度指示" data-alt-ko="압축 중 zip 아이콘에 표시된 Finder 진행 게이지" data-alt-ja="圧縮中のzipアイコンに表示されるFinderの進捗ゲージ" width="940" height="360" loading="lazy" decoding="async">
+      <img src="assets/after_mac_dock.png" alt="Progress bar on the Dock icon" data-alt-en="Progress bar on the Dock icon" data-alt-zh-hant="Dock 圖示上的進度列" data-alt-ko="Dock 아이콘의 진행 막대" data-alt-ja="Dockアイコンの進捗バー" width="720" height="218" loading="lazy" decoding="async">
+    </div>
+    <img class="wide" src="assets/after_mac_menubar.png" alt="macOS menu bar File menu with shortcuts" data-alt-en="macOS menu bar File menu with shortcuts" data-alt-zh-hant="macOS 選單列的檔案選單與快速鍵" data-alt-ko="단축키가 표시된 macOS 메뉴 바 파일 메뉴" data-alt-ja="ショートカット付きのmacOSメニューバーの「ファイル」メニュー" width="660" height="544" loading="lazy" decoding="async">
+  </div>
+  <figcaption data-lang="en"><b>FIG C</b> macOS edition of ezZip<span class="cond">From top: main window, ezZip Finder toolbar menu, file icon progress gauge and Dock progress bar during compression, menu bar shortcuts · macOS Tahoe · English UI</span></figcaption>
+<figcaption data-lang="zh-Hant"><b>FIG C</b> ezZip macOS 版<span class="cond">由上而下：主視窗、Finder 工具列中的 ezZip 選單、圖示上的進度指示與 Dock 進度列、選單列快速鍵 · macOS Tahoe · 英文介面</span></figcaption>
+<figcaption data-lang="ko"><b>FIG C</b> macOS 버전 ezZip<span class="cond">위에서부터 메인 창, Finder 툴바의 ezZip 메뉴, 압축 중인 파일 아이콘의 진행 게이지와 Dock 진행 막대, 메뉴 바의 단축키 · macOS Tahoe · 영어 UI</span></figcaption>
+<figcaption data-lang="ja"><b>FIG C</b> macOS版ezZip<span class="cond">上から：メインウィンドウ、FinderツールバーのezZipメニュー、圧縮中のファイルアイコン進捗ゲージとDock進捗バー、メニューバーショートカット · macOS Tahoe · 英語UI</span></figcaption>
+</figure>
+
+<h3><span data-lang="en">Faster execution behind the same interface</span><span data-lang="zh-Hant">介面不變，執行時間縮短</span><span data-lang="ko">화면을 유지하면서 줄인 실행 시간</span><span data-lang="ja">画面はそのままに、実行時間を短縮</span></h3>
+
+<p data-lang="en">The screen layout stayed the same, but the internal implementation changed considerably. In addition to Native AOT and UI display improvements, I also reworked the compression and extraction engine, and window launch, compression and extraction times measured on the same PC went down. The chart below separates the contribution of the app port from that of the engine improvements. The comparison method and test conditions are folded below the chart.<!-- F-079 --></p>
+<p data-lang="zh-Hant">畫面組成維持不變，內部實作則有很大的改變。除了 Native AOT 與 UI 顯示方面的改善，我也調整了壓縮與解壓縮引擎；在同一台電腦上比較，視窗顯示與壓縮、解壓縮的作業時間都縮短了。下圖分別列出應用程式移植與引擎改善的貢獻率。比較方法與量測條件收合在圖表下方。<!-- F-079 --></p>
+<p data-lang="ko">기존 화면 구성은 유지하되, 내부 구현은 크게 달라졌습니다. Native AOT와 UI 표시 관련 개선에 더해 압축·해제 엔진도 손봤고, 같은 PC에서 비교한 창 표시와 압축·해제 작업 시간이 줄었습니다. 아래에서는 앱 이식과 엔진 개선의 기여율을 구분했습니다. 비교 방법과 측정 조건은 그래프 아래에 접어 두었습니다.<!-- F-079 --></p>
+<p data-lang="ja">画面構成は維持しつつ、内部の実装は大きく変わりました。Native AOTやUI表示の改善に加えて圧縮・解凍エンジンにも手を入れ、同一PCで比較したウィンドウ表示と圧縮・解凍の処理時間が短縮されました。下図では、アプリ移植とエンジン改善の寄与率を分けて示しています。比較方法と測定条件はグラフの下に折りたたんでいます。<!-- F-079 --></p>
+
+<figure id="fig-a" class="perf perf-readable">
+<div class="decomp-legend"><span><i class="key-wpf"></i><span data-lang="en">Legacy WPF</span><span data-lang="zh-Hant">舊版 WPF</span><span data-lang="ko">기존 WPF</span><span data-lang="ja">従来のWPF</span></span><span><i class="key-ava"></i><span data-lang="en">Avalonia Share</span><span data-lang="zh-Hant">Avalonia 貢獻</span><span data-lang="ko">Avalonia 기여율</span><span data-lang="ja">Avalonia寄与分</span></span><span><i class="key-engine"></i><span data-lang="en">Engine Share</span><span data-lang="zh-Hant">引擎貢獻</span><span data-lang="ko">엔진 기여율</span><span data-lang="ja">エンジン寄与分</span></span></div>
+<p class="perf-explainer" data-lang="en"><b>Avalonia</b>: Porting gains including Native AOT and faster UI display (estimated)<br><b>Engine</b>: Compression and extraction engine improvements</p>
+<p class="perf-explainer" data-lang="zh-Hant"><b>Avalonia</b>：Native AOT、UI 顯示速度改善等應用程式移植的效果（估計）<br><b>引擎</b>：壓縮與解壓縮引擎的改善效果</p>
+<p class="perf-explainer" data-lang="ko"><b>Avalonia</b>: Native AOT·UI 표시 속도 개선 등 앱 이식 효과(추정)<br><b>엔진</b>: 압축·해제 엔진 개선 효과</p>
+<p class="perf-explainer" data-lang="ja"><b>Avalonia</b>: Native AOTやUI描画速度の改善など、アプリ移植による効果（推定）<br><b>エンジン</b>: 圧縮・解凍エンジンの改善効果</p>
+<section class="perf-section"><h4><span data-lang="en">Window Launch</span><span data-lang="zh-Hant">視窗顯示</span><span data-lang="ko">창 표시</span><span data-lang="ja">ウィンドウ表示</span></h4>
+<div class="perf-result"><div class="result-heading"><span><span data-lang="en">Main Window</span><span data-lang="zh-Hant">主視窗</span><span data-lang="ko">메인 창</span><span data-lang="ja">メインウィンドウ</span></span></div>
+<div class="decomp-chart"><div class="decomp-row"><span><span data-lang="en">Legacy WPF</span><span data-lang="zh-Hant">舊版 WPF</span><span data-lang="ko">기존 WPF</span><span data-lang="ja">従来のWPF</span></span><div class="decomp-track"><div class="decomp-baseline" aria-hidden="true"></div><span class="decomp-value" style="left:100%">857 ms</span></div></div>
+<div class="decomp-row"><span><span data-lang="en">Current Avalonia</span><span data-lang="zh-Hant">目前 Avalonia</span><span data-lang="ko">현재 Avalonia</span><span data-lang="ja">現在のAvalonia</span></span><div class="decomp-track"><div class="decomp-current" style="width:60.240401%" aria-hidden="true"><i class="segment-ava" style="width:100.000000%"></i><i class="segment-engine" style="width:0.000000%"></i></div><span class="decomp-value" style="left:60.240401%">516 ms<span class="result-speed"><span data-lang="en"><b>1.66×</b> faster</span><span data-lang="zh-Hant">快 <b>1.66 倍</b></span><span data-lang="ko"><b>1.66배</b> 빨라짐</span><span data-lang="ja"><b>1.66倍</b> 高速化</span></span></span></div></div>
+<div class="decomp-annotation"><p><b>Avalonia 100%</b><span> · <b class="engine"><span data-lang="en">Engine </span><span data-lang="zh-Hant">引擎 </span><span data-lang="ko">엔진 </span><span data-lang="ja">エンジン </span>0%</b></span></p></div></div>
+</div>
+</section>
+<section class="perf-section"><h4><span data-lang="en">Compression</span><span data-lang="zh-Hant">壓縮</span><span data-lang="ko">압축하기</span><span data-lang="ja">圧縮</span></h4>
+<div class="perf-result"><div class="result-heading"><span><span data-lang="en">Source Tree</span><span data-lang="zh-Hant">原始碼樹</span><span data-lang="ko">소스 트리</span><span data-lang="ja">ソースツリー</span></span></div>
+<div class="decomp-chart"><div class="decomp-row"><span><span data-lang="en">Legacy WPF</span><span data-lang="zh-Hant">舊版 WPF</span><span data-lang="ko">기존 WPF</span><span data-lang="ja">従来のWPF</span></span><div class="decomp-track"><div class="decomp-baseline" aria-hidden="true"></div><span class="decomp-value" style="left:100%">1,834 ms</span></div></div>
+<div class="decomp-row"><span><span data-lang="en">Current Avalonia</span><span data-lang="zh-Hant">目前 Avalonia</span><span data-lang="ko">현재 Avalonia</span><span data-lang="ja">現在のAvalonia</span></span><div class="decomp-track"><div class="decomp-current" style="width:58.353775%" aria-hidden="true"><i class="segment-ava" style="width:49.813753%"></i><i class="segment-engine" style="width:50.186247%"></i></div><span class="decomp-value" style="left:58.353775%">1,070 ms<span class="result-speed"><span data-lang="en"><b>1.71×</b> faster</span><span data-lang="zh-Hant">快 <b>1.71 倍</b></span><span data-lang="ko"><b>1.71배</b> 빨라짐</span><span data-lang="ja"><b>1.71倍</b> 高速化</span></span></span></div></div>
+<div class="decomp-annotation"><p><b>Avalonia 50%</b><span> · <b class="engine"><span data-lang="en">Engine </span><span data-lang="zh-Hant">引擎 </span><span data-lang="ko">엔진 </span><span data-lang="ja">エンジン </span>50%</b></span></p></div></div>
+</div>
+<div class="perf-result"><div class="result-heading"><span><span data-lang="en">Mixed Docs & Binaries</span><span data-lang="zh-Hant">文件與二進位檔混合</span><span data-lang="ko">문서·바이너리 혼합</span><span data-lang="ja">文書・バイナリ混在</span></span></div>
+<div class="decomp-chart"><div class="decomp-row"><span><span data-lang="en">Legacy WPF</span><span data-lang="zh-Hant">舊版 WPF</span><span data-lang="ko">기존 WPF</span><span data-lang="ja">従来のWPF</span></span><div class="decomp-track"><div class="decomp-baseline" aria-hidden="true"></div><span class="decomp-value" style="left:100%">1,607 ms</span></div></div>
+<div class="decomp-row"><span><span data-lang="en">Current Avalonia</span><span data-lang="zh-Hant">目前 Avalonia</span><span data-lang="ko">현재 Avalonia</span><span data-lang="ja">現在のAvalonia</span></span><div class="decomp-track"><div class="decomp-current" style="width:49.917525%" aria-hidden="true"><i class="segment-ava" style="width:57.889170%"></i><i class="segment-engine" style="width:42.110830%"></i></div><span class="decomp-value" style="left:49.917525%">802 ms<span class="result-speed"><span data-lang="en"><b>2.00×</b> faster</span><span data-lang="zh-Hant">快 <b>2.00 倍</b></span><span data-lang="ko"><b>2.00배</b> 빨라짐</span><span data-lang="ja"><b>2.00倍</b> 高速化</span></span></span></div></div>
+<div class="decomp-annotation"><p><b>Avalonia 58%</b><span> · <b class="engine"><span data-lang="en">Engine </span><span data-lang="zh-Hant">引擎 </span><span data-lang="ko">엔진 </span><span data-lang="ja">エンジン </span>42%</b></span></p></div></div>
+</div>
+<div class="perf-result"><div class="result-heading"><span><span data-lang="en">Silesia Corpus</span><span data-lang="zh-Hant">Silesia 語料庫</span><span data-lang="ko">Silesia 코퍼스</span><span data-lang="ja">Silesiaコーパス</span></span></div>
+<div class="decomp-chart"><div class="decomp-row"><span><span data-lang="en">Legacy WPF</span><span data-lang="zh-Hant">舊版 WPF</span><span data-lang="ko">기존 WPF</span><span data-lang="ja">従来のWPF</span></span><div class="decomp-track"><div class="decomp-baseline" aria-hidden="true"></div><span class="decomp-value" style="left:100%">4,529 ms</span></div></div>
+<div class="decomp-row"><span><span data-lang="en">Current Avalonia</span><span data-lang="zh-Hant">目前 Avalonia</span><span data-lang="ko">현재 Avalonia</span><span data-lang="ja">現在のAvalonia</span></span><div class="decomp-track"><div class="decomp-current" style="width:18.113070%" aria-hidden="true"><i class="segment-ava" style="width:12.377920%"></i><i class="segment-engine" style="width:87.622080%"></i></div><span class="decomp-value" style="left:18.113070%">820 ms<span class="result-speed"><span data-lang="en"><b>5.52×</b> faster</span><span data-lang="zh-Hant">快 <b>5.52 倍</b></span><span data-lang="ko"><b>5.52배</b> 빨라짐</span><span data-lang="ja"><b>5.52倍</b> 高速化</span></span></span></div></div>
+<div class="decomp-annotation"><p><b>Avalonia 12%</b><span> · <b class="engine"><span data-lang="en">Engine </span><span data-lang="zh-Hant">引擎 </span><span data-lang="ko">엔진 </span><span data-lang="ja">エンジン </span>88%</b></span></p></div></div>
+</div>
+</section>
+<section class="perf-section"><h4><span data-lang="en">Extraction</span><span data-lang="zh-Hant">解壓縮</span><span data-lang="ko">압축 풀기</span><span data-lang="ja">解凍</span></h4>
+<div class="perf-result"><div class="result-heading"><span><span data-lang="en">Source Tree</span><span data-lang="zh-Hant">原始碼樹</span><span data-lang="ko">소스 트리</span><span data-lang="ja">ソースツリー</span></span></div>
+<div class="decomp-chart"><div class="decomp-row"><span><span data-lang="en">Legacy WPF</span><span data-lang="zh-Hant">舊版 WPF</span><span data-lang="ko">기존 WPF</span><span data-lang="ja">従来のWPF</span></span><div class="decomp-track"><div class="decomp-baseline" aria-hidden="true"></div><span class="decomp-value" style="left:100%">7,781 ms</span></div></div>
+<div class="decomp-row"><span><span data-lang="en">Current Avalonia</span><span data-lang="zh-Hant">目前 Avalonia</span><span data-lang="ko">현재 Avalonia</span><span data-lang="ja">現在のAvalonia</span></span><div class="decomp-track"><div class="decomp-current" style="width:25.884492%" aria-hidden="true"><i class="segment-ava" style="width:9.819329%"></i><i class="segment-engine" style="width:90.180671%"></i></div><span class="decomp-value" style="left:25.884492%">2,014 ms<span class="result-speed"><span data-lang="en"><b>3.86×</b> faster</span><span data-lang="zh-Hant">快 <b>3.86 倍</b></span><span data-lang="ko"><b>3.86배</b> 빨라짐</span><span data-lang="ja"><b>3.86倍</b> 高速化</span></span></span></div></div>
+<div class="decomp-annotation"><p><b>Avalonia 10%</b><span> · <b class="engine"><span data-lang="en">Engine </span><span data-lang="zh-Hant">引擎 </span><span data-lang="ko">엔진 </span><span data-lang="ja">エンジン </span>90%</b></span></p></div></div>
+</div>
+<div class="perf-result"><div class="result-heading"><span><span data-lang="en">Mixed Docs & Binaries</span><span data-lang="zh-Hant">文件與二進位檔混合</span><span data-lang="ko">문서·바이너리 혼합</span><span data-lang="ja">文書・バイナリ混在</span></span></div>
+<div class="decomp-chart"><div class="decomp-row"><span><span data-lang="en">Legacy WPF</span><span data-lang="zh-Hant">舊版 WPF</span><span data-lang="ko">기존 WPF</span><span data-lang="ja">従来のWPF</span></span><div class="decomp-track"><div class="decomp-baseline" aria-hidden="true"></div><span class="decomp-value" style="left:100%">2,206 ms</span></div></div>
+<div class="decomp-row"><span><span data-lang="en">Current Avalonia</span><span data-lang="zh-Hant">目前 Avalonia</span><span data-lang="ko">현재 Avalonia</span><span data-lang="ja">現在のAvalonia</span></span><div class="decomp-track"><div class="decomp-current" style="width:38.790407%" aria-hidden="true"><i class="segment-ava" style="width:38.445808%"></i><i class="segment-engine" style="width:61.554192%"></i></div><span class="decomp-value" style="left:38.790407%">856 ms<span class="result-speed"><span data-lang="en"><b>2.58×</b> faster</span><span data-lang="zh-Hant">快 <b>2.58 倍</b></span><span data-lang="ko"><b>2.58배</b> 빨라짐</span><span data-lang="ja"><b>2.58倍</b> 高速化</span></span></span></div></div>
+<div class="decomp-annotation"><p><b>Avalonia 38%</b><span> · <b class="engine"><span data-lang="en">Engine </span><span data-lang="zh-Hant">引擎 </span><span data-lang="ko">엔진 </span><span data-lang="ja">エンジン </span>62%</b></span></p></div></div>
+</div>
+<div class="perf-result"><div class="result-heading"><span><span data-lang="en">Silesia Corpus</span><span data-lang="zh-Hant">Silesia 語料庫</span><span data-lang="ko">Silesia 코퍼스</span><span data-lang="ja">Silesiaコーパス</span></span></div>
+<div class="decomp-chart"><div class="decomp-row"><span><span data-lang="en">Legacy WPF</span><span data-lang="zh-Hant">舊版 WPF</span><span data-lang="ko">기존 WPF</span><span data-lang="ja">従来のWPF</span></span><div class="decomp-track"><div class="decomp-baseline" aria-hidden="true"></div><span class="decomp-value" style="left:100%">1,742 ms</span></div></div>
+<div class="decomp-row"><span><span data-lang="en">Current Avalonia</span><span data-lang="zh-Hant">目前 Avalonia</span><span data-lang="ko">현재 Avalonia</span><span data-lang="ja">現在のAvalonia</span></span><div class="decomp-track"><div class="decomp-current" style="width:38.338310%" aria-hidden="true"><i class="segment-ava" style="width:49.217032%"></i><i class="segment-engine" style="width:50.782968%"></i></div><span class="decomp-value" style="left:38.338310%">668 ms<span class="result-speed"><span data-lang="en"><b>2.61×</b> faster</span><span data-lang="zh-Hant">快 <b>2.61 倍</b></span><span data-lang="ko"><b>2.61배</b> 빨라짐</span><span data-lang="ja"><b>2.61倍</b> 高速化</span></span></span></div></div>
+<div class="decomp-annotation"><p><b>Avalonia 49%</b><span> · <b class="engine"><span data-lang="en">Engine </span><span data-lang="zh-Hant">引擎 </span><span data-lang="ko">엔진 </span><span data-lang="ja">エンジン </span>51%</b></span></p></div></div>
+</div>
+</section>
+<figcaption data-lang="en"><b>FIG D</b> Execution time by version · Estimated improvement contribution</figcaption>
+<figcaption data-lang="zh-Hant"><b>FIG D</b> 各版本執行時間 · 改善貢獻率（估計）</figcaption>
+<figcaption data-lang="ko"><b>FIG D</b> 제품 버전별 실행 시간 · 개선 기여율(추정)</figcaption>
+<figcaption data-lang="ja"><b>FIG D</b> 製品バージョン別実行時間 · 改善寄与率（推定）</figcaption><!-- F-079 --><details class="measure-details"><summary><span data-lang="en">Benchmark Details</span><span data-lang="zh-Hant">量測細節</span><span data-lang="ko">측정 상세</span><span data-lang="ja">測定詳細</span></summary><dl class="measure-overview" data-lang="en">
+<div><dt>Comparison</dt><dd>Compared legacy WPF and current Avalonia UI on the same PC.</dd></div>
+<div><dt>Conditions</dt><dd>Windows 11 · Core Ultra 5 250K Plus<br>Median of 6 runs after 1 warmup run. Includes app startup time.</dd></div>
+<div><dt>Contribution Math</dt><dd><ol class="contribution-steps"><li>Calculated <b>total time saved</b> as the difference between legacy WPF and current Avalonia UI.</li><li><b>Engine time saved</b> was measured separately under identical WPF workflows on .NET 10, comparing old vs. new archive engines.</li><li>The <b>Avalonia contribution</b> is the time difference between the .NET 10 build with the new engine and current Avalonia UI. It includes the effects of Native AOT, UI display, and changes to the app structure.</li></ol>
+<p class="contribution-formula">Avalonia share = Avalonia contribution ÷ (Engine time saved + Avalonia contribution) × 100<br>Engine share = Engine time saved ÷ (Engine time saved + Avalonia contribution) × 100</p>
+<p>The time difference between legacy WPF (.NET 8) and the .NET 10 build comes from runtime and build differences, so it is counted in neither share. Shares are rounded to whole percentages. Window launch has no engine processing and is classified as 100% Avalonia. These figures do not measure the Avalonia library on its own, nor the AOT and UI effects separately.</p></dd></div>
+</dl>
+<p class="measure-caveat" data-lang="en">Compression was evaluated with default settings for each version. Current ZIP files are 2.0–10.5% larger. Contributions are estimates and do not isolate AOT from UI effects.<!-- F-073 F-079 --></p>
+
+<dl class="measure-overview" data-lang="zh-Hant">
+<div><dt>比較對象</dt><dd>在同一台電腦上比較舊版 WPF 與目前的 Avalonia UI 版。</dd></div>
+<div><dt>量測條件</dt><dd>Windows 11 · Core Ultra 5 250K Plus<br>預熱 1 次後量測 6 次的中位數，包含應用程式啟動時間。</dd></div>
+<div><dt>貢獻率計算</dt><dd><ol class="contribution-steps"><li>以舊版 WPF 與目前 Avalonia UI 版的執行時間差求出<b>總縮短時間</b>。</li><li><b>引擎縮短時間</b>另行量測：維持相同的 WPF 介面與流程，並將執行階段統一為 .NET 10，比較新舊壓縮引擎的執行時間差。</li><li><b>Avalonia 貢獻</b>則以換上新引擎的 .NET 10 比較版本與目前 Avalonia UI 版的執行時間差求出，包含 Native AOT、UI 顯示與應用程式結構變更的效果。</li></ol>
+<p class="contribution-formula">Avalonia 貢獻率 = Avalonia 貢獻 ÷ (引擎縮短時間 + Avalonia 貢獻) × 100<br>引擎貢獻率 = 引擎縮短時間 ÷ (引擎縮短時間 + Avalonia 貢獻) × 100</p>
+<p>舊版 WPF（.NET 8）與 .NET 10 比較版本之間的時間差，來自執行階段與建置的差異，因此不計入任何一方的貢獻率。貢獻率四捨五入至整數。視窗顯示不涉及引擎處理，因此歸類為 Avalonia 100%。這些數值並非單獨量測 Avalonia 函式庫本身的效果，也未分別量測 AOT 與 UI 的效果。</p></dd></div>
+</dl>
+<p class="measure-caveat" data-lang="zh-Hant">壓縮以各版本的預設設定進行比較。目前版本的 ZIP 檔大 2.0–10.5%。貢獻率為估計值，並未區分 AOT 與 UI 各自的效果。<!-- F-073 F-079 --></p>
+
+<dl class="measure-overview" data-lang="ko"><div><dt>비교 대상</dt><dd>같은 PC에서 기존 WPF와 현재 Avalonia UI 버전을 비교했습니다.</dd></div><div><dt>측정 조건</dt><dd>Windows 11 · Core Ultra 5 250K Plus<br>예열 1회 후 6회 측정한 중앙값입니다. 앱 기동 시간도 포함합니다.</dd></div><div><dt>기여율 계산</dt><dd><ol class="contribution-steps"><li>기존 WPF와 현재 Avalonia UI 버전의 실행 시간 차이로 <b>전체 단축 시간</b>을 구했습니다.</li><li><b>엔진이 줄인 시간</b>은 별도로 비교했습니다. 같은 WPF 화면과 작업 흐름을 유지하고, 두 비교본의 런타임을 .NET 10으로 맞춘 뒤 기존 엔진과 새 엔진의 실행 시간 차이를 구했습니다.</li><li><b>Avalonia 기여분</b>은 새 엔진을 넣은 .NET 10 비교본과 현재 Avalonia UI 버전의 실행 시간 차이로 구했습니다. Native AOT·UI 표시·앱 구조 변경 효과가 여기에 포함됩니다.</li></ol><p class="contribution-formula">Avalonia 기여율 = Avalonia 기여분 ÷ (엔진이 줄인 시간 + Avalonia 기여분) × 100<br>엔진 기여율 = 엔진이 줄인 시간 ÷ (엔진이 줄인 시간 + Avalonia 기여분) × 100</p><p>기존 WPF(.NET 8)와 .NET 10 비교본 사이의 시간 차이는 런타임과 빌드 차이에서 비롯된 것이므로 어느 쪽 기여율에도 포함하지 않았습니다. 기여율은 정수로 반올림했습니다. 창 표시는 엔진 작업이 없어 Avalonia 100%로 분류했습니다. Avalonia 라이브러리만의 효과나 AOT·UI 각각의 효과를 따로 측정한 값은 아닙니다.</p></dd></div></dl><p class="measure-caveat" data-lang="ko">압축은 각 버전의 기본 설정으로 비교했습니다. 현재 버전의 ZIP은 2.0–10.5% 더 큽니다. 기여율은 추정치이며, AOT와 UI 각각의 효과를 분리한 값은 아닙니다.<!-- F-073 F-079 --></p>
+<dl class="measure-overview" data-lang="ja">
+<div><dt>比較対象</dt><dd>同一PC上で従来のWPF版と現在のAvalonia UI版を比較しました。</dd></div>
+<div><dt>測定条件</dt><dd>Windows 11 · Core Ultra 5 250K Plus<br>ウォームアップ1回後、6回測定の中央値。アプリ起動時間を含みます。</dd></div>
+<div><dt>寄与率の計算</dt><dd><ol class="contribution-steps"><li>従来のWPFと現在のAvalonia UI版の実行時間の差から<b>全体の短縮時間</b>を算出しました。</li><li><b>エンジン短縮時間</b>は別個に比較しました。同一のWPF画面とワークフローを維持し、ランタイムを.NET 10に揃えた上で旧エンジンと新エンジンの実行時間差を測定しました。</li><li><b>Avaloniaの寄与分</b>は、新エンジンを入れた.NET 10の比較版と現在のAvalonia UI版の実行時間差から求めました。Native AOT、UI表示、アプリ構造の変更の効果が含まれます。</li></ol>
+<p class="contribution-formula">Avalonia寄与率 = Avaloniaの寄与分 ÷（エンジン短縮時間 + Avaloniaの寄与分）× 100<br>エンジン寄与率 = エンジン短縮時間 ÷（エンジン短縮時間 + Avaloniaの寄与分）× 100</p>
+<p>従来のWPF（.NET 8）と.NET 10の比較版との時間差はランタイムとビルドの違いによるものなので、どちらの寄与率にも含めていません。寄与率は整数に丸めています。ウィンドウ表示にはエンジン処理がないためAvalonia 100%として分類しています。Avaloniaライブラリ単体の効果や、AOT・UIそれぞれの効果を個別に測定した値ではありません。</p></dd></div>
+</dl>
+<p class="measure-caveat" data-lang="ja">圧縮は各バージョンのデフォルト設定で比較しました。現行バージョンのZIPは2.0〜10.5%大きくなります。寄与率は推定値であり、AOTとUIそれぞれの効果を分離した値ではありません。<!-- F-073 F-079 --></p></details></figure>
+
+<h2 id="why-avalonia"><span data-lang="en">Why Avalonia</span><span data-lang="zh-Hant">為什麼選擇 Avalonia</span><span data-lang="ko">왜 Avalonia였나</span><span data-lang="ja">なぜAvaloniaだったのか</span></h2>
+
+<p data-lang="en">To expand the Windows-only ezZip into a cross-platform app, I compared .NET MAUI, Avalonia UI, and Uno Platform. I also considered iOS and Android, but desktop came first. I looked for a foundation that would keep the existing Windows screens and workflow, work properly on macOS, and allow a later move to mobile.<!-- F-061 F-083 F-084 --></p>
+<p data-lang="zh-Hant">為了把 Windows 專用的 ezZip 擴展為跨平台應用程式，我比較了 .NET MAUI、Avalonia UI 與 Uno Platform。iOS 與 Android 也在考量之內，但優先的是桌面平台。我要找的是能維持既有 Windows 畫面與使用流程、在 macOS 上也能完整運作，並且之後能擴展到行動平台的基礎。<!-- F-061 F-083 F-084 --></p>
+<p data-lang="ko">Windows 전용 ezZip을 크로스플랫폼 앱으로 확장하기 위해 .NET MAUI, Avalonia UI, Uno Platform을 비교했습니다. iOS와 Android도 고려했지만, 우선순위는 데스크톱이었습니다. 기존 Windows 화면과 사용 흐름을 유지하면서 macOS에서도 완성도 있게 동작하고, 이후 모바일로도 확장할 수 있는 기반을 찾았습니다.<!-- F-061 F-083 F-084 --></p>
+<p data-lang="ja">Windows専用のezZipをクロスプラットフォームアプリに拡張するため、.NET MAUI、Avalonia UI、Uno Platformを比較しました。iOSとAndroidも検討しましたが、優先したのはデスクトップでした。既存のWindowsの画面と操作の流れを保ちながらmacOSでも完成度高く動作し、その後モバイルにも拡張できる基盤を探しました。<!-- F-061 F-083 F-084 --></p>
+
+<p data-lang="en">I had three criteria: whether it reduced per-platform UI adjustment, whether it let me use the XAML and MVVM experience built up with WPF, and whether Native AOT would let me ship without a separate .NET runtime while also improving performance. I judged that Avalonia UI fit these criteria well, given its own rendering, XAML that is familiar to WPF developers, and Native AOT support.<!-- F-061 F-083 F-099 --></p>
+<p data-lang="zh-Hant">選擇標準有三項：能否減輕各平台的畫面調整負擔、能否運用在 WPF 累積的 XAML 與 MVVM 經驗，以及能否透過 Native AOT 在沒有另外的 .NET 執行階段下發佈，同時改善效能。我判斷 Avalonia UI 在自有的繪製方式、WPF 開發者熟悉的 XAML 與 Native AOT 支援方面，都很符合這些標準。<!-- F-061 F-083 F-099 --></p>
+<p data-lang="ko">선택 기준은 세 가지였습니다. 플랫폼별 화면 조정 부담을 줄일 수 있는지, WPF에서 쌓은 XAML과 MVVM 경험을 활용할 수 있는지, Native AOT로 별도의 .NET 런타임 없이 배포하면서 성능 개선도 얻을 수 있는지를 살펴봤습니다. Avalonia UI는 자체 렌더링 방식, WPF 개발자에게 익숙한 XAML, Native AOT 지원 측면에서 이 기준에 잘 맞는다고 판단했습니다.<!-- F-061 F-083 F-099 --></p>
+<p data-lang="ja">選定基準は3点ありました。プラットフォームごとの画面調整コストを抑えられるか、WPFで培ったXAMLやMVVMの経験を活かせるか、そしてNative AOTにより別途の.NETランタイムなしで配布しつつ性能向上も得られるかです。Avalonia UIは独自の描画方式、WPF開発者に馴染みのあるXAML、Native AOT対応の点で、これらの基準によく合うと判断しました。<!-- F-061 F-083 F-099 --></p>
+
+<p data-lang="en">My earlier experience of applying Avalonia UI to the installer UI also influenced the choice. The installer, built with WiX Toolset, used a UI customized with WPF. Bundling the .NET runtime so it would run on PCs without one made the installer larger, and its size needed to be reduced.<!-- F-061 --></p>
+<p data-lang="zh-Hant">先前將安裝程式介面改用 Avalonia UI 的經驗，也影響了這次的選擇。這套以 WiX Toolset 製作的安裝程式，原本使用以 WPF 自訂的介面。為了讓它在沒有 .NET 執行階段的電腦上也能執行，執行階段也一併打包，安裝檔因此變大，需要縮減容量。<!-- F-061 --></p>
+<p data-lang="ko">앞서 설치 프로그램 UI에 Avalonia UI를 적용한 경험도 선택에 영향을 줬습니다. WiX Toolset으로 만든 설치 프로그램은 WPF로 커스터마이징한 UI를 사용했습니다. .NET 런타임이 없는 PC에서도 실행되도록 런타임을 함께 넣었더니 설치 파일이 커졌고, 용량을 줄일 필요가 있었습니다.<!-- F-061 --></p>
+<p data-lang="ja">インストーラーのUIに先にAvalonia UIを適用した経験も、この選択に影響しました。WiX Toolsetで作ったインストーラーは、WPFでカスタマイズしたUIを使っていました。.NETランタイムがないPCでも実行できるようランタイムを同梱したところインストーラーが大きくなり、サイズを減らす必要がありました。<!-- F-061 --></p>
+
+<p data-lang="en">I moved the installer UI to Avalonia UI and applied trimming. Comparing the official releases before and after, the full installer went from 74.5 MB to 40.0 MB, about 46% smaller.<!-- F-061 F-063 F-082 --> Having moved screens with the familiar XAML and MVVM structure and shipped them became one reason for choosing Avalonia UI for ezZip as well.<!-- F-061 --></p>
+<p data-lang="zh-Hant">我將安裝程式介面移植到 Avalonia UI，並啟用修剪（trimming）。比較變更前後的正式發佈版本，整體安裝檔從 74.5 MB 降至 40.0 MB，約減少 46%。<!-- F-061 F-063 F-082 -->以熟悉的 XAML 與 MVVM 結構移植畫面並實際發佈的經驗，也成了 ezZip 選擇 Avalonia UI 的理由。<!-- F-061 --></p>
+<p data-lang="ko">설치 UI를 Avalonia UI로 옮기고 트리밍을 적용했습니다. 변경 전후의 공식 배포본을 비교하면 전체 설치 파일은 74.5 MB에서 40.0 MB로 약 46% 줄었습니다.<!-- F-061 F-063 F-082 --> 익숙한 XAML과 MVVM 구조로 화면을 옮기고 배포해 본 경험은 ezZip에도 Avalonia UI를 선택하는 이유가 됐습니다.<!-- F-061 --></p>
+<p data-lang="ja">インストーラーのUIをAvalonia UIへ移し、トリミングを適用しました。変更前後の公式配布版を比べると、インストーラー全体は74.5 MBから40.0 MBへと約46%小さくなりました。<!-- F-061 F-063 F-082 -->使い慣れたXAMLとMVVMの構成で画面を移し、配布まで行った経験が、ezZipでもAvalonia UIを選ぶ理由になりました。<!-- F-061 --></p>
+
+<h2 id="ui"><span data-lang="en">Carrying over existing screens</span><span data-lang="zh-Hant">延續既有畫面</span><span data-lang="ko">기존 화면을 이어 쓰기</span><span data-lang="ja">既存画面の継承</span></h2>
+
+<p data-lang="en">Most of the WPF XAML could be moved to Avalonia UI's AXAML as it was. I kept the existing screen layout and bindings, and where Avalonia UI syntax could express something more concisely, I rewrote it that way. While cleaning up styles and layout, I also kept the screens' features and workflow unchanged.<!-- F-089 F-090 --></p>
+<p data-lang="zh-Hant">WPF 的 XAML 大多可以直接轉成 Avalonia UI 的 AXAML。我保留既有的畫面結構與繫結，同時找出能用 Avalonia UI 語法寫得更簡潔的地方加以改寫。在整理樣式與版面配置的過程中，畫面的功能組成與操作流程也維持不變。<!-- F-089 F-090 --></p>
+<p data-lang="ko">WPF의 XAML은 Avalonia UI의 AXAML로 대부분 그대로 옮길 수 있었습니다. 기존 화면 구성과 바인딩을 유지하면서, Avalonia UI 문법으로 더 간결하게 표현할 수 있는 부분을 찾아 반영했습니다. 스타일과 레이아웃을 정리하는 과정에서도 화면의 기능 구성과 사용 흐름은 유지했습니다.<!-- F-089 F-090 --></p>
+<p data-lang="ja">WPFのXAMLは、ほとんどそのままAvalonia UIのAXAMLへ移せました。既存の画面構成とバインディングを維持しながら、Avalonia UIの構文でより簡潔に書ける箇所を見つけて反映しました。スタイルとレイアウトを整理する過程でも、画面の機能構成と操作の流れは維持しました。<!-- F-089 F-090 --></p>
+
+<p data-lang="en">I changed the WPF-specific parts separately. Visual states handled by WPF triggers moved to Avalonia UI styles and display conditions. Window open and close events, previously wired through the <code>Microsoft.Xaml.Behaviors.Wpf</code> NuGet package, now use an <code>AttachedProperty</code> connected to the existing viewmodel commands.<!-- F-089 --></p>
+<p data-lang="zh-Hant">依賴 WPF 的部分則另外修改。原本以 WPF 觸發器處理的畫面狀態，改用 Avalonia UI 的樣式與顯示條件處理。原本透過 <code>Microsoft.Xaml.Behaviors.Wpf</code> NuGet 套件連接的視窗開啟、關閉事件，改為 <code>AttachedProperty</code>，並連接到既有 ViewModel 的命令。<!-- F-089 --></p>
+<p data-lang="ko">WPF에 종속된 부분은 별도로 수정했습니다. WPF 트리거로 처리하던 화면 상태는 Avalonia UI의 스타일과 표시 조건으로 옮겼습니다. <code>Microsoft.Xaml.Behaviors.Wpf</code> NuGet 패키지로 연결하던 창 열기·닫기 이벤트는 <code>AttachedProperty</code>로 바꿔, 기존 뷰모델의 명령에 연결했습니다.<!-- F-089 --></p>
+<p data-lang="ja">WPFに依存する部分は個別に修正しました。WPFのトリガーで扱っていた画面の状態は、Avalonia UIのスタイルと表示条件に移しました。<code>Microsoft.Xaml.Behaviors.Wpf</code> NuGetパッケージでつないでいたウィンドウの開閉イベントは<code>AttachedProperty</code>に置き換え、既存のViewModelのコマンドに接続しました。<!-- F-089 --></p>
+
+<h3><span data-lang="en">From ObservableCollection to AvaloniaList</span><span data-lang="zh-Hant">從 ObservableCollection 到 AvaloniaList</span><span data-lang="ko">ObservableCollection에서 AvaloniaList로</span><span data-lang="ja">ObservableCollectionからAvaloniaListへ</span></h3>
+
+<p data-lang="en">For list binding, I chose Avalonia UI's <code>AvaloniaList</code> instead of the <code>ObservableCollection</code> used before. It can group change notifications when many items are added or removed at once, which suited ezZip's list handling better. Instead of refreshing the UI for each item, several changes are applied together so the UI does not repeat the same update work.<!-- F-042 --></p>
+<p data-lang="zh-Hant">清單繫結方面，我改用 Avalonia UI 提供的 <code>AvaloniaList</code>，取代原本的 <code>ObservableCollection</code>。一次新增或刪除多個項目時，它能合併變更通知，更符合 ezZip 的清單處理需求。不必每個項目都更新一次畫面，而是一併反映多項變更，避免畫面重複相同的更新作業。<!-- F-042 --></p>
+<p data-lang="ko">목록 바인딩에는 기존의 <code>ObservableCollection</code> 대신 Avalonia UI가 제공하는 <code>AvaloniaList</code>를 선택했습니다. 여러 항목을 한꺼번에 추가하거나 삭제할 때 변경 알림을 묶을 수 있어, ezZip의 목록 처리에 더 잘 맞았습니다. 항목마다 화면을 갱신하는 대신 여러 변경을 함께 반영해, 화면이 같은 갱신 작업을 반복하지 않도록 했습니다.<!-- F-042 --></p>
+<p data-lang="ja">コレクションのデータバインディングには、従来の<code>ObservableCollection</code>に代わり、Avalonia UIが提供する<code>AvaloniaList</code>を採用しました。複数の項目をまとめて追加・削除する際に変更通知を一つにまとめられるため、ezZipの一覧処理により適していました。項目ごとに画面を更新するのではなく複数の変更をまとめて反映し、同じ更新処理が繰り返されないようにしました。<!-- F-042 --></p>
+
+<p data-lang="en">I removed every <code>ObservableCollection</code> from the ported code. Lists that need change notifications became <code>AvaloniaList</code>, and lists that are replaced as a whole became <code>List</code>. I also updated the code that handles the notifications so it can receive changes to several items at once.<!-- F-042 --></p>
+<p data-lang="zh-Hant">我從移植後的程式碼中移除了所有 <code>ObservableCollection</code>。需要變更通知的清單改用 <code>AvaloniaList</code>，整批替換的清單則改用 <code>List</code>。處理通知的程式碼也一併修改，讓它能一次接收多個項目的變更。<!-- F-042 --></p>
+<p data-lang="ko">이식본에서 <code>ObservableCollection</code>은 모두 제거했습니다. 변경 알림이 필요한 목록은 <code>AvaloniaList</code>로, 목록을 통째로 교체하는 경우는 <code>List</code>로 바꿨습니다. 여러 항목의 변경을 한 번에 전달받을 수 있도록 알림을 처리하는 코드도 함께 수정했습니다.<!-- F-042 --></p>
+<p data-lang="ja">移植版では<code>ObservableCollection</code>をすべて排除しました。変更通知が必要なコレクションは<code>AvaloniaList</code>に、一覧全体を置き換えるものは<code>List</code>に置き換えました。複数項目の変更を一度に受け取れるよう、通知を処理するコードも併せて修正しました。<!-- F-042 --></p>
+
+<h2 id="core"><span data-lang="en">Core logic tied to Windows</span><span data-lang="zh-Hant">綁定 Windows 的核心處理</span><span data-lang="ko">Windows에 묶여 있던 핵심 처리</span><span data-lang="ja">Windowsに依存していたコア処理</span></h2>
+
+<p data-lang="en">Beyond the UI, internal code that depended on Windows also had to change. For example, task progress shows in the taskbar on Windows and on the Dock icon on macOS. For this, I implemented the progress display code separately for each OS.<!-- F-086 F-096 --></p>
+<p data-lang="zh-Hant">除了畫面之外，依賴 Windows 的內部程式碼也必須修改。例如，工作進度在 Windows 上顯示於工作列，在 macOS 上則顯示於 Dock 圖示。為此，我針對各 OS 分別實作了進度顯示的程式碼。<!-- F-086 F-096 --></p>
+<p data-lang="ko">화면뿐 아니라 Windows에 의존하던 내부 코드도 바꿔야 했습니다. 예를 들어 작업 진행률은 Windows에서는 작업표시줄에, macOS에서는 Dock 아이콘에 표시합니다. 이를 위해 각 OS에 맞는 진행률 표시 코드를 따로 구현했습니다.<!-- F-086 F-096 --></p>
+<p data-lang="ja">画面だけでなく、Windowsに依存していた内部コードも変える必要がありました。例えば作業の進捗は、Windowsではタスクバーに、macOSではDockアイコンに表示します。そのため、OSごとに進捗表示のコードを個別に実装しました。<!-- F-086 F-096 --></p>
+
+<p data-lang="en">In the same way, I separated the processing both OSes share from the parts that should be left to the operating system, and moved OS-dependent code into separate implementations. Callers make requests through the same interface, and the Windows and macOS projects each handle them in their own way. Applying this split across the codebase also meant redefining each project's role and its references.<!-- F-028 F-086 F-093 --></p>
+<p data-lang="zh-Hant">像這樣，我把兩個 OS 共用的處理與應交給作業系統的部分分開，依賴 OS 的程式碼則分離成個別的實作。使用功能的一方透過相同的介面提出要求，再由 Windows 與 macOS 專案各自以自己的方式處理。要把這種區分套用到整個程式碼，也必須重新決定各專案負責的角色與參照關係。<!-- F-028 F-086 F-093 --></p>
+<p data-lang="ko">이처럼 두 OS가 함께 쓸 처리와 운영체제에 맡겨야 할 부분을 나누고, OS에 의존하는 코드는 별도의 구현으로 분리했습니다. 기능을 사용하는 쪽은 같은 인터페이스로 요청하고, Windows와 macOS 프로젝트가 각자의 방식으로 처리하도록 했습니다. 이 구분을 코드 전체에 적용하려면 각 프로젝트가 맡을 역할과 참조 관계도 다시 정해야 했습니다.<!-- F-028 F-086 F-093 --></p>
+<p data-lang="ja">このように、両OSで共有する処理とOSに任せるべき部分を分け、OS固有のコードは独立した実装として分離しました。機能を使う側は同じインターフェースで要求し、WindowsとmacOSのプロジェクトがそれぞれの方式で処理するようにしました。この区分をコード全体に適用するには、各プロジェクトが担う役割と参照関係も定め直す必要がありました。<!-- F-028 F-086 F-093 --></p>
+
+<h3><span data-lang="en">Redefining what to share</span><span data-lang="zh-Hant">重新界定共用範圍</span><span data-lang="ko">공유할 범위를 다시 정하기</span><span data-lang="ja">共有範囲の再定義</span></h3>
+
+<p data-lang="en">I also spent a lot of time deciding which project the separated code belongs in and how far references between projects should be allowed. I restructured the architecture so the foundation could carry over when extending to iOS and Android later.<!-- F-093 --></p>
+<p data-lang="zh-Hant">分離出來的程式碼該放在哪個專案、專案之間的參照要允許到什麼程度，我也花了很多時間決定。為了日後擴展到 iOS 與 Android 時能沿用這套基礎，我重新規劃了架構。<!-- F-093 --></p>
+<p data-lang="ko">분리한 코드를 어느 프로젝트에 두고, 프로젝트 사이의 참조를 어디까지 허용할지 정하는 데도 많은 시간을 들였습니다. 이후 iOS와 Android로 확장할 때 기반을 이어 쓸 수 있도록 아키텍처를 다시 잡았습니다.<!-- F-093 --></p>
+<p data-lang="ja">分離したコードをどのプロジェクトに置き、プロジェクト間の参照をどこまで許すかを決めるのにも多くの時間をかけました。今後iOSとAndroidへ拡張するときにも基盤を引き継げるよう、アーキテクチャを組み直しました。<!-- F-093 --></p>
+
+<p data-lang="en">Not all code shared by Windows and macOS is needed on mobile. If desktop screens and window control were put in the same project just because both OSes share them, those dependencies would have to be separated again when mobile is added. So I split the code into a shared layer used by all platforms, a desktop layer, and per-OS implementation layers.<!-- F-093 --></p>
+<p data-lang="zh-Hant">Windows 與 macOS 共用的程式碼，並非全都是行動平台也需要的。若只因兩個 OS 都會用到，就把桌面畫面與視窗控制也放進同一個專案，日後加入行動平台時就得再把這些相依拆開。因此我分成所有平台共用的共用層、桌面層，以及各 OS 的實作層。<!-- F-093 --></p>
+<p data-lang="ko">Windows와 macOS에서 함께 쓰는 코드가 모두 모바일에서도 필요한 것은 아니었습니다. 두 OS가 공유한다는 이유만으로 데스크톱 화면과 창 제어까지 같은 프로젝트에 모으면, 모바일을 추가할 때 그 의존성을 다시 떼어내야 합니다. 그래서 모든 플랫폼이 사용할 공유 계층과 데스크톱 계층, OS별 구현 계층을 나눴습니다.<!-- F-093 --></p>
+<p data-lang="ja">WindowsとmacOSで共有するコードが、すべてモバイルでも必要なわけではありません。両OSで共有しているという理由だけでデスクトップの画面やウィンドウ制御まで同じプロジェクトに集めると、モバイルを追加するときにその依存関係を切り離し直さなければなりません。そこで、全プラットフォームで使う共有層、デスクトップ層、OSごとの実装層に分けました。<!-- F-093 --></p>
+
+<p data-lang="en">I placed code based on where it is used. Even pure C# code that does not call Windows APIs directly went into the desktop layer if its role is needed only on desktop. Screens and the viewmodels connected to them are in the same layer, and the state and processing logic that mobile will also use stayed in the shared layer. I reviewed each type's responsibilities and dependencies again against this rule.<!-- F-093 --></p>
+<p data-lang="zh-Hant">配置程式碼時，我以使用該程式碼的位置為準。即使是不直接呼叫 Windows API 的純 C# 程式碼，只要用途僅限於桌面，就放在桌面層。畫面及其連接的 ViewModel 也放在同一層，行動平台也會用到的狀態與處理邏輯則留在共用層。我依此準則重新檢討了每個型別的責任與相依關係。<!-- F-093 --></p>
+<p data-lang="ko">코드를 배치할 때는 그 코드를 사용하는 곳을 기준으로 봤습니다. Windows API를 직접 호출하지 않는 순수 C# 코드라도 데스크톱에서만 필요한 역할이면 데스크톱 계층에 뒀습니다. 화면과 그 화면에 연결되는 뷰모델도 같은 계층에 배치하고, 모바일에서도 사용할 상태와 처리 로직은 공유 계층에 남겼습니다. 이 기준에 따라 각 타입의 책임과 의존 관계를 다시 검토했습니다.<!-- F-093 --></p>
+<p data-lang="ja">コードの配置は、そのコードを使う場所を基準に決めました。Windows APIを直接呼ばない純粋なC#コードでも、デスクトップでのみ必要な役割であればデスクトップ層に置きました。画面とそれにつながるViewModelも同じ層に置き、モバイルでも使う状態と処理ロジックは共有層に残しました。この基準に沿って、各型の責務と依存関係を見直しました。<!-- F-093 --></p>
+
+<figure id="architecture">
+<div class="architecture-scroll">
+<svg class="architecture-chart" viewBox="0 36 620 450" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="architecture-title-en architecture-desc-en">
+<title id="architecture-title-en" data-lang="en">Desktop implementation and mobile architecture design</title>
+<title id="architecture-title-zh-Hant" data-lang="zh-Hant">桌面實作與行動版設計結構</title>
+<title id="architecture-title-ko" data-lang="ko">데스크톱 구현과 모바일 설계 구조</title>
+<title id="architecture-title-ja" data-lang="ja">デスクトップ実装とモバイル設計の構造</title>
+<desc id="architecture-desc-en" data-lang="en">Windows and macOS reference the shared projects through ezZip.Desktop. Android, iOS and ezZip.Mobile are at the design stage and are planned to reference the shared projects through a mobile layer. The blue arrows and legend mean that interfaces and implementations are wired together at build time; they do not create project references.</desc>
+<desc id="architecture-desc-zh-Hant" data-lang="zh-Hant">Windows 與 macOS 透過 ezZip.Desktop 參照共用專案。Android、iOS 與 ezZip.Mobile 仍在設計階段，計畫透過行動層參照共用專案。藍色箭頭與圖例表示介面與實作在建置時連接，並不會建立專案參照。</desc>
+<desc id="architecture-desc-ko" data-lang="ko">Windows와 macOS는 ezZip.Desktop을 거쳐 공유 프로젝트를 참조합니다. Android와 iOS, ezZip.Mobile은 구조 설계 단계이며, 모바일 계층을 거쳐 공유 프로젝트를 참조하도록 계획한 구조입니다. 파란색 화살표와 범례는 인터페이스와 구현을 빌드 시 연결하는 역할을 뜻하며, 프로젝트 참조 자체를 생성한다는 뜻은 아닙니다.</desc>
+<desc id="architecture-desc-ja" data-lang="ja">WindowsとmacOSはezZip.Desktopを経由して共有プロジェクトを参照します。Android、iOS、ezZip.Mobileは設計段階であり、モバイル層を経由して共有プロジェクトを参照する計画です。青い矢印と凡例は、インターフェースと実装をビルド時に接続する役割を示すもので、プロジェクト参照そのものを作るという意味ではありません。</desc>
+<defs><marker id="architecture-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)"/></marker></defs>
+<rect class="node" x="0" y="48" width="145" height="96" rx="6"/>
+<text x="12" y="78" class="heading">ezZip.Windows</text>
+<text x="12" y="104" class="label">Windows</text>
+<path class="link" d="M72 145 V211" marker-end="url(#architecture-arrow)"/>
+<rect class="node" x="158" y="48" width="145" height="96" rx="6"/>
+<text x="170" y="78" class="heading">ezZip.MacOS</text>
+<text x="170" y="104" class="label">macOS</text>
+<path class="link" d="M230 145 V211" marker-end="url(#architecture-arrow)"/>
+<rect class="node" x="316" y="48" width="145" height="96" rx="6" stroke-dasharray="5 4"/>
+<text x="328" y="78" class="heading">ezZip.Android</text>
+<text x="328" y="104" class="label">Android</text>
+<path class="link" opacity="0.4" stroke-dasharray="5 4" d="M388 145 V211" marker-end="url(#architecture-arrow)"/>
+<rect class="node" x="474" y="48" width="145" height="96" rx="6" stroke-dasharray="5 4"/>
+<text x="486" y="78" class="heading">ezZip.iOS</text>
+<text x="486" y="104" class="label">iOS</text>
+<path class="link" opacity="0.4" stroke-dasharray="5 4" d="M546 145 V211" marker-end="url(#architecture-arrow)"/>
+<rect class="node" x="0" y="218" width="303" height="100" rx="6"/>
+<text x="16" y="249" class="heading">ezZip.Desktop</text>
+<rect class="node" x="316" y="218" width="303" height="100" rx="6" stroke-dasharray="5 4"/>
+<text x="332" y="249" class="heading">ezZip.Mobile</text>
+<path class="link" d="M152 319 V375" marker-end="url(#architecture-arrow)"/>
+<path class="link" opacity="0.4" stroke-dasharray="5 4" d="M468 319 V375" marker-end="url(#architecture-arrow)"/>
+<rect class="shared" x="0" y="382" width="619" height="91" rx="6"/>
+<text x="16" y="411" class="heading">ezZip</text>
+
+<g data-lang="en">
+  <text x="12" y="128" class="subtext">OS implementation</text>
+  <text x="170" y="128" class="subtext">OS implementation</text>
+  <text x="328" y="128" class="subtext">Design stage</text>
+  <text x="486" y="128" class="subtext">Design stage</text>
+  <text x="16" y="277" class="label">Shared Desktop Views &amp; ViewModels</text>
+  <text x="16" y="302" class="subtext">Shared between Windows &amp; macOS</text>
+  <text x="332" y="277" class="label">Shared Mobile Views &amp; ViewModels</text>
+  <text x="332" y="302" class="subtext">Design stage</text>
+  <text x="16" y="438" class="label">Shared layer · Features, data &amp; common UI used on all platforms</text>
+  <text x="16" y="462" class="subtext">Does not reference OS-specific implementation projects directly</text>
+</g>
+<g data-lang="zh-Hant">
+  <text x="12" y="128" class="subtext">各 OS 實作</text>
+  <text x="170" y="128" class="subtext">各 OS 實作</text>
+  <text x="328" y="128" class="subtext">架構設計階段</text>
+  <text x="486" y="128" class="subtext">架構設計階段</text>
+  <text x="16" y="277" class="label">桌面共用畫面與 ViewModel</text>
+  <text x="16" y="302" class="subtext">Windows · macOS 共同使用</text>
+  <text x="332" y="277" class="label">行動版共用畫面與 ViewModel</text>
+  <text x="332" y="302" class="subtext">架構設計階段</text>
+  <text x="16" y="438" class="label">共用層 · 所有平台延續使用的功能、資料與共用 UI</text>
+  <text x="16" y="462" class="subtext">不直接參照各 OS 的實作專案</text>
+</g>
+<g data-lang="ko">
+  <text x="12" y="128" class="subtext">OS별 구현</text>
+  <text x="170" y="128" class="subtext">OS별 구현</text>
+  <text x="328" y="128" class="subtext">구조 설계 단계</text>
+  <text x="486" y="128" class="subtext">구조 설계 단계</text>
+  <text x="16" y="277" class="label">데스크톱 공용 화면·뷰모델</text>
+  <text x="16" y="302" class="subtext">Windows · macOS가 함께 사용</text>
+  <text x="332" y="277" class="label">모바일 공용 화면·뷰모델</text>
+  <text x="332" y="302" class="subtext">구조 설계 단계</text>
+  <text x="16" y="438" class="label">공유 계층 · 모든 플랫폼에서 이어 쓸 기능·데이터·공용 UI</text>
+  <text x="16" y="462" class="subtext">OS별 구현 프로젝트를 직접 참조하지 않음</text>
+</g>
+<g data-lang="ja">
+  <text x="12" y="128" class="subtext">OS固有の実装</text>
+  <text x="170" y="128" class="subtext">OS固有の実装</text>
+  <text x="328" y="128" class="subtext">アーキテクチャ設計段階</text>
+  <text x="486" y="128" class="subtext">アーキテクチャ設計段階</text>
+  <text x="16" y="277" class="label">デスクトップ共通画面・ViewModel</text>
+  <text x="16" y="302" class="subtext">Windows · macOSで共有</text>
+  <text x="332" y="277" class="label">モバイル共通画面・ViewModel</text>
+  <text x="332" y="302" class="subtext">アーキテクチャ設計段階</text>
+  <text x="16" y="438" class="label">共有層 · 全プラットフォーム共通の機能・データ・UI</text>
+  <text x="16" y="462" class="subtext">OS固有の実装プロジェクトを直接参照しない</text>
+</g>
+</svg>
+</div>
+
+<div class="decomp-legend">
+  <span><i class="architecture-key" aria-hidden="true"></i>
+    <span data-lang="en">Source generator · Automatically connects the code for the target OS during the build</span>
+    <span data-lang="zh-Hant">原始碼產生器：建置時自動連接目標 OS 對應的程式碼</span>
+    <span data-lang="ko">소스 생성기 · 빌드 과정에서 실행할 OS에 맞는 코드를 자동으로 연결</span>
+    <span data-lang="ja">ソースジェネレーター：ビルド時にターゲットOSに応じたコードを自動接続</span>
+  </span>
+</div>
+<figcaption data-lang="en"><b>FIG E</b> Project structure organized by sharing scope</figcaption>
+<figcaption data-lang="zh-Hant"><b>FIG E</b> 依共用範圍組織的專案結構</figcaption>
+<figcaption data-lang="ko"><b>FIG E</b> 공유 범위에 따라 나눈 프로젝트 구조</figcaption>
+<figcaption data-lang="ja"><b>FIG E</b> 共有範囲に応じて分離したプロジェクト構造</figcaption><!-- F-093 -->
+</figure>
+
+<h3><span data-lang="en">Connecting implementations with source generators</span><span data-lang="zh-Hant">以原始碼產生器串接各層實作</span><span data-lang="ko">소스 생성기로 계층 간 구현 연결하기</span><span data-lang="ja">ソースジェネレーターで層間の実装をつなぐ</span></h3>
+
+<p data-lang="en">To keep the shared project from referencing Windows or macOS implementations directly, I placed interfaces in the layer that uses the feature. Interfaces required by shared features are in the shared layer, and interfaces needed only on desktop are in the desktop layer. I did not gather every interface in the lowest layer just because the implementations differ by OS.<!-- F-093 --></p>
+<p data-lang="zh-Hant">為避免共用專案直接參照 Windows 或 macOS 的實作，我把介面放在使用該功能的那一層。共用功能所需的介面放在共用層，桌面專用的介面則留在桌面層。我並沒有因為各 OS 的實作不同，就把所有介面集中到最底層。<!-- F-093 --></p>
+<p data-lang="ko">공유 프로젝트가 Windows나 macOS의 구현을 직접 참조하지 않도록, 기능을 사용하는 계층에 인터페이스를 두었습니다. 공유 기능이 요구하는 인터페이스는 공유 계층에, 데스크톱에서만 필요한 인터페이스는 데스크톱 계층에 배치했습니다. 구현이 OS마다 다르다는 이유로 모든 인터페이스를 최하위 계층에 모으지는 않았습니다.<!-- F-093 --></p>
+<p data-lang="ja">共有プロジェクトがWindowsやmacOSの実装を直接参照しないよう、機能を使う側の層にインターフェースを置きました。共有機能が必要とするインターフェースは共有層に、デスクトップでのみ必要なインターフェースはデスクトップ層に配置しました。実装がOSごとに異なるという理由で、すべてのインターフェースを最下層に集めることはしませんでした。<!-- F-093 --></p>
+
+<p data-lang="en">Each OS project provides implementations for the interfaces declared in the shared and desktop projects. A source generator connects them at build time, and a missing implementation is caught at compile time. I documented the layering rules so they also apply to later work, and set up checks for what the build can verify, such as missing implementations.<!-- F-028 F-093 --></p>
+<p data-lang="zh-Hant">共用專案與桌面專案中宣告的介面，由各 OS 的專案提供實作。原始碼產生器會在建置時將兩者連接，缺少必要的實作時，在編譯階段就能發現。分層的準則已寫成文件，供後續作業沿用；像實作遺漏這類能在建置時確認的部分，則交由建置流程檢查。<!-- F-028 F-093 --></p>
+<p data-lang="ko">공유 프로젝트와 데스크톱 프로젝트에 선언한 인터페이스에는 각 OS별 프로젝트가 구현을 제공합니다. 소스 생성기가 빌드 시점에 이를 연결하고, 필요한 구현이 빠지면 컴파일 단계에서 확인하도록 했습니다. 계층을 나누는 기준은 문서로 남겨 이후 작업에도 적용하고, 구현 누락처럼 빌드에서 확인할 수 있는 부분은 검사하도록 구성했습니다.<!-- F-028 F-093 --></p>
+<p data-lang="ja">共有プロジェクトとデスクトッププロジェクトで宣言したインターフェースには、各OSのプロジェクトが実装を提供します。ソースジェネレーターがビルド時にこれらを接続し、必要な実装が欠けていればコンパイル段階で分かるようにしました。層を分ける基準は文書に残して以降の作業にも適用し、実装漏れのようにビルドで確認できる点は検査するよう構成しました。<!-- F-028 F-093 --></p>
+
+<p data-lang="en">The progress display described earlier is connected through <code>ITaskProgress</code> in the desktop layer. The excerpts below show the declaration in the desktop layer, the implementation in each OS project, and the source generator. The required interface is declared as a property of the <code>[Platform]</code> class, and the class that implements it in each OS project is marked with <code>[Adapter]</code>. At build time, the source generator finds the <code>[Adapter]</code> implementation for the target OS and generates code that connects (injects) it to the matching <code>[Platform]</code> property. The calling code stays the same, and progress is shown on the Windows taskbar or the macOS Dock.<!-- F-096 --></p>
+<p data-lang="zh-Hant">前面提到的進度顯示，是在桌面層放置 <code>ITaskProgress</code> 來連接。以下片段依序為桌面層的宣告、各 OS 專案的實作，以及原始碼產生器。在 <code>[Platform]</code> 類別的屬性中宣告所需的介面，並為各 OS 專案中實作該介面的類別加上 <code>[Adapter]</code>。原始碼產生器會在建置時尋找目標 OS 的 <code>[Adapter]</code> 實作，自動產生將其實例注入 <code>[Platform]</code> 對應屬性的程式碼。呼叫端程式碼不變，進度則顯示在工作列或 Dock 上。<!-- F-096 --></p>
+<p data-lang="ko">앞서 설명한 진행률 표시는 데스크톱 계층에 <code>ITaskProgress</code>를 두고 연결했습니다. 아래 발췌는 데스크톱 계층의 선언, 각 OS 프로젝트의 구현, 그리고 소스 생성기입니다. <code>[Platform]</code> 클래스의 속성에 필요한 인터페이스를 선언하고, 각 OS 프로젝트에서 이를 구현한 클래스에 <code>[Adapter]</code>를 붙입니다. 소스 생성기는 빌드 시점에 대상 OS의 <code>[Adapter]</code> 구현체를 찾아 <code>[Platform]</code>의 해당 속성에 자동으로 연결(주입)하는 코드를 만들어 냅니다. 호출부는 같고, 진행률은 Windows 작업표시줄이나 macOS Dock에 표시됩니다.<!-- F-096 --></p>
+<p data-lang="ja">前述の進捗表示は、デスクトップ層に<code>ITaskProgress</code>を置いて接続しました。以下の抜粋は、デスクトップ層での宣言、各OSプロジェクトでの実装、そしてソースジェネレーターです。<code>[Platform]</code>クラスのプロパティに必要なインターフェースを宣言し、各OSの実装クラスに<code>[Adapter]</code>を付与します。ソースジェネレーターはビルド時に対象OSの<code>[Adapter]</code>実装を探し出し、<code>[Platform]</code>の該当プロパティに注入（接続）するコードを自動生成します。呼び出し側は同じで、進捗はWindowsのタスクバーかmacOSのDockに表示されます。<!-- F-096 --></p>
+
+<figure id="platform-code">
+<div class="code-part">
+<h4><span data-lang="en">Desktop Layer: </span><span data-lang="zh-Hant">桌面層：</span><span data-lang="ko">데스크톱 계층: </span><span data-lang="ja">デスクトップ層: </span><span>Mobsoft.Core.Desktop</span></h4>
+<pre><code class="language-csharp">[Platform]
+public static partial class DesktopUiPlatform
+{
+    public static ITaskProgress TaskProgress
+    {
+        get =&gt; field ?? throw new InvalidOperationException();
+        private set;
+    }
+}</code></pre>
+</div>
+<div class="code-part">
+<h4><span data-lang="en">Windows Implementation: </span><span data-lang="zh-Hant">Windows 實作：</span><span data-lang="ko">Windows 구현: </span><span data-lang="ja">Windows実装: </span><span>Mobsoft.Core.Windows</span></h4>
+<pre><code class="language-csharp">[Adapter]
+public sealed class WindowsTaskProgress : ITaskProgress
+{
+<span data-lang="en">    // Show progress on the Windows taskbar (methods omitted)</span><span data-lang="zh-Hant">    // 在 Windows 工作列顯示進度（省略方法）</span><span data-lang="ko">    // Windows 작업표시줄에 진행률 표시 (메서드 생략)</span><span data-lang="ja">    // Windowsタスクバーに進捗を表示（メソッド省略）</span>
+}</code></pre>
+</div>
+<div class="code-part">
+<h4><span data-lang="en">macOS Implementation: </span><span data-lang="zh-Hant">macOS 實作：</span><span data-lang="ko">macOS 구현: </span><span data-lang="ja">macOS実装: </span><span>Mobsoft.Core.MacOS</span></h4>
+<pre><code class="language-csharp">[Adapter]
+public sealed class MacTaskProgress : ITaskProgress
+{
+<span data-lang="en">    // Show progress on the macOS Dock icon (methods omitted)</span><span data-lang="zh-Hant">    // 在 macOS Dock 圖示顯示進度（省略方法）</span><span data-lang="ko">    // macOS Dock 아이콘에 진행률 표시 (메서드 생략)</span><span data-lang="ja">    // macOS Dockアイコンに進捗を表示（メソッド省略）</span>
+}</code></pre>
+</div>
+<div class="code-part">
+<h4><span data-lang="en">Source generator: </span><span data-lang="zh-Hant">原始碼產生器：</span><span data-lang="ko">소스 생성기: </span><span data-lang="ja">ソースジェネレーター: </span><span>Mobsoft.Tools.Generators</span></h4>
+<pre><code class="language-csharp">private static void Execute(SourceProductionContext context, Compilation compilation, ImmutableArray&lt;INamedTypeSymbol&gt; adapters, ImmutableArray&lt;INamedTypeSymbol&gt; views)
+{
+    bool isEntryAssembly = compilation.Options.OutputKind == OutputKind.ConsoleApplication || compilation.Options.OutputKind == OutputKind.WindowsApplication;
+    List&lt;string&gt; references = isEntryAssembly ? PlatformSymbolUtil.CollectWiringReferences(compilation) : [];
+    List&lt;ViewMappingModel&gt; viewMappings = PlatformSymbolUtil.CollectViewMappings(context, compilation, views);
+
+    if (adapters.IsEmpty &amp;&amp; references.Count == 0 &amp;&amp; viewMappings.Count == 0) return;
+
+<span data-lang="en">    // Collect target platforms</span><span data-lang="zh-Hant">    // 收集待連接平台</span><span data-lang="ko">    // 구현을 연결할 플랫폼 수집</span><span data-lang="ja">    // 接続対象のプラットフォームを収集</span>
+    List&lt;INamedTypeSymbol&gt; platforms = [.. PlatformSymbolUtil.CollectPlatforms(compilation).OrderBy(platform =&gt; platform.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), StringComparer.Ordinal)];
+    HashSet&lt;INamedTypeSymbol&gt; matched = new(SymbolEqualityComparer.Default);
+    List&lt;PlatformCallModel&gt; calls = [];
+    List&lt;ITypeSymbol&gt; slotInterfaces = [];
+
+    foreach (INamedTypeSymbol platform in platforms)
+    {
+        List&lt;PlatformSlotOwnerModel&gt; owners = PlatformSymbolUtil.GetSlotOwners(platform);
+
+        if (owners.Count == 0)
+        {
+            if (HasInterfaceStaticProperty(platform)) context.ReportDiagnostic(Diagnostic.Create(PlatformDiagnosticUtil.PlatformSlotNotResolved, Location.None, platform.Name));
+            continue;
+        }
+
+        foreach (PlatformSlotOwnerModel owner in owners) slotInterfaces.Add(owner.InterfaceType);
+
+<span data-lang="en">        // Match adapters and build initialization arguments</span><span data-lang="zh-Hant">        // 比對 Adapter 並組合初始化引數</span><span data-lang="ko">        // 인터페이스에 맞는 Adapter 검색 및 초기화 인자 구성</span><span data-lang="ja">        // Adapterを照合し、初期化引数を構成</span>
+        PlatformCallModel? call = BuildCall(context, compilation, platform, owners, adapters, matched);
+        if (call != null) calls.Add(call);
+    }
+
+<span data-lang="en">    // Report diagnostics for unmatched adapters and missing implementations</span><span data-lang="zh-Hant">    // 報告未比對的 Adapter 與實作遺漏等診斷</span><span data-lang="ko">    // 짝이 없는 Adapter 및 구현 누락 진단 보고</span><span data-lang="ja">    // 未照合のAdapterや実装漏れの診断を報告</span>
+    ReportUnmatchedAdapters(context, adapters, matched);
+    ReportMissingAttribute(context, compilation, slotInterfaces, adapters);
+    if (isEntryAssembly) ReportUnwiredPlatforms(context, compilation, platforms, calls);
+
+<span data-lang="en">    // Emit initialization calls and register source</span><span data-lang="zh-Hant">    // 產生初始化呼叫並加入編譯</span><span data-lang="ko">    // 초기화 호출 코드 생성 후 컴파일에 추가</span><span data-lang="ja">    // 初期化呼び出しを生成し、コンパイルに追加</span>
+    context.AddSource(PlatformSymbolUtil.WiringTypeName + ".g.cs", PlatformEmitUtil.EmitWiring(PlatformSymbolUtil.GetWiringNamespace(compilation.Assembly), calls, references, viewMappings, isEntryAssembly));
+}</code></pre><!-- C-13: PlatformWiringGenerator.Execute (complete method) -->
+</div>
+<figcaption data-lang="en"><b>FIG F</b> Connecting progress reporting across Windows Taskbar and macOS Dock<span class="cond">Excerpts · namespaces, display methods, and other generator code omitted</span></figcaption>
+<figcaption data-lang="zh-Hant"><b>FIG F</b> 連接 Windows 工作列與 macOS Dock 的進度顯示<span class="cond">節錄 · 省略命名空間、顯示方法與其餘產生器程式碼</span></figcaption>
+<figcaption data-lang="ko"><b>FIG F</b> Windows 작업표시줄과 macOS Dock의 진행률 구현 연결<span class="cond">발췌 · 네임스페이스와 표시 메서드, 소스 생성기 나머지 코드 생략</span></figcaption>
+<figcaption data-lang="ja"><b>FIG F</b> WindowsタスクバーとmacOS Dockにおける進捗実装の接続<span class="cond">抜粋 · 名前空間・表示メソッド・ジェネレーターのその他コードは省略</span></figcaption><!-- F-096 -->
+</figure>
+
+<p data-lang="en">The shared and desktop layers used by both Windows and macOS make up 86.9% of the C# and AXAML code. Windows-only code is 8.6%, and macOS-only code is 4.6%. Shared screens and features are changed in one place, and behavior that differs by OS is managed in each project.<!-- F-027 F-028 F-093 --></p>
+<p data-lang="zh-Hant">Windows 與 macOS 共用的共用層與桌面層，占 C# 與 AXAML 程式碼的 86.9%。Windows 專屬程式碼為 8.6%，macOS 專屬為 4.6%。共用的畫面與功能集中在同一處修改，隨 OS 而異的行為則由各自的專案管理。<!-- F-027 F-028 F-093 --></p>
+<p data-lang="ko">Windows와 macOS가 함께 쓰는 공유·데스크톱 계층은 C#·AXAML 코드의 86.9%를 차지합니다. Windows 전용 코드는 8.6%, macOS 전용 코드는 4.6%입니다. 함께 쓰는 화면과 기능은 한곳에서 수정하고, OS에 따라 달라지는 동작은 각 프로젝트에서 관리하도록 구성했습니다.<!-- F-027 F-028 F-093 --></p>
+<p data-lang="ja">WindowsとmacOSで共有する共有層・デスクトップ層は、C#・AXAMLコードの86.9%を占めます。Windows専用コードは8.6%、macOS専用コードは4.6%です。共通の画面と機能は一か所で修正し、OSによって異なる動作は各プロジェクトで管理する構成にしました。<!-- F-027 F-028 F-093 --></p>
+
+<h2 id="native-aot"><span data-lang="en">Shipping with Native AOT</span><span data-lang="zh-Hant">以 Native AOT 發佈</span><span data-lang="ko">Native AOT로 배포하기까지</span><span data-lang="ja">Native AOTでの配布まで</span></h2>
+
+<p data-lang="en">Shipping with Native AOT took more than building the code. I also had to check code that looks up type information at runtime, code that calls OS features, and code that must not be removed during publishing.<!-- F-040 F-068 F-087 --></p>
+<p data-lang="zh-Hant">要以 Native AOT 發佈，除了建置程式碼之外，還有需要確認的地方。執行時查找型別資訊的程式碼、呼叫作業系統功能的程式碼，以及發佈過程中不能被移除的程式碼，都必須一併檢查。<!-- F-040 F-068 F-087 --></p>
+<p data-lang="ko">Native AOT로 배포하기 위해서는 코드를 빌드하는 것 외에도 확인할 부분이 있었습니다. 실행 중에 타입 정보를 찾거나 운영체제 기능을 호출하는 코드, 배포 과정에서 제거되면 안 되는 코드까지 함께 살펴봐야 했습니다.<!-- F-040 F-068 F-087 --></p>
+<p data-lang="ja">Native AOTで配布するには、コードをビルドする以外にも確認すべき点がありました。実行時に型情報を探すコードやOSの機能を呼び出すコード、配布時に削除されてはならないコードまで併せて確認する必要がありました。<!-- F-040 F-068 F-087 --></p>
+
+<p data-lang="en">For API communication, I registered the request and response models in a <code>JsonSerializerContext</code> and switched JSON conversion to use the type information generated at build time. Where data is wrapped in a common response format or sent as lists, I also prepared type information matching the actual request and response shapes. Besides registering the models, I wired the API callers to pass that information when serializing requests and reading responses.<!-- F-087 --></p>
+<p data-lang="zh-Hant">在 API 通訊方面，我將請求與回應模型註冊到 <code>JsonSerializerContext</code>，改為在 JSON 轉換時使用建置時產生的型別資訊。即使是把資料包在共通回應格式中，或是傳遞清單的情況，也都依實際的請求與回應形式準備了對應的型別資訊。除了註冊模型，我也讓 API 呼叫端在序列化請求、讀取回應時傳入這些資訊。<!-- F-087 --></p>
+<p data-lang="ko">API 통신에서는 요청·응답 모델을 <code>JsonSerializerContext</code>에 등록하고, 빌드할 때 생성된 타입 정보를 JSON 변환에 사용하도록 바꿨습니다. 공통 응답 형식 안에 데이터를 담거나 목록을 주고받는 경우에도 실제 요청·응답 형태에 맞는 타입 정보를 준비했습니다. 모델을 등록하는 것과 함께, API 호출부가 요청을 직렬화하고 응답을 읽을 때 그 정보를 전달하도록 연결했습니다.<!-- F-087 --></p>
+<p data-lang="ja">API通信では、リクエスト・レスポンスのモデルを<code>JsonSerializerContext</code>に登録し、ビルド時に生成された型情報をJSON変換に使うよう変更しました。共通のレスポンス形式の中にデータを入れる場合や一覧をやり取りする場合も、実際のリクエスト・レスポンスの形に合った型情報を用意しました。モデルの登録と併せて、API呼び出し部がリクエストをシリアライズし、レスポンスを読み取る際にその情報を渡すようにしました。<!-- F-087 --></p>
+
+<p data-lang="en">I also cleaned up the native interop code that calls OS features. I moved it to <code>LibraryImport</code>, which generates the code needed for the calls at build time. The OS-specific call boundaries were also reorganized into a form that can be used under Native AOT.<!-- F-040 --></p>
+<p data-lang="zh-Hant">呼叫作業系統功能的原生互通程式碼也一併整理。改用 <code>LibraryImport</code>，在建置時產生呼叫所需的連接程式碼。各 OS 的呼叫邊界也整理成能在 Native AOT 環境中使用的形式。<!-- F-040 --></p>
+<p data-lang="ko">운영체제 기능을 호출하는 네이티브 연동 코드도 정리했습니다. <code>LibraryImport</code>를 사용해 호출에 필요한 연결 코드를 빌드 시점에 생성하는 방식으로 옮겼습니다. OS별 호출 경계도 Native AOT 환경에서 사용할 수 있는 형태로 정리했습니다.<!-- F-040 --></p>
+<p data-lang="ja">OSの機能を呼び出すネイティブ連携コードも整理しました。<code>LibraryImport</code>を使い、呼び出しに必要な接続コードをビルド時に生成する方式に移行しました。OSごとの呼び出し境界も、Native AOT環境で使える形に整えました。<!-- F-040 --></p>
+
+<h3><span data-lang="en">Deployment problems that did not show up during development</span><span data-lang="zh-Hant">開發時沒有浮現的部署問題</span><span data-lang="ko">개발 중에는 드러나지 않던 배포 문제</span><span data-lang="ja">開発中には見えなかった配布時の問題</span></h3>
+
+<p data-lang="en">Features that worked in development builds crashed the app in the macOS Native AOT release build. At the time, I judged that metadata needed for native interop was being trimmed. After loosening trimming and changing the release settings to keep that metadata and those assemblies, the actual macOS release build passed the extraction and Finder integration checks.<!-- F-068 --></p>
+<p data-lang="zh-Hant">在開發用建置中正常運作的功能，到了 macOS 的 Native AOT 發佈版本卻會導致應用程式異常結束。當時我判斷是原生互通所需的中繼資料遭到修剪。放寬修剪並調整發佈設定以保留相關中繼資料與組件後，實際的 macOS 發佈版本通過了解壓縮與 Finder 整合的驗證。<!-- F-068 --></p>
+<p data-lang="ko">개발용 빌드에서는 정상 동작하던 기능이 macOS의 Native AOT 배포본에서는 앱이 비정상 종료되는 문제를 일으켰습니다. 당시에는 네이티브 연동에 필요한 메타데이터가 트리밍되는 문제로 판단했습니다. 트리밍을 완화하고 관련 메타데이터와 어셈블리를 보존하도록 배포 설정을 바꾼 뒤, 실제 macOS 배포본에서 압축 풀기와 Finder 연동 검증을 통과했습니다.<!-- F-068 --></p>
+<p data-lang="ja">開発用ビルドでは正常に動作していた機能が、macOSのNative AOT配布版ではアプリが異常終了する問題を起こしました。当時は、ネイティブ連携に必要なメタデータがトリミングされる問題だと判断しました。トリミングを緩め、関連するメタデータとアセンブリを保持するよう配布設定を変更した後、実際のmacOS配布版で解凍とFinder連携の検証を通過しました。<!-- F-068 --></p>
+
+<p data-lang="en">These are the metadata preservation settings I applied to the macOS project at the time.<!-- F-068 --></p>
+<p data-lang="zh-Hant">以下是當時套用於 macOS 專案的中繼資料保留設定。<!-- F-068 --></p>
+<p data-lang="ko">당시 macOS 프로젝트에 적용한 메타데이터 보존 설정입니다.<!-- F-068 --></p>
+<p data-lang="ja">以下は、当時macOSプロジェクトに適用したメタデータ保持設定です。<!-- F-068 --></p>
+
+<figure id="deployment-code">
+<pre><code class="language-xml">&lt;PropertyGroup Condition="'$(Configuration)' == 'Release'"&gt;
+  &lt;IlcGenerateCompleteTypeMetadata&gt;true&lt;/IlcGenerateCompleteTypeMetadata&gt;
+  &lt;_AggressiveAttributeTrimming&gt;false&lt;/_AggressiveAttributeTrimming&gt;
+  &lt;_TrimmerDefaultAction&gt;copy&lt;/_TrimmerDefaultAction&gt;
+&lt;/PropertyGroup&gt;
+
+&lt;ItemGroup Condition="'$(Configuration)' == 'Release'"&gt;
+  &lt;TrimmerRootAssembly Include="ezZip_Avalonia" /&gt;
+  &lt;TrimmerRootAssembly Include="System.Runtime.InteropServices" /&gt;
+&lt;/ItemGroup&gt;</code></pre>
+<figcaption data-lang="en"><b>FIG G</b> Metadata preservation settings applied to the macOS release build</figcaption>
+<figcaption data-lang="zh-Hant"><b>FIG G</b> macOS 版的中繼資料保留設定</figcaption>
+<figcaption data-lang="ko"><b>FIG G</b> macOS 배포본에 적용한 메타데이터 보존 설정</figcaption>
+<figcaption data-lang="ja"><b>FIG G</b> macOS配布版に適用したメタデータ保持設定</figcaption><!-- F-068 -->
+</figure>
+
+<p data-lang="en">At the time, I fixed the problem by applying several retention settings at once. I did not verify whether every individual option is needed, but it became clear that features that work in development builds must also be checked separately in the actual release build.<!-- F-068 --></p>
+<p data-lang="zh-Hant">當時是以一次套用多項保留設定的方式解決問題。我並未驗證每個選項是否都必要，但可以確定的是，即使在開發用建置中正常運作的功能，也必須在實際發佈版本中另外確認。<!-- F-068 --></p>
+<p data-lang="ko">당시에는 여러 보존 설정을 한꺼번에 적용하는 방식으로 문제를 해결했습니다. 개별 옵션이 모두 필요한지까지 검증한 것은 아니지만, 개발용 빌드에서 정상 동작하던 기능도 실제 배포본에서는 별도로 확인해야 한다는 점이 분명해졌습니다.<!-- F-068 --></p>
+<p data-lang="ja">このとき適用したのは、複数の保持設定を併用する対処でした。個々のオプションがすべて必要かまでは検証していませんが、開発用ビルドで正常に動作していた機能も、実際の配布版では別途確認が必要だということが分かりました。<!-- F-068 --></p>
+
+<h2 id="fonts"><span data-lang="en">Unexpected font challenges</span><span data-lang="zh-Hant">出乎意料的字型問題</span><span data-lang="ko">예상과 달랐던 폰트 문제</span><span data-lang="ja">予想外だったフォントの課題</span></h2>
+
+<h3><span data-lang="en">Same typeface, different window launch times</span><span data-lang="zh-Hant">同一字型，視窗顯示速度卻不同</span><span data-lang="ko">같은 글꼴인데 달라진 창 표시 속도</span><span data-lang="ja">同じフォントなのに変わったウィンドウ表示速度</span></h3>
+
+<p data-lang="en">After the move to Avalonia UI, windows opened later than in the WPF version. Looking into the cause, I found that the PretendardJP OTF font used in WPF was delaying the window. Replacing it with the TTF file of the same typeface reduced the delay.<!-- F-014 --></p>
+<p data-lang="zh-Hant">移植到 Avalonia UI 後，視窗開啟得比原本的 WPF 版慢。追查原因後發現，沿用 WPF 時期 PretendardJP 的 OTF 字型拖慢了視窗顯示。改用同一字型的 TTF 檔後，延遲就縮短了。<!-- F-014 --></p>
+<p data-lang="ko">Avalonia UI로 옮긴 뒤, 창이 기존 WPF 버전보다 늦게 열리는 문제가 있었습니다. 원인을 찾아보니 WPF에서 쓰던 PretendardJP의 OTF 폰트가 창이 뜨는 시간을 늦추고 있었습니다. 같은 글꼴의 TTF 파일로 교체하자 지연이 줄었습니다.<!-- F-014 --></p>
+<p data-lang="ja">Avalonia UIへ移行した後、ウィンドウが従来のWPF版より遅れて開く問題がありました。原因を調べたところ、WPF版で使っていたPretendardJPのOTFフォントをそのまま使っていたことが、表示遅延の原因でした。同じ書体のTTFファイルに置き換えると、遅延が短くなりました。<!-- F-014 --></p>
+
+<p data-lang="en">The chart below compares Native AOT builds of the current source in which only the font was changed. The TTF subset keeps only the characters needed, to reduce the file size. The comparison builds and measurement conditions differ from FIG D, so the window launch times in the two charts cannot be compared directly.<!-- F-015 F-022 --></p>
+<p data-lang="zh-Hant">下圖比較以目前的原始碼建置、僅更換字型的 Native AOT 版本。TTF 子集只保留需要的字元，以縮小檔案大小。由於比較的建置版本與量測條件和前面的 FIG D 不同，兩張圖表的視窗顯示時間無法直接比較。<!-- F-015 F-022 --></p>
+<p data-lang="ko">아래 도표는 현재 소스에서 폰트만 바꾼 Native AOT 빌드를 비교한 결과입니다. TTF 서브셋은 필요한 문자만 남겨 파일 크기를 줄인 것입니다. 앞의 FIG D와는 비교 빌드와 측정 조건이 달라 두 도표의 창 표시 시간을 직접 비교할 수 없습니다.<!-- F-015 F-022 --></p>
+<p data-lang="ja">下図は現在のソースでフォントだけを差し替えたNative AOTビルドの比較結果です。TTFサブセットは、必要な文字だけを残してファイルサイズを減らしたものです。前のFIG Dとは比較ビルドと測定条件が異なるため、二つの図のウィンドウ表示時間を直接比較することはできません。<!-- F-015 F-022 --></p>
+
+<figure>
+  <div class="fontchart">
+<h4><span data-lang="en">Window Launch</span><span data-lang="zh-Hant">視窗顯示</span><span data-lang="ko">창 표시</span><span data-lang="ja">ウィンドウ表示</span></h4>
+<div class="timing"><span>WPF</span><span class="timing-track" aria-hidden="true"><i class="timing-bar timing-wpf" style="width:76.075%"></i></span><span class="value">849 ms</span></div><!-- F-016 -->
+<div class="timing"><span>OTF</span><span class="timing-track" aria-hidden="true"><i class="timing-bar timing-w" style="width:53.943%"></i></span><span class="value">602 ms</span></div>
+<div class="timing"><span>TTF</span><span class="timing-track" aria-hidden="true"><i class="timing-bar timing-j" style="width:14.785%"></i></span><span class="value">165 ms</span></div>
+<div class="timing"><span><span data-lang="en">TTF Subset</span><span data-lang="zh-Hant">TTF 子集</span><span data-lang="ko">TTF 서브셋</span><span data-lang="ja">TTFサブセット</span></span><span class="timing-track" aria-hidden="true"><i class="timing-bar timing-a" style="width:14.695%"></i></span><span class="value">164 ms</span></div>
+<h4><span data-lang="en">Until the screen is drawn</span><span data-lang="zh-Hant">畫面繪製完成</span><span data-lang="ko">화면이 그려지기까지</span><span data-lang="ja">描画完了まで</span></h4>
+<div class="timing"><span>WPF</span><span class="timing-track" aria-hidden="true"><i class="timing-bar timing-wpf" style="width:98.584%"></i></span><span class="value">1,100 ms</span></div><!-- F-088 -->
+<div class="timing"><span>OTF</span><span class="timing-track" aria-hidden="true"><i class="timing-bar timing-w" style="width:100.000%"></i></span><span class="value">1,116 ms</span></div>
+<div class="timing"><span>TTF</span><span class="timing-track" aria-hidden="true"><i class="timing-bar timing-j" style="width:64.247%"></i></span><span class="value">717 ms</span></div>
+<div class="timing"><span><span data-lang="en">TTF Subset</span><span data-lang="zh-Hant">TTF 子集</span><span data-lang="ko">TTF 서브셋</span><span data-lang="ja">TTFサブセット</span></span><span class="timing-track" aria-hidden="true"><i class="timing-bar timing-a" style="width:64.068%"></i></span><span class="value">715 ms</span></div>
+</div>
+  <div class="decomp-legend"><span><i class="key-wpf" aria-hidden="true"></i>WPF</span><span><i class="key-ava" aria-hidden="true"></i><span data-lang="en">Avalonia UI</span><span data-lang="zh-Hant">Avalonia UI</span><span data-lang="ko">Avalonia UI</span><span data-lang="ja">Avalonia UI</span></span></div>
+  <figcaption data-lang="en"><b>FIG H</b> Avalonia UI font format timing comparison<span class="cond">Windows 11 · Median values · Shorter is faster</span></figcaption>
+<figcaption data-lang="zh-Hant"><b>FIG H</b> 依字型格式比較 Avalonia UI 的顯示時間<span class="cond">Windows 11 · 中位數 · 越短越快</span></figcaption>
+<figcaption data-lang="ko"><b>FIG H</b> Avalonia UI 폰트 형식별 시간 비교<span class="cond">Windows 11 · 중앙값 · 짧을수록 빠름</span></figcaption>
+<figcaption data-lang="ja"><b>FIG H</b> Avalonia UIフォント形式別の時間比較<span class="cond">Windows 11 · 中央値 · 短いほど高速</span></figcaption>
+<details class="measure-details">
+<summary><span data-lang="en">Benchmark Details</span><span data-lang="zh-Hant">量測細節</span><span data-lang="ko">측정 상세</span><span data-lang="ja">測定詳細</span></summary>
+<dl class="measure-overview" data-lang="en">
+<div><dt>Window Launch</dt><dd>From app launch until the window first appears</dd></div>
+<div><dt>Until the screen is drawn</dt><dd>From app launch until the screen in the window last changes<br>The 1.5 s spent confirming that nothing changes is excluded</dd></div>
+<div><dt>Conditions</dt><dd>Same PC · Windows 11 · Median values<br>WPF (.NET 8): 10 window launch runs / 12 screen drawing runs<br>Avalonia UI (Native AOT): 3 builds differing only in font assets, 12 runs each<!-- F-016 F-022 F-088 --></dd></div>
+<div><dt>Interpretation</dt><dd>Screen drawing is observed from pixel changes, not from a render-complete signal. It can be affected by animations or by other windows covering the app.<br>WPF measured span: 1,060–4,579 ms<br>Measurement dates and window sizes differ, so small differences are not read as a ranking.</dd></div>
+</dl>
+
+<dl class="measure-overview" data-lang="zh-Hant">
+<div><dt>視窗顯示</dt><dd>從應用程式啟動到視窗首次出現</dd></div>
+<div><dt>畫面繪製完成</dt><dd>從應用程式啟動到視窗內畫面最後一次變化<br>不含確認無變化的 1.5 秒</dd></div>
+<div><dt>量測條件</dt><dd>同一台電腦 · Windows 11 · 中位數<br>WPF（.NET 8）：視窗顯示 10 次／畫面繪製 12 次<br>Avalonia UI（Native AOT）：僅字型不同的 3 個建置版本，各 12 次<!-- F-016 F-022 F-088 --></dd></div>
+<div><dt>解讀注意</dt><dd>畫面繪製完成是觀察像素變化，而非內部繪製完成訊號，可能受動畫或其他視窗遮擋影響。<br>WPF 量測範圍：1,060–4,579 ms<br>量測日期與視窗大小等條件不同，因此不以微小差異判定優劣。</dd></div>
+</dl>
+
+<dl class="measure-overview" data-lang="ko">
+<div><dt>창 표시</dt><dd>앱 실행부터 창이 처음 나타날 때까지</dd></div>
+<div><dt>화면이 그려지기까지</dt><dd>앱 실행부터 창 안의 화면이 마지막으로 바뀔 때까지<br>변화가 없는지 확인하는 1.5초는 측정값에서 제외</dd></div>
+<div><dt>측정 조건</dt><dd>같은 PC · Windows 11 · 중앙값<br>WPF(.NET 8): 창 표시 10회 / 화면 그리기 12회<br>Avalonia UI(Native AOT): 폰트만 다른 3개 빌드, 각각 12회<!-- F-016 F-022 F-088 --></dd></div>
+<div><dt>해석 시 주의</dt><dd>화면 그리기는 렌더링 완료 신호 대신 픽셀 변화를 관측한 값입니다. 애니메이션이나 다른 창의 가림에 영향을 받을 수 있습니다.<br>WPF 측정 범위: 1,060–4,579 ms<br>측정 날짜와 창 크기 등이 달라 작은 차이로 우열을 판단하지 않습니다.</dd></div>
+</dl>
+<dl class="measure-overview" data-lang="ja">
+<div><dt>ウィンドウ表示</dt><dd>アプリ起動からウィンドウが最初に表示されるまで</dd></div>
+<div><dt>描画完了まで</dt><dd>アプリ起動からウィンドウ内の画面が最後に変化するまで<br>変化がないことを確認する1.5秒間は測定値から除外</dd></div>
+<div><dt>測定条件</dt><dd>同一PC · Windows 11 · 中央値<br>WPF（.NET 8）：表示10回 / 描画12回<br>Avalonia UI（Native AOT）：フォントのみ異なる3ビルド、各12回<!-- F-016 F-022 F-088 --></dd></div>
+<div><dt>解釈上の注意</dt><dd>描画完了信号ではなくピクセル変化を観測した値です。アニメーションや他のウィンドウによる遮蔽の影響を受ける場合があります。<br>WPF測定範囲：1,060–4,579 ms<br>測定日やウィンドウサイズなどが異なるため、小さな差で優劣を判断しません。</dd></div>
+</dl>
+</details>
+</figure>
+
+<p data-lang="en">Switching from OTF to TTF reduced both the time until the window first appears and the time until the screen in the window stops changing. The TTF file was actually larger than the OTF, so the speedup did not come from a smaller file. However, I did not confirm at which step inside font rendering the difference arises.<!-- F-014 F-022 --></p>
+<p data-lang="zh-Hant">從 OTF 改為 TTF 後，視窗首次出現前的時間與視窗內畫面停止變化前的時間都縮短了。TTF 檔反而比 OTF 大，因此並不是檔案變小才變快。不過，我並未確認差異出現在字型繪製內部的哪個過程。<!-- F-014 F-022 --></p>
+<p data-lang="ko">OTF에서 TTF로 바꾸자 창이 처음 나타날 때까지 걸리는 시간과 창 안의 화면 변화가 멈출 때까지 걸리는 시간이 모두 줄었습니다. TTF 파일은 OTF보다 오히려 컸으므로, 파일이 작아져서 빨라진 것은 아니었습니다. 다만 폰트 렌더링 내부의 어느 과정에서 차이가 생겼는지까지 확인한 것은 아닙니다.<!-- F-014 F-022 --></p>
+<p data-lang="ja">OTFからTTFに替えると、ウィンドウが最初に表示されるまでの時間と、ウィンドウ内の描画変化が止まるまでの時間がどちらも短縮されました。TTFファイルはOTFよりむしろ大きかったため、ファイルが小さくなって速くなったわけではありません。ただし、フォント描画内部のどの過程で差が生じたのかまでは確認していません。<!-- F-014 F-022 --></p>
+
+<p data-lang="en">Subsetting the three font weights cut their total size from 16.0 MB to 10.2 MB, and window launch stayed close to that of the full TTF.<!-- F-015 F-022 --></p>
+<p data-lang="zh-Hant">為三種字重建立子集後，字型總大小從 16.0 MB 降至 10.2 MB，顯示時間則與完整 TTF 相當。<!-- F-015 F-022 --></p>
+<p data-lang="ko">서브셋을 적용하자 폰트 3종의 전체 용량은 16.0 MB에서 10.2 MB로 줄었고, 창 표시 속도는 전체 TTF를 사용할 때와 비슷하게 유지됐습니다.<!-- F-015 F-022 --></p>
+<p data-lang="ja">サブセット化を適用した結果、3つのウェイトを合わせたフォント容量は16.0 MBから10.2 MBへと削減され、ウィンドウ表示速度はフルセットのTTFを使った場合とほぼ同等に保たれました。<!-- F-015 F-022 --></p>
+
+<h3><span data-lang="en">An app that exited only in Traditional Chinese</span><span data-lang="zh-Hant">只在繁體中文下結束的應用程式</span><span data-lang="ko">번체 중국어에서만 종료되던 앱</span><span data-lang="ja">繁体字中国語でのみ終了していたアプリ</span></h3>
+
+<p data-lang="en">For the Traditional Chinese UI, I used the Windows system font <code>Microsoft JhengHei UI</code> by name, the same way as in WPF. There was no problem in development builds, but in the Native AOT release build the app intermittently exited before the window appeared. The error occurred in SkiaSharp, the native library that draws fonts.<!-- F-069 --></p>
+<p data-lang="zh-Hant">繁體中文介面沿用 WPF 的做法，以名稱指定 Windows 系統字型 <code>Microsoft JhengHei UI</code>。開發用建置沒有問題，但在 Native AOT 發佈版本中，應用程式會在視窗出現前間歇性地結束。錯誤發生在繪製字型的原生函式庫 SkiaSharp。<!-- F-069 --></p>
+<p data-lang="ko">번체 중국어 UI에는 WPF에서 쓰던 방식 그대로, Windows 시스템 폰트인 <code>Microsoft JhengHei UI</code>를 이름으로 지정해 사용했습니다. 개발용 빌드에서는 문제가 없었지만, Native AOT 배포본에서는 창이 뜨기 전에 앱이 간헐적으로 종료됐습니다. 오류는 폰트를 그리는 네이티브 라이브러리인 SkiaSharp에서 발생했습니다.<!-- F-069 --></p>
+<p data-lang="ja">繁体字中国語UIには、WPF版と同じく、Windowsのシステムフォントである<code>Microsoft JhengHei UI</code>を名前で指定して使用していました。開発用ビルドでは問題ありませんでしたが、Native AOT配布版ではウィンドウが表示される前にアプリが断続的に終了しました。エラーは、フォントを描画するネイティブライブラリであるSkiaSharpで発生していました。<!-- F-069 --></p>
+
+<p data-lang="en">Comparing the two, the same font gave different results depending on whether it was specified by name or read directly from the file. Specifying the system font name reproduced the error, while reading the same font file directly did not. I could narrow the problem down to the path that loads and uses system fonts, but could not confirm why the app exited inside it.<!-- F-069 --></p>
+<p data-lang="zh-Hant">同一個字型，結果卻取決於載入方式。以名稱指定系統字型會重現錯誤，直接讀取同一個字型檔則不會。我把問題範圍縮小到載入並使用系統字型的路徑，但未能確認應用程式為何會在其中結束。<!-- F-069 --></p>
+<p data-lang="ko">비교해 보니 같은 폰트라도 이름으로 지정할 때와 파일을 직접 읽어 사용할 때 결과가 달랐습니다. 시스템 폰트 이름을 지정한 경우에는 오류가 재현됐지만, 같은 폰트 파일을 직접 읽어 사용하는 방식에서는 재현되지 않았습니다. 문제 범위를 시스템 폰트를 불러와 사용하는 경로로 좁힐 수는 있었지만, 그 내부에서 왜 종료됐는지까지 확인하지는 못했습니다.<!-- F-069 --></p>
+<p data-lang="ja">同じフォントでも、名前で指定した場合とフォントファイルを直接読み込んで使った場合とで結果が異なりました。システムフォント名を指定した場合はエラーが再現しましたが、同じフォントファイルを直接読み込む方式では再現しませんでした。問題の範囲をシステムフォントを読み込んで使う経路まで絞り込むことはできましたが、その内部でなぜ終了したのかまでは確認できませんでした。<!-- F-069 --></p>
+
+<p data-lang="en">To fix it, I changed the setting that specified a particular font name for Traditional Chinese to <code>FontFamily.DefaultFontFamilyName</code> (<code>$Default</code>). Avalonia selects the default font, and characters missing from that font are found in other system fonts and displayed. After the change, no exit errors occurred while running the Native AOT release build 8 times, and the Traditional Chinese UI and file names were displayed correctly.<!-- F-069 --></p>
+<p data-lang="zh-Hant">解決方式是把繁體中文原本指定特定字型名稱的設定，改為 <code>FontFamily.DefaultFontFamilyName</code>（<code>$Default</code>）。由 Avalonia 選擇預設字型，該字型中沒有的字元則從其他系統字型尋找並顯示。修改後執行 Native AOT 發佈版本 8 次，都沒有再發生結束錯誤，繁體中文介面與檔名也都正常顯示。<!-- F-069 --></p>
+<p data-lang="ko">해결할 때는 번체 중국어에 특정 폰트 이름을 지정하던 설정을 <code>FontFamily.DefaultFontFamilyName</code>(<code>$Default</code>)으로 바꿨습니다. Avalonia가 기본 폰트를 선택하고, 그 폰트에 없는 문자는 다른 시스템 폰트에서 찾아 표시하도록 했습니다. 변경 후 Native AOT 배포본을 8회 실행하는 동안 종료 오류가 발생하지 않았고, 번체 UI와 파일명도 정상적으로 표시됐습니다.<!-- F-069 --></p>
+<p data-lang="ja">対策として、繁体字中国語に特定のフォント名を指定していた設定を<code>FontFamily.DefaultFontFamilyName</code>（<code>$Default</code>）に変更しました。Avaloniaが既定のフォントを選び、そのフォントにない文字は他のシステムフォントから探して表示するようにしました。変更後、Native AOT配布版を8回起動する間に終了エラーは発生せず、繁体字UIとファイル名も正しく表示されました。<!-- F-069 --></p>
+
+<h2 id="ai"><span data-lang="en">Dividing work with AI</span><span data-lang="zh-Hant">與 AI 的分工</span><span data-lang="ko">AI와 사람이 나눈 일</span><span data-lang="ja">AIと人が分担した作業</span></h2>
+
+<p data-lang="en">I gave code writing and measurement to AI and set the porting direction and design standards myself. So that AI could understand the project and work to those standards, I organized guidelines and documents, and also set up tools to find the information it needed and an environment to check its work.<!-- F-060 F-093 F-052 F-053 F-054 F-055 F-064 F-065 F-066 --></p>
+<p data-lang="zh-Hant">我把撰寫程式碼與量測交給 AI，移植方向與設計準則則由我決定。為了讓 AI 理解專案並依照這些準則作業，我整理了工作指引與文件，也一併備妥查找所需資訊的工具，以及檢查作業結果的環境。<!-- F-060 F-093 F-052 F-053 F-054 F-055 F-064 F-065 F-066 --></p>
+<p data-lang="ko">AI에는 코드 작성과 측정을 맡기고, 저는 이식 방향과 설계 기준을 정했습니다. AI가 프로젝트를 이해하고 그 기준에 맞춰 작업할 수 있도록 지침과 문서를 정리하고, 필요한 정보를 찾는 도구와 작업 결과를 검사하는 환경도 함께 갖췄습니다.<!-- F-060 F-093 F-052 F-053 F-054 F-055 F-064 F-065 F-066 --></p>
+<p data-lang="ja">AIにはコード作成と測定を任せ、私は移植の方向性と設計基準を決めました。AIがプロジェクトを理解し、その基準に沿って作業できるよう指針と文書を整理し、必要な情報を探すツールと作業結果を検査する環境も併せて整えました。<!-- F-052 F-053 F-054 F-055 F-060 F-064 F-065 F-066 F-093 --></p>
+
+<h3><span data-lang="en">What I left to AI and what I decided myself</span><span data-lang="zh-Hant">交給 AI 的工作與親自決定的事</span><span data-lang="ko">AI에 맡긴 일과 직접 정한 일</span><span data-lang="ja">AIに任せた作業と自分で決めたこと</span></h3>
+
+<p data-lang="en">For the first month or two, I read all of the code the AI wrote. When I didn't like an implementation, I pointed out the problem, had it fixed, and added the point to the work guidelines so the same approach would not come back. By repeating fixes and documentation until the code was right, I built up the design and implementation style I wanted into a reference the AI could follow.<!-- F-095 --></p>
+<p data-lang="zh-Hant">最初的一兩個月，我讀過 AI 寫的每一段程式碼。遇到不滿意的實作，就指出問題請 AI 修正，並寫進工作指引，避免下次重蹈覆轍。我反覆修正與記錄，直到程式碼令人滿意為止，逐步把我想要的設計與實作方式累積成 AI 可參考的準則。<!-- F-095 --></p>
+<p data-lang="ko">초기 한두 달 동안은 AI가 작성한 코드를 모두 읽었습니다. 마음에 들지 않는 구현이 있으면 문제점을 지적해 수정을 맡겼고, 다음 작업에서도 같은 방식을 반복하지 않도록 작업 지침에 반영했습니다. 코드가 만족스러워질 때까지 수정과 문서화를 반복하면서, 제가 원하는 설계와 구현 방식을 AI가 참고할 수 있는 기준으로 쌓아 갔습니다.<!-- F-095 --></p>
+<p data-lang="ja">初期の1〜2か月間は、AIが書いたコードをすべて読みました。納得できない実装があれば問題点を指摘して修正を任せ、以降の作業で同じやり方を繰り返さないよう作業指針に反映しました。納得のいくコードになるまで修正と文書化を繰り返し、私が求める設計と実装の方針を、AIが参照できる基準として積み上げていきました。<!-- F-095 --></p>
+
+<p data-lang="en">When reviewing solutions, I asked several AI services the same question. The answers differed even for the same question, and comparing the different explanations and suggestions was helpful. Besides writing code, I also used AI for measurement work, such as checking execution times across product versions and the effect of swapping fonts.<!-- F-092 F-079 F-022 --></p>
+<p data-lang="zh-Hant">評估解決方法時，我會把同一個問題拿去問多個 AI。同樣的問題，回答也各不相同，比較這些不同的說明與建議很有幫助。除了撰寫程式碼，我也用 AI 進行量測作業，確認各產品版本的執行時間與更換字型的效果。<!-- F-092 F-079 F-022 --></p>
+<p data-lang="ko">해결 방법을 검토할 때는 여러 AI에 같은 질문을 던져 봤습니다. 같은 질문에도 답이 달라, 서로 다른 설명과 제안을 비교하는 것이 도움이 됐습니다. 코드 작성 외에 제품 버전별 실행 시간이나 폰트 교체 효과를 확인하는 측정 작업에도 AI를 활용했습니다.<!-- F-092 F-079 F-022 --></p>
+<p data-lang="ja">解決策を検討する際には、複数のAIに同じ質問を投げかけました。同じ質問でも回答が異なり、異なる説明や提案を比較することが役立ちました。コード作成以外にも、製品バージョン別の実行時間やフォント置き換えの効果を確認する測定作業にAIを活用しました。<!-- F-022 F-079 F-092 --></p>
+
+<h3><span data-lang="en">Documentation and tooling built for AI</span><span data-lang="zh-Hant">為 AI 打造的文件與工具</span><span data-lang="ko">AI를 위한 문서와 도구</span><span data-lang="ja">AIのための文書とツール</span></h3>
+
+<p data-lang="en">So that AI could look up the project's structure and working standards, I split documents by role. The wiki covers architecture, code style, per-feature structure, and how to verify each feature. Architecture Decision Records (ADRs) record what changed and why, and which approaches were considered and dropped. Design reasons that are hard to see from the current code alone can then be referred to in later work.<!-- F-095 F-054 --></p>
+<p data-lang="zh-Hant">為了讓 AI 能查閱專案的結構與作業準則，我依角色劃分文件。Wiki 整理架構、程式碼風格、各功能的結構與驗證方法。架構決策紀錄（ADR）記錄改了什麼、為什麼改，以及考慮過後放棄了哪些方法。僅憑目前的程式碼難以得知的設計理由，也能在之後的作業中參考。<!-- F-095 F-054 --></p>
+<p data-lang="ko">AI가 프로젝트의 구조와 작업 기준을 찾아볼 수 있도록 문서를 역할에 따라 나눴습니다. 위키에는 아키텍처와 코드 스타일, 기능별 구조와 검증 방법을 정리했습니다. 의사결정 기록(ADR)에는 무엇을 왜 바꿨는지, 어떤 방법을 검토했다가 버렸는지를 남겼습니다. 현재 코드만으로는 알기 어려운 설계 이유도 다음 작업에서 참고할 수 있도록 했습니다.<!-- F-095 F-054 --></p>
+<p data-lang="ja">AIがプロジェクトの構造と作業基準を参照できるよう、文書を役割ごとに分けました。Wikiにはアーキテクチャとコードスタイル、機能ごとの構造と検証方法をまとめました。意思決定記録（ADR）には、何をなぜ変えたのか、どの方法を検討して採用しなかったのかを残しました。現在のコードだけでは分かりにくい設計の理由も、次の作業で参照できるようにしました。<!-- F-054 F-095 --></p>
+
+<p data-lang="en"><code>AGENTS.md</code> lists what may be edited and which documents to read before starting a task. When code changes, the related documents are updated with it, so a new session or a different AI can pick up the work and follow the same standards. Points raised during review were also added to the work guidelines so they carry over to later work.<!-- F-052 F-054 F-095 --></p>
+<p data-lang="zh-Hant"><code>AGENTS.md</code> 說明可以修改的範圍，以及作業前應先閱讀的文件。程式碼變更時也一併更新相關文件，讓新的工作階段或其他 AI 接手時，也能依相同準則作業。審閱時指出的內容也反映到工作指引中，延續到之後的作業。<!-- F-052 F-054 F-095 --></p>
+<p data-lang="ko"><code>AGENTS.md</code>에는 수정할 수 있는 범위와 작업에 앞서 읽어야 할 문서를 안내했습니다. 코드가 바뀌면 관련 문서도 함께 갱신하도록 해, 새 세션이나 다른 AI가 이어받아도 같은 기준으로 작업할 수 있게 했습니다. 검토 중 지적한 내용도 작업 지침에 반영해 다음 작업에 이어지도록 했습니다.<!-- F-052 F-054 F-095 --></p>
+<p data-lang="ja"><code>AGENTS.md</code>には編集できる範囲と、作業前に読むべき文書を案内しました。コードが変わったら関連文書も併せて更新するようにし、新しいセッションや別のAIが引き継いでも同じ基準で作業できるようにしました。レビューで指摘した内容も作業指針に反映し、次の作業に引き継ぎました。<!-- F-052 F-054 F-095 --></p>
+
+<p data-lang="en">With the <code>ponytail</code> skill, I had AI first check whether existing code could be reused before writing new code. This helped gather processing that can be shared into the shared layer.<!-- F-097 F-098 --></p>
+<p data-lang="zh-Hant">我透過 <code>ponytail</code> 技能，讓 AI 在撰寫新程式碼前，先確認能否重用既有程式碼。這有助於把可共用的處理集中到共用層。<!-- F-097 F-098 --></p>
+<p data-lang="ko"><code>ponytail</code> 스킬로 새 코드를 만들기 전에 기존 코드를 재사용할 수 있는지 먼저 확인하게 했습니다. 함께 쓸 수 있는 처리를 공유 계층에 모으는 데 도움이 됐습니다.<!-- F-097 F-098 --></p>
+<p data-lang="ja"><code>ponytail</code>スキルで、新しいコードを書く前に既存コードを再利用できるかをまず確認させました。共通で使える処理を共有層に集めるのに役立ちました。<!-- F-097 F-098 --></p>
+
+<p data-lang="en">So that AI could look up the structure of the code, I built a knowledge graph with <code>graphify</code>. It is a map of the code that links where classes and methods are defined and what they call or reference. I had AI query these relationships to find related code.<!-- F-064 F-097 --></p>
+<p data-lang="zh-Hant">為了讓 AI 能查找程式碼的結構，我用 <code>graphify</code> 建立了知識圖譜。這是一張程式碼地圖，記錄類別與方法定義在哪裡，以及彼此呼叫或參照了什麼。我讓 AI 查詢這些關係來找出相關程式碼。<!-- F-064 F-097 --></p>
+<p data-lang="ko">AI가 코드의 구조를 찾아볼 수 있도록 <code>graphify</code>로 지식 그래프를 구성했습니다. 클래스와 메서드가 어디에 정의되어 있고, 서로 무엇을 호출하거나 참조하는지 연결해 놓은 코드의 지도입니다. AI가 이 관계를 조회해 관련 코드를 찾도록 했습니다.<!-- F-064 F-097 --></p>
+<p data-lang="ja">AIがコードの構造を調べられるよう、<code>graphify</code>でナレッジグラフを構築しました。クラスやメソッドがどこで定義され、互いに何を呼び出し参照しているかを結んだコードの地図です。AIがこの関係を照会して関連コードを探せるようにしました。<!-- F-064 F-097 --></p>
+
+<p data-lang="en">I used it before writing new code to check for an existing implementation with the same role, and before changing code to find where that code is called. After narrowing down the related files and the parts a change would affect, I had AI read the actual source of the code to change and its callers together.<!-- F-097 --></p>
+<p data-lang="zh-Hant">撰寫新程式碼前，用它找出是否已有負責相同工作的既有實作；修改程式碼前，則用它確認有哪些地方呼叫這段程式碼。先縮小相關檔案與受變更影響的範圍，再讓 AI 一併閱讀要修改的程式碼與呼叫端的實際原始碼。<!-- F-097 --></p>
+<p data-lang="ko">새 코드를 작성하기 전에는 같은 역할을 하는 기존 구현이 있는지 찾고, 코드를 수정하기 전에는 그 코드를 호출하는 곳을 확인하는 데 썼습니다. 이렇게 관련 파일과 변경의 영향을 받을 부분을 좁힌 뒤, 수정할 코드와 호출부의 실제 소스를 함께 읽도록 했습니다.<!-- F-097 --></p>
+<p data-lang="ja">新しいコードを書く前には同じ役割の既存実装がないかを探し、コードを修正する前にはそのコードの呼び出し元を確認するのに使いました。こうして関連ファイルと変更の影響を受ける部分を絞り込んだうえで、修正するコードと呼び出し元の実際のソースを併せて読ませました。<!-- F-097 --></p>
+
+<p data-lang="en">For Avalonia UI APIs, I connected the <code>avalonia-docs</code> MCP, which queries the official documentation directly. This way AI searched the official docs for the latest API specifications and verified against them instead of relying on guesses. I set the tool up to be ready automatically when a session starts, so work could continue in the same environment even when the PC changed.<!-- F-065 F-066 --></p>
+<p data-lang="zh-Hant">Avalonia UI 的 API，我接上能直接查詢官方文件的 <code>avalonia-docs</code> MCP 來確認，讓 AI 不靠猜測，而是搜尋官方文件中最新的 API 規格加以驗證。這個工具會在工作階段開始時自動備妥，即使換了作業用的電腦，也能在相同的環境中繼續作業。<!-- F-065 F-066 --></p>
+<p data-lang="ko">Avalonia UI의 API는 공식 문서를 직접 조회하는 <code>avalonia-docs</code> MCP를 연결해 확인하도록 했습니다. AI가 짐작에 의존하지 않고 공식 문서의 최신 API 사양을 검색해 검증하도록 한 것입니다. 세션을 시작할 때 이 도구가 자동으로 준비되도록 구성해, 작업하는 PC가 바뀌어도 같은 환경에서 작업을 이어갈 수 있게 했습니다.<!-- F-065 F-066 --></p>
+<p data-lang="ja">Avalonia UIのAPIは、公式ドキュメントを直接検索できる<code>avalonia-docs</code> MCPを接続して確認させました。AIが推測に頼らず、公式ドキュメントで最新のAPI仕様を調べて検証できるようにしたためです。セッション開始時にこのツールが自動的にセットアップされるよう構成し、作業するPCが変わっても同じ環境で作業を継続できるようにしました。<!-- F-065 F-066 --></p>
+
+<h3><span data-lang="en">Making sure the rules are actually followed</span><span data-lang="zh-Hant">讓規則確實落實的自動化機制</span><span data-lang="ko">규칙을 실제로 지키게 하는 장치</span><span data-lang="ja">ルールを実際に守らせる仕組み</span></h3>
+
+<p data-lang="en">Items that had to be checked repeatedly were moved to automated checks. A session-end hook checked the encoding of files the AI had modified. Apart from the code content, this also caught changes to the file format during editing.<!-- F-053 --></p>
+<p data-lang="zh-Hant">需要反覆確認的項目改由自動檢查處理。工作階段結束時的 hook 會檢查 AI 修改過的檔案編碼。除了程式碼內容之外，也能發現編輯過程中檔案格式被改變的問題。<!-- F-053 --></p>
+<p data-lang="ko">반복해서 확인해야 하는 항목은 자동 검사로 옮겼습니다. 세션 종료 훅은 AI가 수정한 파일의 인코딩을 검사했습니다. 코드 내용과 별개로 편집 과정에서 파일 형식이 바뀌는 문제도 확인할 수 있도록 했습니다.<!-- F-053 --></p>
+<p data-lang="ja">繰り返し確認が必要な項目は自動検査に移しました。セッション終了フックは、AIが編集したファイルのエンコーディングを検査しました。コードの内容とは別に、編集の過程でファイル形式が変わる問題も確認できるようにしました。<!-- F-053 --></p>
+
+<p data-lang="en">In the build, I applied the rule of keeping warnings from the compiler, code analyzers, and the Avalonia XAML analyzer at zero. The source generator described earlier raised a compile error when an OS-specific implementation was missing. Rules from the docs that could be checked automatically were checked at session end or during the build.<!-- F-055 F-028 --></p>
+<p data-lang="zh-Hant">建置時，採用編譯器、程式碼分析器與 Avalonia XAML 分析器的警告維持 0 件的標準。前面提到的原始碼產生器，會在缺少某個 OS 的實作時產生編譯錯誤。文件中的規則只要能自動確認，就在作業結束或建置過程中檢查。<!-- F-055 F-028 --></p>
+<p data-lang="ko">빌드에서는 컴파일러·코드 분석기·Avalonia XAML 분석기의 경고를 0건으로 유지하는 기준을 적용했습니다. 앞서 설명한 소스 생성기는 OS별 구현이 빠졌을 때 컴파일 오류를 냈습니다. 문서에 남긴 규칙 중 자동으로 확인할 수 있는 것은 작업 종료나 빌드 과정에서 검사하도록 했습니다.<!-- F-055 F-028 --></p>
+<p data-lang="ja">ビルドでは、コンパイラ・コードアナライザー・Avalonia XAMLアナライザーの警告を0件に保つ基準を適用しました。前述のソースジェネレーターは、OSごとの実装が欠けているとコンパイルエラーを出しました。文書に残したルールのうち自動で確認できるものは、作業終了時やビルドの過程で検査するようにしました。<!-- F-055 F-028 --></p>
+
+<h2 id="try"><span data-lang="en">Try it</span><span data-lang="zh-Hant">下載試用</span><span data-lang="ko">받아서 써보기</span><span data-lang="ja">ダウンロードして試す</span></h2>
+
+<p data-lang="en">The public release of the Windows installer and the signed, notarized macOS DMG package is being prepared. Download links will be added when they are ready.<!-- F-100 --> All features can be used without logging in,<!-- F-026 --> and the app runs on macOS 13 or later.<!-- F-011 --></p>
+<p data-lang="zh-Hant">Windows 安裝檔與經過簽署、公證的 macOS DMG 正在準備公開發佈。下載連結會在準備好後加入。<!-- F-100 -->無需登入即可使用所有功能，<!-- F-026 -->macOS 13 以上版本即可執行。<!-- F-011 --></p>
+<p data-lang="ko">Windows 설치 파일과 서명·공증된 macOS용 DMG 패키지의 공개 배포를 준비 중입니다. 다운로드 링크는 준비되는 대로 추가하겠습니다.<!-- F-100 --> 로그인하지 않아도 모든 기능을 쓸 수 있고,<!-- F-026 --> macOS는 13 이상에서 실행됩니다.<!-- F-011 --></p>
+<p data-lang="ja">Windows用インストーラーと、署名・公証済みのmacOS用DMGの一般公開を準備しています。ダウンロードリンクは準備が整い次第追加します。<!-- F-100 -->ログインしなくてもすべての機能を使え、<!-- F-026 -->macOS 13以降で動作します。<!-- F-011 --></p>
+
+<footer class="article-footer" aria-label="End of article" data-label-en="End of article" data-label-zh-hant="文章結尾" data-label-ko="글의 끝" data-label-ja="記事の終わり">
+  <p class="footer-top-row"><span class="footer-title"><span data-lang="en">From WPF to Avalonia: Taking ezZip to macOS</span><span data-lang="zh-Hant">從 WPF 到 Avalonia：將 ezZip 帶到 macOS</span><span data-lang="ko">WPF에서 Avalonia로, ezZip을 macOS까지</span><span data-lang="ja">WPFからAvaloniaへ、ezZipをmacOSまで</span></span><a class="footer-top" href="#page-top"><span data-lang="en">Back to top</span><span data-lang="zh-Hant">回到頂端</span><span data-lang="ko">맨 위로</span><span data-lang="ja">トップへ戻る</span> <span aria-hidden="true">↑</span></a></p>
+</footer>
+
+</main>
+<div class="seoul-band" aria-hidden="true"><img src="assets/seoul-white-panorama.png" width="3840" height="594" alt="" loading="lazy" decoding="async"></div>
+<script>
+document.querySelectorAll('.meta-icon[data-copy]').forEach(function (b) {
+  var timer;
+  b.addEventListener('click', function () {
+    navigator.clipboard.writeText(b.getAttribute('data-copy')).then(function () {
+      b.classList.add('is-copied');
+      clearTimeout(timer);
+      timer = setTimeout(function () { b.classList.remove('is-copied'); }, 1500);
+    });
+  });
+});
+(function () {
+  var chips = [].slice.call(document.querySelectorAll('.pbar-ch'));
+  var heads = chips.map(function (a) { return document.getElementById(a.hash.slice(1)); });
+  var nav = document.querySelector('.pbar-nav');
+  var blur = document.querySelector('.bar-blur');
+
+  // 모바일 위 바: 헤더 칩의 절 제목으로 메뉴를 만든다(번역 span 이 함께 따라온다)
+  var mbar = document.querySelector('.mbar');
+  var mnav = document.getElementById('mbar-nav');
+  var mbtn = document.querySelector('.mbar-menu');
+  var mscrim = document.querySelector('.mbar-scrim');
+  chips.forEach(function (c) {
+    var a = document.createElement('a');
+    a.href = c.hash;
+    a.innerHTML = c.querySelector('.pbar-title').innerHTML;
+    mnav.appendChild(a);
+  });
+  var mlinks = [].slice.call(mnav.querySelectorAll('a'));
+  function setMenu(open) {
+    mbar.classList.toggle('is-open', open);
+    mscrim.classList.toggle('is-on', open);
+    mbtn.setAttribute('aria-expanded', open);
+    if (open) {
+      var en = document.createRange(); en.selectNodeContents(mbar.querySelector('[data-set-lang="en"]'));
+      mnav.style.setProperty('--en-left', en.getBoundingClientRect().left + 'px');
+      blur.style.setProperty('--menu-h', (mbar.getBoundingClientRect().bottom + 48) + 'px');
+    }
+    blur.classList.toggle('is-menu', open);
+  }
+  mbtn.addEventListener('click', function () { setMenu(!mbar.classList.contains('is-open')); });
+  mscrim.addEventListener('click', function () { setMenu(false); });
+  mlinks.forEach(function (a) { a.addEventListener('click', function () { setMenu(false); }); });
+  addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && mbar.classList.contains('is-open')) { setMenu(false); mbtn.focus(); }
+  });
+
+  var last = -1;
+  function update() {
+    // 위치를 모두 읽은 뒤에 쓴다. 쓰고 나서 읽으면 브라우저가 레이아웃을 매번 다시 계산한다.
+    var y = window.scrollY, line = innerHeight * 0.3, active = 0;
+    heads.forEach(function (h, i) { if (h && h.getBoundingClientRect().top < line) active = i; });
+    if (innerHeight + y >= document.documentElement.scrollHeight - 2) active = heads.length - 1;
+
+    blur.classList.toggle('is-on', y > 4);
+    if (active === last) return;
+    last = active;
+    chips.forEach(function (c, i) {
+      c.classList.toggle('is-on', i === active);
+      if (i === active) c.setAttribute('aria-current', 'location'); else c.removeAttribute('aria-current');
+    });
+    mlinks.forEach(function (a, i) { a.classList.toggle('is-active', i === active); });
+    // 칩 줄이 넘치는 폭에서는 켜진 칩이 보이게 가로로 맞춘다
+    var c = chips[active], left = c.offsetLeft - nav.offsetLeft;
+    if (left < nav.scrollLeft || left + c.offsetWidth > nav.scrollLeft + nav.clientWidth) nav.scrollLeft = left - 8;
+  }
+  var ticking = false;
+  addEventListener('scroll', function () {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () { ticking = false; update(); });
+  }, { passive:true });
+  addEventListener('resize', function () { last = -1; update(); });
+
+  var langBtns = [].slice.call(document.querySelectorAll('.lang-btn, .mbar-btn[data-set-lang]'));
+  function applyLanguage(lang) {
+    document.documentElement.lang = lang;
+    document.documentElement.setAttribute('data-lang', lang);
+    langBtns.forEach(function (btn) {
+      var on = btn.getAttribute('data-set-lang') === lang;
+      btn.classList.toggle('is-active', on);
+      btn.setAttribute('aria-pressed', on);
+    });
+    // 속성 문자열(alt·aria-label)은 data-alt-<언어>·data-label-<언어> 에서 고른다.
+    var key = lang.toLowerCase();
+    document.querySelectorAll('[data-alt-en]').forEach(function (el) { el.alt = el.getAttribute('data-alt-' + key); });
+    document.querySelectorAll('[data-label-en]').forEach(function (el) { el.setAttribute('aria-label', el.getAttribute('data-label-' + key)); });
+    document.querySelector('.architecture-chart').setAttribute('aria-labelledby', 'architecture-title-' + lang + ' architecture-desc-' + lang);
+    document.title = document.querySelector('#article-title [data-lang="' + lang + '"]').textContent;
+    // ezlab.im 은 언어 경로가 ko · en · jp · tw 다
+    var site = { ko:'ko', en:'en', ja:'jp', 'zh-Hant':'tw' }[lang] || 'en';
+    document.querySelectorAll('a[data-ezlab]').forEach(function (a) { a.href = 'https://ezlab.im/' + site + '/tool/ezzip'; });
+    last = -1;
+    update();
+  }
+  // 언어마다 본문 길이가 달라 scrollY 만 유지하면 다른 절로 밀린다.
+  // 바꾸기 전 보던 절 제목의 화면 위치를 기억해 같은 자리로 되돌리고, 맨 아래였다면 맨 아래에 둔다.
+  function switchLanguage(lang) {
+    var root = document.documentElement;
+    var atBottom = innerHeight + window.scrollY >= root.scrollHeight - 2;
+    var anchor = heads[last] || heads[0]; // update() 가 구한 현재 절
+    var before = anchor.getBoundingClientRect().top;
+    applyLanguage(lang);
+    window.scrollTo(0, atBottom ? root.scrollHeight : window.scrollY + anchor.getBoundingClientRect().top - before);
+  }
+  // 고른 언어를 기억한다. 저장소가 막힌 환경(사생활 보호 창 등)에서는 브라우저 언어로 돌아간다.
+  var LANG_KEY = 'portchallenge-lang';
+  langBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var lang = btn.getAttribute('data-set-lang');
+      switchLanguage(lang);
+      try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
+    });
+  });
+
+  function detectInitialLanguage() {
+    try {
+      var saved = localStorage.getItem(LANG_KEY);
+      if (langBtns.some(function (b) { return b.getAttribute('data-set-lang') === saved; })) return saved;
+    } catch (e) {}
+    var langs = navigator.languages || [navigator.language];
+    for (var i = 0; i < langs.length; i++) {
+      var tag = langs[i].toLowerCase();
+      // zh-Hans·zh-CN 같은 간체 중국어는 번체로 보내지 않는다.
+      if (/^zh-(hant|tw|hk|mo)\b/.test(tag)) return 'zh-Hant';
+      var code = tag.split('-')[0];
+      if (code === 'en' || code === 'ko' || code === 'ja') return code;
+    }
+    return 'en';
+  }
+  applyLanguage(detectInitialLanguage());
+})();
+</script>
+</body>
+</html>
