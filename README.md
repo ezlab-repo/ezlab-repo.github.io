@@ -6,7 +6,7 @@ MOBSOFT(ezLab)가 외부에 공개하는 정적 HTML 페이지 저장소입니�
 
 | 슬러그 | 주소 | 내용 | 게시일 |
 |---|---|---|---|
-| `ezzip-port-challenge` | https://ezlab-repo.github.io/ezzip-port-challenge/ | [Avalonia Port Challenge](https://avaloniaui.net/blog/avalonia-port-challenge) 제출 원고 "From WPF to Avalonia: Taking ezZip to macOS". ezZip을 WPF에서 Avalonia UI로 옮겨 macOS까지 지원한 과정을 다룹니다. 영어·번체 중국어·한국어·일본어 4개 국어 | 2026-10-12 |
+| `ezzip-port-challenge` | https://ezlab-repo.github.io/ezzip-port-challenge/ | ezZip Avalonia Port Challenge 제출 원고 | 2026-10-12 |
 
 ## 새 페이지 추가
 
