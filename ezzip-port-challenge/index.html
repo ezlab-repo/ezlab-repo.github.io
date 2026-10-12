@@ -21,9 +21,33 @@
     --neutral:#94938c; 
     --accent-soft:#edf2fc; 
     --accent-line:#bacdf8; 
-    --neutral-soft:#dcdad3; 
+    --neutral-soft:#dcdad3;
+    --strong:#000;
+    --timing-w:#a8baf0;
+    --timing-j:#5f7ad6;
+    color-scheme:light;
     --font-sans:"Noto Sans KR", "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif; 
     --font-data:"Space Grotesk", "Noto Sans KR", sans-serif;
+  }
+  /* 다크 모드: 첫 화면은 OS 설정, 위 바의 전환 버튼으로 바꾸면 그 선택을 기억한다(<head> 스크립트가 data-theme 를 칠하기 전에 정한다).
+     막대색은 바탕 대비 3:1 이상을 지키고, 의미(Avalonia 가장 눈에 띔·엔진 중간·WPF 회색)는 유지한다 */
+  :root[data-theme="dark"] {
+    color-scheme:dark;
+    --fg:#e8e7e3;
+    --muted:#a3a29b;
+    --line:#34332f;
+    --bg:#141416;
+    --code:#232320;
+    --ava:#8ea2ff;
+    --accent:#8ea2ff;
+    --engine:#5468c4;
+    --neutral:#7c7b74;
+    --accent-soft:#1d2444;
+    --accent-line:#3a4a8a;
+    --neutral-soft:#3a3934;
+    --strong:#fff;
+    --timing-w:#3a4a8a;
+    --timing-j:#5468c4;
   }
   * { box-sizing:border-box; }
   html:lang(zh-Hant) { --font-sans:"Noto Sans TC", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft JhengHei", "PingFang TC", sans-serif; }
@@ -148,7 +172,7 @@
   .timing .value { text-align:right; white-space:nowrap; font-family:var(--font-data); font-size:13px; font-weight:700; font-variant-numeric:tabular-nums; }
   .timing-track { min-width:0; height:8px; background:var(--code); border-radius:4px; overflow:hidden; }
   .timing-bar { display:block; height:100%; border-radius:4px; }
-  .timing-wpf { background:var(--neutral); } .timing-w { background:#a8baf0; } .timing-j { background:#5f7ad6; } /* Avalonia 빌드: OTF→TTF→서브셋 순으로 진해지는 파랑 */ .timing-a { background:var(--ava); }
+  .timing-wpf { background:var(--neutral); } .timing-w { background:var(--timing-w); } .timing-j { background:var(--timing-j); } /* Avalonia 빌드: OTF→TTF→서브셋 순으로 진해지는 파랑 */ .timing-a { background:var(--ava); }
   .fontchart { padding:0; border:0; }
   .fontchart h4 { margin:22px 0 10px; font-size:15px; }
   .fontchart h4:first-child { margin-top:0; }
@@ -186,10 +210,13 @@
   .dl-btn svg { width:auto; height:16px; } /* viewBox 를 그림 좌우 끝에 맞춰 잘랐다: 아이콘도 글자처럼 상자 여백만으로 간격이 정해진다 (사용자 결정 2026-10-10) */
   .dl-btn:hover { color:var(--fg); text-decoration:none; }
   .dl-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .theme-btn { border:0; background:transparent; cursor:pointer; }
+  .theme-btn .ico-sun, :root[data-theme="dark"] .theme-btn .ico-moon { display:none; }
+  :root[data-theme="dark"] .theme-btn .ico-sun { display:block; }
   /* 언어 버튼: 챕터 칩과 같은 글자 버튼 — 각 언어 고유 이름(English·繁中·日本語·한국어), 선택은 검정 굵게. 코드 표기(EN·ZH…)는 낡아 보여 교체 (사용자 결정 2026-10-10) */
   .lang-btn { flex:none; min-width:32px; height:36px; display:inline-flex; align-items:center; justify-content:center; padding:0 4px; border:0; background:transparent; color:var(--muted); font:500 14px/1 var(--font-sans); white-space:nowrap; cursor:pointer; }
   .lang-btn:hover { color:var(--fg); }
-  .lang-btn.is-active, .lang-btn.is-active:hover { color:#000; font-weight:700; }
+  .lang-btn.is-active, .lang-btn.is-active:hover { color:var(--strong); font-weight:700; }
   .lang-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
 
   /* 데스크톱 헤더(768px 이상): popo 포트폴리오 데스크톱 헤더를 옮겼다 (사용자 결정 2026-10-08).
@@ -212,7 +239,7 @@
     .pbar-ch { flex:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; min-width:44px; height:44px; padding:0 4px; color:var(--fg); font:500 15px/1 var(--font-sans); white-space:nowrap; text-decoration:none; }
     .pbar-num { font:500 13px/1 var(--font-data); font-variant-numeric:tabular-nums; }
     .pbar-title { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
-    .pbar-ch.is-on { padding:0 18px 0 16px; color:#000; font-weight:700; }
+    .pbar-ch.is-on { padding:0 18px 0 16px; color:var(--strong); font-weight:700; }
     .pbar-ch.is-on .pbar-num { font-weight:700; }
     .pbar-ch.is-on .pbar-title { position:static; width:auto; height:auto; overflow:visible; clip:auto; }
     .pbar-ch:hover { text-decoration:none; }
@@ -245,30 +272,33 @@
        8px 이면 아이콘 버튼 폭이 29px 로 좁았다. 13px 이면 바 폭 약 343px — 360px 화면까지 한 줄 (사용자 재지적 2026-10-10) */
     .mbar-lang { display:flex; gap:0; order:1; }
     .mbar-btn { flex:none; width:44px; height:44px; display:inline-flex; align-items:center; justify-content:center; padding:0; border:0; background:transparent; color:var(--muted); font:500 14px/1 var(--font-sans); cursor:pointer; }
-    .mbar-btn.is-active { color:#000; font-weight:700; }
+    .mbar-btn.is-active { color:var(--strong); font-weight:700; }
     .mbar-lang .mbar-btn { width:auto; padding:0 13px; font:500 14px/1 var(--font-sans); white-space:nowrap; }
     .mbar-lang .mbar-btn.is-active { font-weight:700; }
     .mbar-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
     .mbar-btn svg { width:auto; height:16px; }
-    .mbar-dl, .mbar-menu { width:auto; padding:0 13px; }
-    @media (max-width:359px) { .mbar-lang .mbar-btn, .mbar-dl, .mbar-menu { padding:0 9px; } }
+    .mbar-theme, .mbar-dl, .mbar-menu { width:auto; padding:0 13px; }
+    /* 테마 버튼이 늘어 바 폭이 약 381px: 399px 이하 9px·339px 이하 6px 로 줄여 320px 화면까지 한 줄 */
+    @media (max-width:399px) { .mbar-lang .mbar-btn, .mbar-theme, .mbar-dl, .mbar-menu { padding:0 9px; } }
+    @media (max-width:339px) { .mbar-lang .mbar-btn, .mbar-theme, .mbar-dl, .mbar-menu { padding:0 6px; } }
     /* 글 끝 줄: 한 줄에 두면 제목이 두 줄로 꺾여 찌그러진다. 제목 아래에 맨 위로를 두고, 누르는 높이 44px */
     .footer-top-row { flex-direction:column; align-items:flex-start; gap:8px; }
     .footer-title { padding-top:8px; font-size:14px; }
     .footer-top { min-height:44px; font-size:15px; } /* 13px 는 손가락 대상으로 작았다 (사용자 지적 2026-10-10) */
-    .mbar-dl { order:2; }
-    .mbar-menu { order:3; }
-    .mbar.is-open .mbar-menu { color:#000; }
+    .mbar-theme { order:2; }
+    .mbar-dl { order:3; }
+    .mbar-menu { order:4; }
+    .mbar.is-open .mbar-menu { color:var(--strong); }
     .mbar-menu .ico-close, .mbar.is-open .mbar-menu .ico-open { display:none; }
     .mbar.is-open .mbar-menu .ico-close { display:block; }
     .mbar-nav { display:none; }
-    .mbar.is-open .mbar-nav { counter-reset:mtoc -1; display:flex; order:4; width:0; min-width:100%; flex-direction:column; gap:2px; padding:8px 16px 0 var(--en-left, 16px); } /* 목차 왼쪽을 EN 글자 왼쪽에 맞춘다 — 위치는 메뉴를 열 때 JS 가 잰다 (사용자 결정 2026-10-10) */
+    .mbar.is-open .mbar-nav { counter-reset:mtoc -1; display:flex; order:5; width:0; min-width:100%; flex-direction:column; gap:2px; padding:8px 16px 0 var(--en-left, 16px); } /* 목차 왼쪽을 EN 글자 왼쪽에 맞춘다 — 위치는 메뉴를 열 때 JS 가 잰다 (사용자 결정 2026-10-10) */
     .mbar-nav a { display:flex; align-items:baseline; min-height:44px; padding:11px 0; font-size:16px; font-weight:500; line-height:1.35; color:var(--fg); text-decoration:none; }
-    .mbar-nav a.is-active { color:#000; font-weight:700; }
+    .mbar-nav a.is-active { color:var(--strong); font-weight:700; }
     /* 데스크톱 목차와 같은 00~08 번호 */
     .mbar-nav a { counter-increment:mtoc; }
     .mbar-nav a::before { content:counter(mtoc, decimal-leading-zero); flex:none; width:26px; font:500 12px/1.65 var(--font-data); color:var(--muted); }
-    .mbar-nav a.is-active::before { color:#000; font-weight:700; }
+    .mbar-nav a.is-active::before { color:var(--strong); font-weight:700; }
     .mbar-scrim.is-on { display:block; position:fixed; inset:0; z-index:19; }
   }
   /* 다국어: html[data-lang] 와 다른 언어 블록을 숨긴다 */
@@ -281,12 +311,17 @@
   main { position:relative; z-index:1; }
   /* 높이 300px에 맞춘 크기(약 1940px 폭)로만 그린다. 화면이 더 넓어도 키우지 않고 가운데 두며, 좁으면 양옆을 자른다 */
   .seoul-band img { display:block; flex:none; width:auto; max-width:none; height:100%; }
+  /* 다크 모드의 밤 그림: 낮 그림에서 창문·다리·가로등·남산타워 불빛과 별을 미리 구운 별도 파일. 하늘은 투명이라 바탕과 경계가 없다.
+     실시간 filter·mix-blend-mode 합성은 띠 경계에 선이 떠서 뺐다. 숨긴 쪽 lazy 그림은 받지 않는다 */
+  .seoul-band .seoul-night, :root[data-theme="dark"] .seoul-band .seoul-day { display:none; }
+  :root[data-theme="dark"] .seoul-band .seoul-night { display:block; }
   /* 모바일: 위 간격 48px. 보이는 간격은 main 아래 여백 32px 와 그림 위 빈 하늘(약 86px)이 더해진 값이라, 그 합(맨 위로 → 스카이라인 약 166px)을 기준으로 정했다. 가운데 자르기는 남산타워(그림 폭 30% 지점)가 잘려 나가므로 28% 지점 기준으로 자른다 (사용자 결정 2026-10-10) */
   @media (max-width:767px) {
     .seoul-band { margin-top:48px; }
     .seoul-band img { width:100%; object-fit:cover; object-position:28% 50%; }
   }
 </style>
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('portchallenge-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
 </head>
 <body id="page-top">
 <a class="skip-link" href="#article-title"><span data-lang="en">Skip to content</span><span data-lang="zh-Hant">跳至內文</span><span data-lang="ko">본문 바로가기</span><span data-lang="ja">本文へスキップ</span></a>
@@ -298,6 +333,7 @@
     <button type="button" class="mbar-btn" data-set-lang="ja" lang="ja" aria-label="日本語" title="日本語">日本語</button>
     <button type="button" class="mbar-btn" data-set-lang="ko" lang="ko" aria-label="한국어" title="한국어">한국어</button>
   </div>
+  <button type="button" class="mbar-btn mbar-theme theme-btn" aria-pressed="false" aria-label="Dark mode" data-label-en="Dark mode" data-label-zh-hant="深色模式" data-label-ko="다크 모드" data-label-ja="ダークモード"><svg class="ico-moon" viewBox="1.3 0 13.4 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 9.6A5.6 5.6 0 1 1 6.4 2.5a4.4 4.4 0 0 0 7.1 7.1z"/></svg><svg class="ico-sun" viewBox="0.7 0 14.6 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="2.8"/><path d="M8 1.5v1.4M8 13.1v1.4M1.5 8h1.4M13.1 8h1.4M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"/></svg></button>
   <a class="mbar-btn mbar-dl" href="#try" aria-label="Download ezZip" data-label-en="Download ezZip" data-label-zh-hant="下載 ezZip" data-label-ko="ezZip 다운로드" data-label-ja="ezZipをダウンロード"><svg viewBox="1.7 0 12.6 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v8m-3-3 3 3 3-3M2.5 10.5v3h11v-3"/></svg></a>
   <button type="button" class="mbar-btn mbar-menu" aria-expanded="false" aria-controls="mbar-nav" aria-label="Contents" data-label-en="Contents" data-label-zh-hant="目錄" data-label-ko="목차" data-label-ja="目次"><svg class="ico-open" viewBox="1.6 0 12.8 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 5.5h11M2.5 10.5h11"/></svg><svg class="ico-close" viewBox="1.6 0 12.8 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9"/></svg></button>
   <nav class="mbar-nav" id="mbar-nav" aria-label="Contents" data-label-en="Contents" data-label-zh-hant="目錄" data-label-ko="목차" data-label-ja="目次"></nav>
@@ -321,6 +357,7 @@
     <button type="button" class="lang-btn" data-set-lang="ja" lang="ja" aria-label="日本語" title="日本語">日本語</button>
     <button type="button" class="lang-btn" data-set-lang="ko" lang="ko" aria-label="한국어" title="한국어">한국어</button>
   </div>
+  <button type="button" class="dl-btn theme-btn" aria-pressed="false" aria-label="Dark mode" data-label-en="Dark mode" data-label-zh-hant="深色模式" data-label-ko="다크 모드" data-label-ja="ダークモード"><svg class="ico-moon" viewBox="1.3 0 13.4 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 9.6A5.6 5.6 0 1 1 6.4 2.5a4.4 4.4 0 0 0 7.1 7.1z"/></svg><svg class="ico-sun" viewBox="0.7 0 14.6 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="2.8"/><path d="M8 1.5v1.4M8 13.1v1.4M1.5 8h1.4M13.1 8h1.4M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"/></svg></button>
   <a class="dl-btn" href="#try" aria-label="Download ezZip" data-label-en="Download ezZip" data-label-zh-hant="下載 ezZip" data-label-ko="ezZip 다운로드" data-label-ja="ezZipをダウンロード"><svg viewBox="1.7 0 12.6 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v8m-3-3 3 3 3-3M2.5 10.5v3h11v-3"/></svg></a>
 </header>
 <main>
@@ -990,7 +1027,7 @@ public sealed class MacTaskProgress : ITaskProgress
 </footer>
 
 </main>
-<div class="seoul-band" aria-hidden="true"><img src="assets/seoul-white-panorama.webp" width="3840" height="594" alt="" loading="lazy" decoding="async"></div>
+<div class="seoul-band" aria-hidden="true"><img class="seoul-day" src="assets/seoul-white-panorama.webp" width="3840" height="594" alt="" loading="lazy" decoding="async"><img class="seoul-night" src="assets/seoul-night-panorama.webp" width="3840" height="594" alt="" loading="lazy" decoding="async"></div>
 <script>
 document.querySelectorAll('.meta-icon[data-copy]').forEach(function (b) {
   var timer;
@@ -1098,6 +1135,17 @@ document.querySelectorAll('.meta-icon[data-copy]').forEach(function (b) {
   }
   // 고른 언어를 기억한다. 저장소가 막힌 환경(사생활 보호 창 등)에서는 브라우저 언어로 돌아간다.
   var LANG_KEY = 'portchallenge-lang';
+  var root = document.documentElement;
+  var themeBtns = Array.prototype.slice.call(document.querySelectorAll('.theme-btn'));
+  function syncTheme() { themeBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(root.dataset.theme === 'dark')); }); }
+  themeBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      try { localStorage.setItem('portchallenge-theme', root.dataset.theme); } catch (e) {}
+      syncTheme();
+    });
+  });
+  syncTheme();
   langBtns.forEach(function (btn) {
     btn.addEventListener('click', function () {
       var lang = btn.getAttribute('data-set-lang');
