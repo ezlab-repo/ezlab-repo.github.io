@@ -1,0 +1,26 @@
+# ezlab-repo.github.io
+
+MOBSOFT(ezLab)가 외부에 공개하는 정적 HTML 페이지 저장소입니다. GitHub Pages로 `https://ezlab-repo.github.io/` 아래에 게시됩니다.
+
+## 페이지 목록
+
+| 슬러그 | 주소 | 내용 | 게시일 |
+|---|---|---|---|
+| `ezzip-port-challenge` | https://ezlab-repo.github.io/ezzip-port-challenge/ | [Avalonia Port Challenge](https://avaloniaui.net/blog/avalonia-port-challenge) 제출 원고 "From WPF to Avalonia: Taking ezZip to macOS". ezZip을 WPF에서 Avalonia UI로 옮겨 macOS까지 지원한 과정을 다룹니다. 영어·번체 중국어·한국어·일본어 4개 국어 | 2026-10-12 |
+
+## 새 페이지 추가
+
+1. 저장소 루트에 슬러그 이름으로 폴더를 만듭니다. 슬러그는 영문 소문자·숫자·하이픈만 씁니다. 예: `ezcam-release-notes`
+2. 진입 파일은 `<슬러그>/index.html` 입니다. 이미지·스크립트 같은 파일은 `<슬러그>/assets/` 에 두고 상대 경로(`assets/...`)로 참조합니다.
+3. 위 "페이지 목록" 표에 한 줄을 추가합니다.
+4. `main` 에 push하면 1~2분 뒤 `https://ezlab-repo.github.io/<슬러그>/` 에서 열립니다.
+
+## 규칙
+
+- **공개 저장소입니다.** 소스 코드, 내부 문서, 작업용 주석(`<!-- -->` 메모·내부 ID), 계정·키 같은 비밀값을 올리지 않습니다. HTML 주석도 페이지 소스 보기로 누구나 봅니다.
+- **push 즉시 공개됩니다.** 검토가 끝난 내용만 `main` 에 push합니다.
+- **폴더 하나가 페이지 하나입니다.** 다른 페이지 폴더의 파일을 참조하지 않습니다. 그래야 폴더 단위로 수정·삭제할 수 있습니다.
+- **외부에 배포한 슬러그는 바꾸지 않습니다.** 바꾸면 기존 링크가 깨집니다.
+- 파일 이름은 대소문자를 구분합니다. HTML의 참조 경로와 실제 파일 이름의 대소문자를 맞춥니다.
+- `.nojekyll` 은 Jekyll 빌드를 꺼서 파일을 그대로 게시하게 합니다. 지우지 않습니다.
+- 페이지를 내릴 때는 폴더를 지우고 표에서 해당 줄을 지웁니다.
