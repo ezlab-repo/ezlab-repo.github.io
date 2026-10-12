@@ -6,7 +6,7 @@ MOBSOFT(ezLab)가 외부에 공개하는 정적 HTML 페이지 저장소입니�
 
 | 슬러그 | 주소 | 내용 | 게시일 |
 |---|---|---|---|
-| `ezzip-port-challenge` | https://ezlab-repo.github.io/ezzip-port-challenge/ | ezZip Avalonia Port Challenge 제출 원고 | 2026-10-12 |
+| `ezzip-port-challenge` | https://ezlab-repo.github.io/ezzip-port-challenge/ | ezZip [Avalonia Port Challenge](https://avaloniaui.net/blog/avalonia-port-challenge) 제출 원고 | 2026-10-12 |
 
 ## 새 페이지 추가
 
