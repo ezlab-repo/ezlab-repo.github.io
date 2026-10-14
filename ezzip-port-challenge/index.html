@@ -225,13 +225,14 @@
   /* 데스크톱 헤더(768px 이상): popo 포트폴리오 데스크톱 헤더를 옮겼다 (사용자 결정 2026-10-08).
      본문 칼럼보다 조금 넓은 폭에 챕터 번호 칩(현재 절만 번호 + 제목, 검정 굵게)과 언어·다운로드 동그라미.
      바 자체는 바탕이 없고, 스크롤하면 화면 위 180px이 바 뒤 점진 흐림(2·6·14px)과 흰 덮개로 덮인다 */
-  /* 흐림 띠는 데스크톱·모바일 공통, 모바일은 높이만 줄인다 (모바일 알약 대신, 사용자 결정 2026-10-10) */
-  .bar-blur { position:fixed; left:0; right:0; top:0; height:180px; pointer-events:none; z-index:19; opacity:0; }
+  /* 흐림 띠는 데스크톱·모바일 공통, 모바일은 높이만 줄인다 (모바일 알약 대신, 사용자 결정 2026-10-10).
+     iOS Safari 의 다이나믹 아일랜드·상태 표시줄 영역(top:0 위쪽 약 60px)까지 덮도록 위로 80px 늘린다 */
+  .bar-blur { position:fixed; left:0; right:0; top:-80px; height:260px; pointer-events:none; z-index:19; opacity:0; }
   .blur-tint, .bar-blur::before, .bar-blur::after { position:absolute; inset:0; }
-  .blur-tint { background:linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, transparent), color-mix(in srgb, var(--bg) 35%, transparent) 55%, transparent); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px); -webkit-mask-image:linear-gradient(to bottom, #000 60%, transparent 100%); mask-image:linear-gradient(to bottom, #000 60%, transparent 100%); }
+  .blur-tint { background:linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, transparent) 80px, color-mix(in srgb, var(--bg) 35%, transparent) calc(55% + 36px), transparent); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px); -webkit-mask-image:linear-gradient(to bottom, #000 calc(60% + 32px), transparent 100%); mask-image:linear-gradient(to bottom, #000 calc(60% + 32px), transparent 100%); }
   .bar-blur::before, .bar-blur::after { content:""; }
-  .bar-blur::before { -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); -webkit-mask-image:linear-gradient(to bottom, #000 45%, transparent 85%); mask-image:linear-gradient(to bottom, #000 45%, transparent 85%); }
-  .bar-blur::after { -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); -webkit-mask-image:linear-gradient(to bottom, #000 25%, transparent 65%); mask-image:linear-gradient(to bottom, #000 25%, transparent 65%); }
+  .bar-blur::before { -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); -webkit-mask-image:linear-gradient(to bottom, #000 calc(45% + 44px), transparent calc(85% + 12px)); mask-image:linear-gradient(to bottom, #000 calc(45% + 44px), transparent calc(85% + 12px)); }
+  .bar-blur::after { -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); -webkit-mask-image:linear-gradient(to bottom, #000 calc(25% + 60px), transparent calc(65% + 28px)); mask-image:linear-gradient(to bottom, #000 calc(25% + 60px), transparent calc(65% + 28px)); }
   .bar-blur.is-on { opacity:1; }
   .pbar { display:none; }
   @media (min-width:768px) {
@@ -264,11 +265,11 @@
   @media (max-width:767px) {
     main { padding-top:151px; } /* 위 바(64px) 아래 87px 띄운다 — 60px 로 줄이면 제목이 바에 붙는다 (사용자 재지적 2026-10-10) */
     h1[id], h2[id] { scroll-margin-top:92px; }
-    .bar-blur { height:116px; }
+    .bar-blur { height:196px; }
     .mbar { position:fixed; top:0; left:0; right:0; z-index:20; display:flex; flex-wrap:wrap; justify-content:center; width:max-content; margin:0 auto; padding:20px 0 0; } /* zoom:.9 는 버튼을 40px·글자 11.7px 로 줄여 뺐다 (사용자 결정 2026-10-10) */
     .mbar.is-open { width:auto; padding-bottom:12px; }
     /* 메뉴를 열면 흰 판 대신 흐림 띠를 목차 아래 끝(--menu-h, JS 가 잰다)까지 늘린다. 끝 48px 만 흐려지며 사라진다 (사용자 결정 2026-10-10) */
-    .bar-blur.is-menu { opacity:1; height:var(--menu-h); }
+    .bar-blur.is-menu { opacity:1; height:calc(var(--menu-h) + 80px); }
     .bar-blur.is-menu .blur-tint { background:color-mix(in srgb, var(--bg) 78%, transparent); }
     .bar-blur.is-menu .blur-tint, .bar-blur.is-menu::before, .bar-blur.is-menu::after { -webkit-mask-image:linear-gradient(to bottom, #000 calc(100% - 48px), transparent); mask-image:linear-gradient(to bottom, #000 calc(100% - 48px), transparent); }
     /* 버튼은 모두 같은 규칙: 좌우 13px, 사이 0. 아이콘 버튼도 38px 폭 × 44px 높이가 되어 손가락으로 누르기 쉽다.
