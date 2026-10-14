@@ -280,17 +280,17 @@
     .mbar-lang .mbar-btn.is-active { font-weight:700; }
     .mbar-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
     .mbar-btn svg { width:auto; height:16px; }
-    .mbar-theme, .mbar-dl, .mbar-menu { width:auto; padding:0 13px; }
+    .mbar-theme, .mbar-menu { width:auto; padding:0 13px; }
+    .mbar-dl { display:none; }
     /* 테마 버튼이 늘어 바 폭이 약 381px: 399px 이하 9px·339px 이하 6px 로 줄여 320px 화면까지 한 줄 */
-    @media (max-width:399px) { .mbar-lang .mbar-btn, .mbar-theme, .mbar-dl, .mbar-menu { padding:0 9px; } }
-    @media (max-width:339px) { .mbar-lang .mbar-btn, .mbar-theme, .mbar-dl, .mbar-menu { padding:0 6px; } }
+    @media (max-width:399px) { .mbar-lang .mbar-btn, .mbar-theme, .mbar-menu { padding:0 9px; } }
+    @media (max-width:339px) { .mbar-lang .mbar-btn, .mbar-theme, .mbar-menu { padding:0 6px; } }
     /* 글 끝 줄: 한 줄에 두면 제목이 두 줄로 꺾여 찌그러진다. 제목 아래에 맨 위로를 두고, 누르는 높이 44px */
     .footer-top-row { flex-direction:column; align-items:flex-start; gap:8px; }
     .footer-title { padding-top:8px; font-size:14px; }
     .footer-top { min-height:44px; font-size:15px; } /* 13px 는 손가락 대상으로 작았다 (사용자 지적 2026-10-10) */
     .mbar-theme { order:2; }
-    .mbar-dl { order:3; }
-    .mbar-menu { order:4; }
+    .mbar-menu { order:3; }
     .mbar.is-open .mbar-menu { color:var(--strong); }
     .mbar-menu .ico-close, .mbar.is-open .mbar-menu .ico-open { display:none; }
     .mbar.is-open .mbar-menu .ico-close { display:block; }
