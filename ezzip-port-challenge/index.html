@@ -225,16 +225,18 @@
 
   /* 데스크톱 헤더(768px 이상): popo 포트폴리오 데스크톱 헤더를 옮겼다 (사용자 결정 2026-10-08).
      본문 칼럼보다 조금 넓은 폭에 챕터 번호 칩(현재 절만 번호 + 제목, 검정 굵게)과 언어·다운로드 동그라미.
-     바 자체는 바탕이 없고, 스크롤하면 화면 위 180px이 바 뒤 점진 흐림(2·6·14px)과 흰 덮개로 덮인다 */
+     바 자체는 바탕이 없고, 스크롤하면 화면 위 180px이 바 뒤 흐림 띠로 덮인다 */
   /* 흐림 띠는 데스크톱·모바일 공통, 모바일은 높이만 줄인다 (모바일 알약 대신, 사용자 결정 2026-10-10).
-     viewport-fit=cover 라 iOS Safari 에서 top:0 이 화면 맨 위다. 다이나믹 아일랜드·상태 표시줄(--sat)만큼 띠를 늘리고,
-     그 구간은 짙은 덮개로 채운 뒤 나머지(100% - --sat)에 원래 비율대로 흐림을 건다. 음수 top 은 Safari 가 잘라내 안 된다 */
-  .bar-blur { --h:180px; position:fixed; left:0; right:0; top:0; height:calc(var(--h) + var(--sat)); pointer-events:none; z-index:19; opacity:0; }
+     viewport-fit=cover 라 iOS Safari 에서 top:0 이 화면 맨 위다. 다이나믹 아일랜드·상태 표시줄(--sat)만큼 띠를 늘린다. 음수 top 은 Safari 가 잘라내 안 된다.
+     toss.im 헤더 감도(흰 75% + blur 20px, 다크 70% + 30px)를 레퍼런스로 삼았다 (사용자 결정 2026-10-15).
+     바 아래 끝(--e)까지는 덮개·가장 센 흐림을 꽉 채우고, 그 아래에서만 4·10·--blur px 세 겹이 차례로 사라진다 */
+  .bar-blur { --h:180px; --bar:84px; --tint:75%; --blur:20px; --e:calc(var(--sat) + var(--bar)); --fade:calc(var(--h) - var(--bar)); position:fixed; left:0; right:0; top:0; height:calc(var(--h) + var(--sat)); pointer-events:none; z-index:19; opacity:0; transition:opacity .3s ease; }
+  :root[data-theme="dark"] .bar-blur { --tint:70%; --blur:30px; }
   .blur-tint, .bar-blur::before, .bar-blur::after { position:absolute; inset:0; }
-  .blur-tint { background:linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, transparent) var(--sat), color-mix(in srgb, var(--bg) 35%, transparent) calc(var(--sat) + var(--h) * .55), transparent); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px); -webkit-mask-image:linear-gradient(to bottom, #000 calc(var(--sat) + var(--h) * .6), transparent 100%); mask-image:linear-gradient(to bottom, #000 calc(var(--sat) + var(--h) * .6), transparent 100%); }
+  .blur-tint { background:linear-gradient(to bottom, color-mix(in srgb, var(--bg) var(--tint), transparent) var(--e), transparent); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); -webkit-mask-image:linear-gradient(to bottom, #000 var(--e), transparent); mask-image:linear-gradient(to bottom, #000 var(--e), transparent); }
   .bar-blur::before, .bar-blur::after { content:""; }
-  .bar-blur::before { -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); -webkit-mask-image:linear-gradient(to bottom, #000 calc(var(--sat) + var(--h) * .45), transparent calc(var(--sat) + var(--h) * .85)); mask-image:linear-gradient(to bottom, #000 calc(var(--sat) + var(--h) * .45), transparent calc(var(--sat) + var(--h) * .85)); }
-  .bar-blur::after { -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); -webkit-mask-image:linear-gradient(to bottom, #000 calc(var(--sat) + var(--h) * .25), transparent calc(var(--sat) + var(--h) * .65)); mask-image:linear-gradient(to bottom, #000 calc(var(--sat) + var(--h) * .25), transparent calc(var(--sat) + var(--h) * .65)); }
+  .bar-blur::before { -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); -webkit-mask-image:linear-gradient(to bottom, #000 var(--e), transparent calc(var(--e) + var(--fade) * .6)); mask-image:linear-gradient(to bottom, #000 var(--e), transparent calc(var(--e) + var(--fade) * .6)); }
+  .bar-blur::after { -webkit-backdrop-filter:blur(var(--blur)); backdrop-filter:blur(var(--blur)); -webkit-mask-image:linear-gradient(to bottom, #000 var(--e), transparent calc(var(--e) + var(--fade) * .3)); mask-image:linear-gradient(to bottom, #000 var(--e), transparent calc(var(--e) + var(--fade) * .3)); }
   .bar-blur.is-on { opacity:1; }
   .pbar { display:none; }
   @media (min-width:768px) {
@@ -267,7 +269,7 @@
   @media (max-width:767px) {
     main { padding-top:calc(151px + var(--sat)); } /* 위 바(64px) 아래 87px 띄운다 — 60px 로 줄이면 제목이 바에 붙는다 (사용자 재지적 2026-10-10) */
     h1[id], h2[id] { scroll-margin-top:calc(92px + var(--sat)); }
-    .bar-blur { --h:116px; }
+    .bar-blur { --h:116px; --bar:64px; }
     .mbar { position:fixed; top:0; left:0; right:0; z-index:20; display:flex; flex-wrap:wrap; justify-content:center; width:max-content; margin:0 auto; padding:calc(20px + var(--sat)) 0 0; } /* zoom:.9 는 버튼을 40px·글자 11.7px 로 줄여 뺐다 (사용자 결정 2026-10-10) */
     .mbar.is-open { width:auto; padding-bottom:12px; }
     /* 메뉴를 열면 흰 판 대신 흐림 띠를 목차 아래 끝(--menu-h, JS 가 잰다)까지 늘린다. 끝 48px 만 흐려지며 사라진다 (사용자 결정 2026-10-10) */
