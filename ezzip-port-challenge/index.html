@@ -230,11 +230,13 @@
   /* 흐림 띠는 데스크톱·모바일 공통, 모바일은 높이만 줄인다 (모바일 알약 대신, 사용자 결정 2026-10-10).
      viewport-fit=cover 라 iOS Safari 에서 top:0 이 화면 맨 위다. 다이나믹 아일랜드·상태 표시줄(--sat)만큼 띠를 늘린다. 음수 top 은 Safari 가 잘라내 안 된다.
      toss.im 헤더 감도(흰 75% + blur 20px, 다크 70% + 30px)를 레퍼런스로 삼았다 (사용자 결정 2026-10-15).
-     바 아래 끝(--e)까지는 덮개·가장 센 흐림을 꽉 채우고, 그 아래에서만 4·10·--blur px 세 겹이 차례로 사라진다 */
-  .bar-blur { --h:116px; --bar:64px; --tint:75%; --blur:20px; --e:calc(var(--sat) + var(--bar)); --fade:calc(var(--h) - var(--bar)); position:fixed; left:0; right:0; top:0; height:calc(var(--h) + var(--sat)); pointer-events:none; z-index:19; opacity:0; transition:opacity .3s ease; }
+     바 아래 끝(--e)까지는 덮개·가장 센 흐림을 꽉 채우고, 그 아래에서만 4·10·--blur px 세 겹이 차례로 사라진다.
+     iOS 26 Safari 세로 화면은 상태 표시줄 영역에 그리지 못하고 맨 위 fixed 요소의 background-color 로 칠한다(그라디언트는 안 읽는다).
+     그래서 .bar-blur 자체에 덮개 색을 주되 content-box 로 맨 위 6px(Safari 가 읽는 최소 높이)에만 칠하고, 덮개 그라디언트는 그 아래부터 잇는다 */
+  .bar-blur { --h:116px; --bar:64px; --tint:75%; --blur:20px; --e:calc(var(--sat) + var(--bar)); --fade:calc(var(--h) - var(--bar)); position:fixed; left:0; right:0; top:0; height:calc(var(--h) + var(--sat)); box-sizing:border-box; padding-bottom:calc(var(--h) + var(--sat) - 6px); background:color-mix(in srgb, var(--bg) var(--tint), transparent) content-box; pointer-events:none; z-index:19; opacity:0; transition:opacity .3s ease; }
   :root[data-theme="dark"] .bar-blur { --tint:70%; --blur:30px; }
   .blur-tint, .bar-blur::before, .bar-blur::after { position:absolute; inset:0; }
-  .blur-tint { background:linear-gradient(to bottom, color-mix(in srgb, var(--bg) var(--tint), transparent) var(--e), transparent); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); -webkit-mask-image:linear-gradient(to bottom, #000 var(--e), transparent); mask-image:linear-gradient(to bottom, #000 var(--e), transparent); }
+  .blur-tint { background:linear-gradient(to bottom, transparent 6px, color-mix(in srgb, var(--bg) var(--tint), transparent) 6px var(--e), transparent); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); -webkit-mask-image:linear-gradient(to bottom, #000 var(--e), transparent); mask-image:linear-gradient(to bottom, #000 var(--e), transparent); }
   .bar-blur::before, .bar-blur::after { content:""; }
   .bar-blur::before { -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); -webkit-mask-image:linear-gradient(to bottom, #000 var(--e), transparent calc(var(--e) + var(--fade) * .6)); mask-image:linear-gradient(to bottom, #000 var(--e), transparent calc(var(--e) + var(--fade) * .6)); }
   .bar-blur::after { -webkit-backdrop-filter:blur(var(--blur)); backdrop-filter:blur(var(--blur)); -webkit-mask-image:linear-gradient(to bottom, #000 var(--e), transparent calc(var(--e) + var(--fade) * .3)); mask-image:linear-gradient(to bottom, #000 var(--e), transparent calc(var(--e) + var(--fade) * .3)); }
@@ -273,8 +275,8 @@
     .mbar { position:fixed; top:0; left:0; right:0; z-index:20; display:flex; flex-wrap:wrap; justify-content:center; width:max-content; margin:0 auto; padding:calc(20px + var(--sat)) 0 0; } /* zoom:.9 는 버튼을 40px·글자 11.7px 로 줄여 뺐다 (사용자 결정 2026-10-10) */
     .mbar.is-open { width:auto; padding-bottom:12px; }
     /* 메뉴를 열면 흰 판 대신 흐림 띠를 목차 아래 끝(--menu-h, JS 가 잰다)까지 늘린다. 끝 48px 만 흐려지며 사라진다 (사용자 결정 2026-10-10) */
-    .bar-blur.is-menu { opacity:1; height:var(--menu-h); }
-    .bar-blur.is-menu .blur-tint { background:color-mix(in srgb, var(--bg) 78%, transparent); }
+    .bar-blur.is-menu { --tint:78%; opacity:1; height:var(--menu-h); padding-bottom:calc(var(--menu-h) - 6px); }
+    .bar-blur.is-menu .blur-tint { background:linear-gradient(to bottom, transparent 6px, color-mix(in srgb, var(--bg) var(--tint), transparent) 6px); }
     .bar-blur.is-menu .blur-tint, .bar-blur.is-menu::before, .bar-blur.is-menu::after { -webkit-mask-image:linear-gradient(to bottom, #000 calc(100% - 48px), transparent); mask-image:linear-gradient(to bottom, #000 calc(100% - 48px), transparent); }
     /* 버튼은 모두 같은 규칙: 좌우 13px, 사이 0. 아이콘 버튼도 38px 폭 × 44px 높이가 되어 손가락으로 누르기 쉽다.
        8px 이면 아이콘 버튼 폭이 29px 로 좁았다. 13px 이면 바 폭 약 343px — 360px 화면까지 한 줄 (사용자 재지적 2026-10-10) */
