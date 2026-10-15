@@ -146,9 +146,8 @@
   @media(max-width:480px) {
     .decomp-row { grid-template-columns:64px minmax(0,1fr) 92px; gap:6px; min-height:40px; }
     .decomp-row > span:first-child { white-space:normal; line-height:1.3; }
-    .result-speed { display:block; width:max-content; margin:2px 0 0; }
-    .decomp-annotation { margin-left:70px; margin-right:98px; }
-    .decomp-annotation p > span { display:block; }
+    @media (max-width:359px) { .result-speed { display:block; width:max-content; margin:2px 0 0; } } /* 320px 일본어는 값 옆에 두면 화면 끝에 닿는다 */
+    .decomp-annotation { margin-left:70px; margin-right:0; } /* 값 칸(98px) 아래까지 써서 한 줄에 둔다 (사용자 재지적 2026-10-15) */
   }
   .measure-details { margin-top:14px; }
   .measure-details p { font-size:13.5px; margin-bottom:12px; }
@@ -270,7 +269,7 @@
      바 자체는 바탕이 없고, 스크롤하면 데스크톱과 같은 흐림 띠가 뒤를 덮는다. 메뉴를 열면 흐림 띠를 목차 끝까지 늘려 그 위에 목차를 펼친다 */
   .mbar, .mbar-scrim { display:none; }
   @media (max-width:767px) {
-    main { padding-top:calc(151px + var(--sat)); } /* 위 바(64px) 아래 87px 띄운다 — 60px 로 줄이면 제목이 바에 붙는다 (사용자 재지적 2026-10-10) */
+    main { padding-top:calc(183px + var(--sat)); } /* 위 바(64px) 아래 119px 띄운다 — 60px 는 제목이 바에 붙고 87px 도 좁았다 (사용자 재지적 2026-10-10, 2026-10-15) */
     h1[id], h2[id] { scroll-margin-top:calc(92px + var(--sat)); }
     .mbar { position:fixed; top:0; left:0; right:0; z-index:20; display:flex; flex-wrap:wrap; justify-content:center; width:max-content; margin:0 auto; padding:calc(20px + var(--sat)) 0 0; } /* zoom:.9 는 버튼을 40px·글자 11.7px 로 줄여 뺐다 (사용자 결정 2026-10-10) */
     .mbar.is-open { width:auto; padding-bottom:12px; }
@@ -325,9 +324,9 @@
      실시간 filter·mix-blend-mode 합성은 띠 경계에 선이 떠서 뺐다. 숨긴 쪽 lazy 그림은 받지 않는다 */
   .seoul-band .seoul-night, :root[data-theme="dark"] .seoul-band .seoul-day { display:none; }
   :root[data-theme="dark"] .seoul-band .seoul-night { display:block; }
-  /* 모바일: 위 간격 48px. 보이는 간격은 main 아래 여백 32px 와 그림 위 빈 하늘(약 86px)이 더해진 값이라, 그 합(맨 위로 → 스카이라인 약 166px)을 기준으로 정했다. 가운데 자르기는 남산타워(그림 폭 30% 지점)가 잘려 나가므로 28% 지점 기준으로 자른다 (사용자 결정 2026-10-10) */
+  /* 모바일: 위 간격 96px (48px 은 좁았다, 사용자 재지적 2026-10-15). 보이는 간격은 main 아래 여백 32px 와 그림 위 빈 하늘(약 86px)이 더해진 값이라, 그 합(맨 위로 → 스카이라인 약 214px)을 기준으로 정했다. 가운데 자르기는 남산타워(그림 폭 30% 지점)가 잘려 나가므로 28% 지점 기준으로 자른다 (사용자 결정 2026-10-10) */
   @media (max-width:767px) {
-    .seoul-band { margin-top:48px; }
+    .seoul-band { margin-top:96px; }
     .seoul-band img { width:100%; object-fit:cover; object-position:28% 50%; }
   }
 </style>
