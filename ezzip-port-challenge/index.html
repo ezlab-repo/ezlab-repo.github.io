@@ -2,7 +2,7 @@
 <html lang="en" data-lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>From WPF to Avalonia: Taking ezZip to macOS</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%2714%27 fill=%27%235fa0dc%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root { 
+    --sat:env(safe-area-inset-top, 0px);
     --fg:#17171a; 
     --muted:#5b5a55; 
     --line:#dcdad3; 
@@ -226,18 +227,19 @@
      본문 칼럼보다 조금 넓은 폭에 챕터 번호 칩(현재 절만 번호 + 제목, 검정 굵게)과 언어·다운로드 동그라미.
      바 자체는 바탕이 없고, 스크롤하면 화면 위 180px이 바 뒤 점진 흐림(2·6·14px)과 흰 덮개로 덮인다 */
   /* 흐림 띠는 데스크톱·모바일 공통, 모바일은 높이만 줄인다 (모바일 알약 대신, 사용자 결정 2026-10-10).
-     iOS Safari 의 다이나믹 아일랜드·상태 표시줄 영역(top:0 위쪽 약 60px)까지 덮도록 위로 80px 늘린다 */
-  .bar-blur { position:fixed; left:0; right:0; top:-80px; height:260px; pointer-events:none; z-index:19; opacity:0; }
+     viewport-fit=cover 라 iOS Safari 에서 top:0 이 화면 맨 위다. 다이나믹 아일랜드·상태 표시줄(--sat)만큼 띠를 늘리고,
+     그 구간은 짙은 덮개로 채운 뒤 나머지(100% - --sat)에 원래 비율대로 흐림을 건다. 음수 top 은 Safari 가 잘라내 안 된다 */
+  .bar-blur { --h:180px; position:fixed; left:0; right:0; top:0; height:calc(var(--h) + var(--sat)); pointer-events:none; z-index:19; opacity:0; }
   .blur-tint, .bar-blur::before, .bar-blur::after { position:absolute; inset:0; }
-  .blur-tint { background:linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, transparent) 80px, color-mix(in srgb, var(--bg) 35%, transparent) calc(55% + 36px), transparent); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px); -webkit-mask-image:linear-gradient(to bottom, #000 calc(60% + 32px), transparent 100%); mask-image:linear-gradient(to bottom, #000 calc(60% + 32px), transparent 100%); }
+  .blur-tint { background:linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, transparent) var(--sat), color-mix(in srgb, var(--bg) 35%, transparent) calc(var(--sat) + var(--h) * .55), transparent); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px); -webkit-mask-image:linear-gradient(to bottom, #000 calc(var(--sat) + var(--h) * .6), transparent 100%); mask-image:linear-gradient(to bottom, #000 calc(var(--sat) + var(--h) * .6), transparent 100%); }
   .bar-blur::before, .bar-blur::after { content:""; }
-  .bar-blur::before { -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); -webkit-mask-image:linear-gradient(to bottom, #000 calc(45% + 44px), transparent calc(85% + 12px)); mask-image:linear-gradient(to bottom, #000 calc(45% + 44px), transparent calc(85% + 12px)); }
-  .bar-blur::after { -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); -webkit-mask-image:linear-gradient(to bottom, #000 calc(25% + 60px), transparent calc(65% + 28px)); mask-image:linear-gradient(to bottom, #000 calc(25% + 60px), transparent calc(65% + 28px)); }
+  .bar-blur::before { -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); -webkit-mask-image:linear-gradient(to bottom, #000 calc(var(--sat) + var(--h) * .45), transparent calc(var(--sat) + var(--h) * .85)); mask-image:linear-gradient(to bottom, #000 calc(var(--sat) + var(--h) * .45), transparent calc(var(--sat) + var(--h) * .85)); }
+  .bar-blur::after { -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); -webkit-mask-image:linear-gradient(to bottom, #000 calc(var(--sat) + var(--h) * .25), transparent calc(var(--sat) + var(--h) * .65)); mask-image:linear-gradient(to bottom, #000 calc(var(--sat) + var(--h) * .25), transparent calc(var(--sat) + var(--h) * .65)); }
   .bar-blur.is-on { opacity:1; }
   .pbar { display:none; }
   @media (min-width:768px) {
-    h1[id], h2[id] { scroll-margin-top:96px; }
-    .pbar { position:fixed; top:16px; left:0; right:0; z-index:20; display:flex; align-items:center; justify-content:space-between; gap:16px; max-width:1012px; margin:0 auto; padding:12px 16px; }
+    h1[id], h2[id] { scroll-margin-top:calc(96px + var(--sat)); }
+    .pbar { position:fixed; top:calc(16px + var(--sat)); left:0; right:0; z-index:20; display:flex; align-items:center; justify-content:space-between; gap:16px; max-width:1012px; margin:0 auto; padding:12px max(16px, env(safe-area-inset-right)) 12px max(16px, env(safe-area-inset-left)); }
     .pbar-nav { display:flex; align-items:center; gap:6px; min-width:0; overflow-x:auto; scrollbar-width:none; }
     .pbar-nav::-webkit-scrollbar { display:none; }
     .pbar-ch { flex:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; min-width:44px; height:44px; padding:0 4px; color:var(--fg); font:500 15px/1 var(--font-sans); white-space:nowrap; text-decoration:none; }
@@ -263,13 +265,13 @@
      바 자체는 바탕이 없고, 스크롤하면 데스크톱과 같은 흐림 띠가 뒤를 덮는다. 메뉴를 열면 흐림 띠를 목차 끝까지 늘려 그 위에 목차를 펼친다 */
   .mbar, .mbar-scrim { display:none; }
   @media (max-width:767px) {
-    main { padding-top:151px; } /* 위 바(64px) 아래 87px 띄운다 — 60px 로 줄이면 제목이 바에 붙는다 (사용자 재지적 2026-10-10) */
-    h1[id], h2[id] { scroll-margin-top:92px; }
-    .bar-blur { height:196px; }
-    .mbar { position:fixed; top:0; left:0; right:0; z-index:20; display:flex; flex-wrap:wrap; justify-content:center; width:max-content; margin:0 auto; padding:20px 0 0; } /* zoom:.9 는 버튼을 40px·글자 11.7px 로 줄여 뺐다 (사용자 결정 2026-10-10) */
+    main { padding-top:calc(151px + var(--sat)); } /* 위 바(64px) 아래 87px 띄운다 — 60px 로 줄이면 제목이 바에 붙는다 (사용자 재지적 2026-10-10) */
+    h1[id], h2[id] { scroll-margin-top:calc(92px + var(--sat)); }
+    .bar-blur { --h:116px; }
+    .mbar { position:fixed; top:0; left:0; right:0; z-index:20; display:flex; flex-wrap:wrap; justify-content:center; width:max-content; margin:0 auto; padding:calc(20px + var(--sat)) 0 0; } /* zoom:.9 는 버튼을 40px·글자 11.7px 로 줄여 뺐다 (사용자 결정 2026-10-10) */
     .mbar.is-open { width:auto; padding-bottom:12px; }
     /* 메뉴를 열면 흰 판 대신 흐림 띠를 목차 아래 끝(--menu-h, JS 가 잰다)까지 늘린다. 끝 48px 만 흐려지며 사라진다 (사용자 결정 2026-10-10) */
-    .bar-blur.is-menu { opacity:1; height:calc(var(--menu-h) + 80px); }
+    .bar-blur.is-menu { opacity:1; height:var(--menu-h); }
     .bar-blur.is-menu .blur-tint { background:color-mix(in srgb, var(--bg) 78%, transparent); }
     .bar-blur.is-menu .blur-tint, .bar-blur.is-menu::before, .bar-blur.is-menu::after { -webkit-mask-image:linear-gradient(to bottom, #000 calc(100% - 48px), transparent); mask-image:linear-gradient(to bottom, #000 calc(100% - 48px), transparent); }
     /* 버튼은 모두 같은 규칙: 좌우 13px, 사이 0. 아이콘 버튼도 38px 폭 × 44px 높이가 되어 손가락으로 누르기 쉽다.
