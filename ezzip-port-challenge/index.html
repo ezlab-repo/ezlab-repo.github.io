@@ -322,10 +322,12 @@
   /* 글 끝 그래픽: Higgsfield의 화이트·아이스블루 서울 픽셀 파노라마. 화면 전체 폭·높이 300px. */
   .seoul-band { position:relative; z-index:0; display:flex; justify-content:center; width:100%; height:300px; margin:220px 0 0; overflow:hidden; pointer-events:none; }
   main { position:relative; z-index:1; }
-  /* iOS Safari 는 글 끝 아래(주소창·홈 표시줄 영역)를 화면 아래 fixed 요소가 없으면 루트(html) 바탕색으로 칠한다.
-     루트 색을 그림 맨 아래 줄 색으로 둬 그림 아래가 다른 색 띠로 보이지 않게 한다. 본문 바탕은 body 가 따로 칠한다 (사용자 재지적 2026-10-15) */
-  html { background-color:#fdfefe; }
-  :root[data-theme="dark"] { background-color:#0b0e16; }
+  /* iOS 26 Safari 는 주소창·홈 표시줄 영역을 화면 아래 끝에 닿은 fixed 요소의 바탕색으로 칠하고, 없으면 body 색을 쓴다.
+     html 색을 바꿔도 body 색이 쓰여 그림 아래가 다른 색 띠로 보였다. 글 끝에 닿았을 때만(JS 가 .is-on) 그림 맨 아래 줄 색 띠를 화면 아래에 둔다.
+     띠는 그림 맨 아래 12px 위에 겹치지만 같은 색이라 보이지 않는다. 글 중간에서는 꺼 두어 주소창이 본문 색을 따른다 (사용자 재지적 2026-10-15) */
+  .toolbar-tint { display:none; position:fixed; left:0; right:0; bottom:0; height:12px; background-color:#fefefe; z-index:2; }
+  :root[data-theme="dark"] .toolbar-tint { background-color:#0b0e16; }
+  .toolbar-tint.is-on { display:block; }
   /* 높이 300px에 맞춘 크기(약 1940px 폭)로만 그린다. 화면이 더 넓어도 키우지 않고 가운데 두며, 좁으면 양옆을 자른다 */
   .seoul-band img { display:block; flex:none; width:auto; max-width:none; height:100%; }
   /* 다크 모드의 밤 그림: 낮 그림에서 창문·다리·가로등·남산타워 불빛과 별을 미리 구운 별도 파일. 하늘은 투명이라 바탕과 경계가 없다.
@@ -356,6 +358,7 @@
   <nav class="mbar-nav" id="mbar-nav" aria-label="Contents" data-label-en="Contents" data-label-zh-hant="目錄" data-label-ko="목차" data-label-ja="目次"></nav>
 </div>
 <div class="status-cover" aria-hidden="true"></div>
+<div class="toolbar-tint" aria-hidden="true"></div>
 <div class="bar-blur" aria-hidden="true"><div class="blur-tint"></div></div>
 <header class="pbar">
   <nav class="pbar-nav" aria-label="Contents" data-label-en="Contents" data-label-zh-hant="目錄" data-label-ko="목차" data-label-ja="目次">
@@ -1062,6 +1065,7 @@ document.querySelectorAll('.meta-icon[data-copy]').forEach(function (b) {
   var heads = chips.map(function (a) { return document.getElementById(a.hash.slice(1)); });
   var nav = document.querySelector('.pbar-nav');
   var blur = document.querySelector('.bar-blur');
+  var tint = document.querySelector('.toolbar-tint');
 
   // 모바일 위 바: 헤더 칩의 절 제목으로 메뉴를 만든다(번역 span 이 함께 따라온다)
   var mbar = document.querySelector('.mbar');
@@ -1098,9 +1102,11 @@ document.querySelectorAll('.meta-icon[data-copy]').forEach(function (b) {
     // 위치를 모두 읽은 뒤에 쓴다. 쓰고 나서 읽으면 브라우저가 레이아웃을 매번 다시 계산한다.
     var y = window.scrollY, line = innerHeight * 0.3, active = 0;
     heads.forEach(function (h, i) { if (h && h.getBoundingClientRect().top < line) active = i; });
-    if (innerHeight + y >= document.documentElement.scrollHeight - 2) active = heads.length - 1;
+    var toEnd = document.documentElement.scrollHeight - innerHeight - y;
+    if (toEnd <= 2) active = heads.length - 1;
 
     blur.classList.toggle('is-on', y > 4);
+    tint.classList.toggle('is-on', toEnd <= 24);
     if (active === last) return;
     last = active;
     chips.forEach(function (c, i) {
