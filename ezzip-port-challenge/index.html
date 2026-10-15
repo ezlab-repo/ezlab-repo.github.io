@@ -334,9 +334,9 @@
      실시간 filter·mix-blend-mode 합성은 띠 경계에 선이 떠서 뺐다. 숨긴 쪽 lazy 그림은 받지 않는다 */
   .seoul-band .seoul-night, :root[data-theme="dark"] .seoul-band .seoul-day { display:none; }
   :root[data-theme="dark"] .seoul-band .seoul-night { display:block; }
-  /* 모바일: 남산타워 꼭대기 빨간 불이 "맨 위로" 글자 아래 약 10px 에 보이게 한다. main 아래 여백 32px 과 글자 줄 높이 여백을 빼 -36px 이다 (사용자 재지적 2026-10-15). 가운데 자르기는 남산타워(그림 폭 30% 지점)가 잘려 나가므로 28% 지점 기준으로 자른다 (사용자 결정 2026-10-10) */
+  /* 모바일: 남산타워 꼭대기 빨간 불이 "맨 위로" 글자 아래 약 30px 에 보이게 한다. 10px 은 너무 붙었다. main 아래 여백 32px 과 글자 줄 높이 여백을 빼 -16px 이다 (사용자 재지적 2026-10-15). 가운데 자르기는 남산타워(그림 폭 30% 지점)가 잘려 나가므로 28% 지점 기준으로 자른다 (사용자 결정 2026-10-10) */
   @media (max-width:767px) {
-    .seoul-band { margin-top:-36px; }
+    .seoul-band { margin-top:-16px; }
     .seoul-band img { width:100%; object-fit:cover; object-position:28% 50%; }
   }
 </style>
