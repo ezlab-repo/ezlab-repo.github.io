@@ -231,8 +231,11 @@
      toss.im 헤더 감도(흰 75% + blur 20px, 다크 70% + 30px)를 레퍼런스로 삼았다 (사용자 결정 2026-10-15).
      바 아래 끝(--e)까지는 덮개·가장 센 흐림을 꽉 채우고, 그 아래에서만 4·10·--blur px 세 겹이 차례로 사라진다.
      iOS 26 Safari 세로 화면은 상태 표시줄 영역에 그리지 못하고 맨 위 fixed 요소의 background-color 로 칠한다.
-     흐림 띠의 반투명 색으로는 칠하지 않아 본문이 비쳤다. 불투명 바탕색 6px(Safari 가 읽는 최소 높이) 띠 .status-cover 를 따로 둬 단색으로 막는다 (사용자 결정 2026-10-15) */
-  .status-cover { position:fixed; left:0; right:0; top:0; height:calc(var(--sat) + 6px); background-color:var(--bg); pointer-events:none; z-index:19; }
+     Safari 는 화면 맨 위 약 4px 지점에서 맨 앞 fixed 요소를 골라 그 색을 쓰는데, 그 자리에 투명한 .mbar 가 있어 본문이 비쳤다.
+     불투명 바탕색 12px 띠 .status-cover 를 .mbar 보다 앞(z-index 21)에 둬 단색으로 막는다. 폭 90%·높이 10px 이상이어야 읽는다는 보고가 있어 12px 로 둔다.
+     .mbar 위 여백(20px) 안이라 버튼은 가리지 않는다. 데스크톱 바는 버튼이 10px 부터라 모바일에서만 쓴다 (사용자 결정 2026-10-15) */
+  .status-cover { display:none; }
+  @media (max-width:767px) { .status-cover { display:block; position:fixed; left:0; right:0; top:0; height:calc(var(--sat) + 12px); background-color:var(--bg); z-index:21; } }
   .bar-blur { --h:116px; --bar:64px; --tint:75%; --blur:20px; --e:calc(var(--sat) + var(--bar)); --fade:calc(var(--h) - var(--bar)); position:fixed; left:0; right:0; top:0; height:calc(var(--h) + var(--sat)); pointer-events:none; z-index:19; opacity:0; transition:opacity .3s ease; }
   :root[data-theme="dark"] .bar-blur { --tint:70%; --blur:30px; }
   .blur-tint, .bar-blur::before, .bar-blur::after { position:absolute; inset:0; }
@@ -319,10 +322,10 @@
   /* 글 끝 그래픽: Higgsfield의 화이트·아이스블루 서울 픽셀 파노라마. 화면 전체 폭·높이 300px. */
   .seoul-band { position:relative; z-index:0; display:flex; justify-content:center; width:100%; height:300px; margin:220px 0 0; overflow:hidden; pointer-events:none; }
   main { position:relative; z-index:1; }
-  /* iOS Safari 는 글 끝 아래(주소창·홈 표시줄 영역)를 화면 끝 요소의 바탕색으로 칠한다. 그림은 바탕색이 없어 body 색이 칠해져 그림 아래가 다른 색 띠로 보였다.
-     그림 맨 아래 줄 색의 6px(Safari 가 읽는 최소 높이) 띠를 그림 바로 아래에 둔다. 띠 자체는 그림과 이어져 보인다 (사용자 재지적 2026-10-15) */
-  .page-end { height:6px; background-color:#fdfefe; }
-  :root[data-theme="dark"] .page-end { background-color:#0b0e16; }
+  /* iOS Safari 는 글 끝 아래(주소창·홈 표시줄 영역)를 화면 아래 fixed 요소가 없으면 루트(html) 바탕색으로 칠한다.
+     루트 색을 그림 맨 아래 줄 색으로 둬 그림 아래가 다른 색 띠로 보이지 않게 한다. 본문 바탕은 body 가 따로 칠한다 (사용자 재지적 2026-10-15) */
+  html { background-color:#fdfefe; }
+  :root[data-theme="dark"] { background-color:#0b0e16; }
   /* 높이 300px에 맞춘 크기(약 1940px 폭)로만 그린다. 화면이 더 넓어도 키우지 않고 가운데 두며, 좁으면 양옆을 자른다 */
   .seoul-band img { display:block; flex:none; width:auto; max-width:none; height:100%; }
   /* 다크 모드의 밤 그림: 낮 그림에서 창문·다리·가로등·남산타워 불빛과 별을 미리 구운 별도 파일. 하늘은 투명이라 바탕과 경계가 없다.
@@ -1043,7 +1046,6 @@ public sealed class MacTaskProgress : ITaskProgress
 
 </main>
 <div class="seoul-band" aria-hidden="true"><img class="seoul-day" src="assets/seoul-white-panorama.webp" width="3840" height="594" alt="" loading="lazy" decoding="async"><img class="seoul-night" src="assets/seoul-night-panorama.webp" width="3840" height="594" alt="" loading="lazy" decoding="async"></div>
-<div class="page-end" aria-hidden="true"></div>
 <script>
 document.querySelectorAll('.meta-icon[data-copy]').forEach(function (b) {
   var timer;
