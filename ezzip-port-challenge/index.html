@@ -201,7 +201,23 @@
   .try-dl-ver { color:var(--muted); font-family:var(--font-data); font-size:13px; font-weight:500; line-height:1.4; transition:color .15s; font-variant-numeric:tabular-nums; }
   .try-dl-go { display:inline-flex; align-items:center; gap:6px; margin-top:8px; color:var(--accent); font-size:14px; font-weight:600; line-height:1.4; }
   .try-dl-go svg { width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
-  @media (max-width:600px) { .try-downloads { grid-template-columns:1fr; } }
+  /* 모바일: 휴대폰에서는 Windows·macOS 설치 파일을 받을 수 없으니 각 카드의 "다운로드"를 그 설치 파일 "링크 복사"로 바꾼다 (사용자 결정 2026-10-16).
+     누르면 링크를 복사하고 아이콘을 체크로 잠깐 바꾼다. 카드는 한 줄에 하나 */
+  .try-dl-share, .try-dl-share .is-done, .try-dl-share .ico-check, .try-dl.is-copied .try-dl-share .ico-copy { display:none; }
+  .try-dl.is-copied .try-dl-share .ico-check { display:block; }
+  /* 복사되면 글자는 그대로 두고 아이콘만 체크로 바꾼다. "복사했습니다"는 화면 낭독기에만 읽힌다 (사용자 결정 2026-10-16) */
+  .try-dl.is-copied .try-dl-share .is-done { display:inline; position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+  @media (max-width:767px) {
+    .try-downloads { grid-template-columns:1fr; gap:8px; }
+    .try-dl-go:not(.try-dl-share) { display:none; }
+    .try-dl-share { display:inline-flex; }
+    /* 세로 카드 세 개가 화면을 다 차지해 한 줄짜리로 줄인다: 로고 | 이름·버전 두 줄 | 링크 복사 (사용자 지적 2026-10-16) */
+    .try-dl { display:grid; grid-template-columns:auto minmax(0,1fr) auto; column-gap:12px; row-gap:0; align-items:center; padding:12px 16px; text-align:left; }
+    .try-dl-os { grid-row:1 / 3; width:24px; height:24px; margin:0; }
+    .try-dl b { grid-column:2; grid-row:1; font-size:15px; }
+    .try-dl-ver { grid-column:2; grid-row:2; }
+    .try-dl-share { grid-column:3; grid-row:1 / 3; margin:0; font-size:13.5px; }
+  }
   .article-footer { margin-top:64px; padding-top:8px; border-top:1px solid var(--line); }
   .footer-top-row { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:0; }
   /* 글 끝 줄: 왼쪽 끝에 글 제목을 작게, 오른쪽에 맨 위로 (사용자 결정 2026-10-08) */
@@ -1057,9 +1073,9 @@ public sealed class MacTaskProgress : ITaskProgress
 <p data-lang="ja">Windows用インストーラーと、署名・公証済みのmacOS用DMGの一般公開を準備しています。ダウンロードリンクは準備が整い次第追加します。ログインしなくてもすべての機能を使え、macOS 13以降で動作します。</p>
 <!-- ponytail: 링크가 아직 없어 href 는 #try 자리표시. 배포 주소가 나오면 바꾼다 -->
 <div class="try-downloads">
-  <a class="try-dl" href="#try"><svg class="try-dl-os" viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h11.4v11.4H0zm12.6 0H24v11.4H12.6zM0 12.6h11.4V24H0zm12.6 0H24V24H12.6z"/></svg><b>WPF</b><span class="try-dl-ver">ezZip 2.0.10.0</span><span class="try-dl-go"><svg viewBox="1.7 0 12.6 16" aria-hidden="true"><path d="M8 2v8m-3-3 3 3 3-3M2.5 10.5v3h11v-3"/></svg><span data-lang="en">Download</span><span data-lang="zh-Hant">下載</span><span data-lang="ko">다운로드</span><span data-lang="ja">ダウンロード</span></span></a>
-  <a class="try-dl" href="#try"><svg class="try-dl-os" viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h11.4v11.4H0zm12.6 0H24v11.4H12.6zM0 12.6h11.4V24H0zm12.6 0H24V24H12.6z"/></svg><b>Avalonia</b><span class="try-dl-ver">ezZip 2.0.1.0</span><span class="try-dl-go"><svg viewBox="1.7 0 12.6 16" aria-hidden="true"><path d="M8 2v8m-3-3 3 3 3-3M2.5 10.5v3h11v-3"/></svg><span data-lang="en">Download</span><span data-lang="zh-Hant">下載</span><span data-lang="ko">다운로드</span><span data-lang="ja">ダウンロード</span></span></a>
-  <a class="try-dl" href="#try"><svg class="try-dl-os" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg><b>macOS</b><span class="try-dl-ver">ezZip 2.0.1.0</span><span class="try-dl-go"><svg viewBox="1.7 0 12.6 16" aria-hidden="true"><path d="M8 2v8m-3-3 3 3 3-3M2.5 10.5v3h11v-3"/></svg><span data-lang="en">Download</span><span data-lang="zh-Hant">下載</span><span data-lang="ko">다운로드</span><span data-lang="ja">ダウンロード</span></span></a>
+  <a class="try-dl" href="#try"><svg class="try-dl-os" viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h11.4v11.4H0zm12.6 0H24v11.4H12.6zM0 12.6h11.4V24H0zm12.6 0H24V24H12.6z"/></svg><b>WPF</b><span class="try-dl-ver">ezZip 2.0.10.0</span><span class="try-dl-go"><svg viewBox="1.7 0 12.6 16" aria-hidden="true"><path d="M8 2v8m-3-3 3 3 3-3M2.5 10.5v3h11v-3"/></svg><span data-lang="en">Download</span><span data-lang="zh-Hant">下載</span><span data-lang="ko">다운로드</span><span data-lang="ja">ダウンロード</span></span><span class="try-dl-go try-dl-share"><svg class="ico-copy" viewBox="0 0 16 16" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M3.5 10.5h-.5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h6.5a1 1 0 0 1 1 1v.5"/></svg><svg class="ico-check" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg><span class="is-idle"><span data-lang="en">Copy link</span><span data-lang="zh-Hant">複製連結</span><span data-lang="ko">링크 복사</span><span data-lang="ja">リンクをコピー</span></span><span class="is-done" role="status"><span data-lang="en">Link copied</span><span data-lang="zh-Hant">已複製連結</span><span data-lang="ko">링크를 복사했습니다</span><span data-lang="ja">リンクをコピーしました</span></span></span></a>
+  <a class="try-dl" href="#try"><svg class="try-dl-os" viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h11.4v11.4H0zm12.6 0H24v11.4H12.6zM0 12.6h11.4V24H0zm12.6 0H24V24H12.6z"/></svg><b>Avalonia</b><span class="try-dl-ver">ezZip 2.0.1.0</span><span class="try-dl-go"><svg viewBox="1.7 0 12.6 16" aria-hidden="true"><path d="M8 2v8m-3-3 3 3 3-3M2.5 10.5v3h11v-3"/></svg><span data-lang="en">Download</span><span data-lang="zh-Hant">下載</span><span data-lang="ko">다운로드</span><span data-lang="ja">ダウンロード</span></span><span class="try-dl-go try-dl-share"><svg class="ico-copy" viewBox="0 0 16 16" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M3.5 10.5h-.5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h6.5a1 1 0 0 1 1 1v.5"/></svg><svg class="ico-check" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg><span class="is-idle"><span data-lang="en">Copy link</span><span data-lang="zh-Hant">複製連結</span><span data-lang="ko">링크 복사</span><span data-lang="ja">リンクをコピー</span></span><span class="is-done" role="status"><span data-lang="en">Link copied</span><span data-lang="zh-Hant">已複製連結</span><span data-lang="ko">링크를 복사했습니다</span><span data-lang="ja">リンクをコピーしました</span></span></span></a>
+  <a class="try-dl" href="#try"><svg class="try-dl-os" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg><b>macOS</b><span class="try-dl-ver">ezZip 2.0.1.0</span><span class="try-dl-go"><svg viewBox="1.7 0 12.6 16" aria-hidden="true"><path d="M8 2v8m-3-3 3 3 3-3M2.5 10.5v3h11v-3"/></svg><span data-lang="en">Download</span><span data-lang="zh-Hant">下載</span><span data-lang="ko">다운로드</span><span data-lang="ja">ダウンロード</span></span><span class="try-dl-go try-dl-share"><svg class="ico-copy" viewBox="0 0 16 16" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M3.5 10.5h-.5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h6.5a1 1 0 0 1 1 1v.5"/></svg><svg class="ico-check" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg><span class="is-idle"><span data-lang="en">Copy link</span><span data-lang="zh-Hant">複製連結</span><span data-lang="ko">링크 복사</span><span data-lang="ja">リンクをコピー</span></span><span class="is-done" role="status"><span data-lang="en">Link copied</span><span data-lang="zh-Hant">已複製連結</span><span data-lang="ko">링크를 복사했습니다</span><span data-lang="ja">リンクをコピーしました</span></span></span></a>
 </div>
 
 <footer class="article-footer" aria-label="End of article" data-label-en="End of article" data-label-zh-hant="文章結尾" data-label-ko="글의 끝" data-label-ja="記事の終わり">
@@ -1069,6 +1085,18 @@ public sealed class MacTaskProgress : ITaskProgress
 </main>
 <div class="seoul-band" aria-hidden="true"><img class="seoul-day" src="assets/seoul-white-panorama.webp" width="3840" height="594" alt="" loading="lazy" decoding="async"><img class="seoul-night" src="assets/seoul-night-panorama.webp" width="3840" height="594" alt="" loading="lazy" decoding="async"></div>
 <script>
+document.querySelectorAll('.try-dl').forEach(function (a) {
+  var timer;
+  a.addEventListener('click', function (e) {
+    if (!matchMedia('(max-width:767px)').matches) return; // 데스크톱은 그대로 내려받는다
+    e.preventDefault();
+    navigator.clipboard.writeText(a.href).then(function () {
+      a.classList.add('is-copied');
+      clearTimeout(timer);
+      timer = setTimeout(function () { a.classList.remove('is-copied'); }, 1500);
+    });
+  });
+});
 document.querySelectorAll('.meta-icon[data-copy]').forEach(function (b) {
   var timer;
   b.addEventListener('click', function () {
