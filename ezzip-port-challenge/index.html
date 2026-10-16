@@ -30,7 +30,7 @@
     --font-sans:"Noto Sans KR", "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif; 
     --font-data:"Space Grotesk", "Noto Sans KR", sans-serif;
   }
-  /* 다크 모드: 첫 화면은 OS 설정, 위 바의 전환 버튼으로 바꾸면 그 선택을 기억한다(<head> 스크립트가 data-theme 를 칠하기 전에 정한다).
+  /* 다크 모드: 첫 화면은 라이트로 고정, 위 바의 전환 버튼으로 바꾸면 그 선택을 기억한다(<head> 스크립트가 data-theme 를 칠하기 전에 정한다).
      강조색은 두 테마 모두 파비콘·제목 아이콘(#5fa0dc)·글 끝 서울 그림과 같은 하늘색(색상 209~212°, 채도 0.72~0.80)이다.
      라이트는 글자(--accent)·막대(--ava)·옅은 막대(--engine) 세 단계로 나눈다: 글자만 4.5:1 을 넘게 짙게, 막대는 서울 그림처럼 밝게.
      엔진 막대는 흰 바탕 대비 2.7:1 로 3:1 에 조금 못 미치지만 기여율을 막대 아래 글자로도 적어 색에만 기대지 않는다.
@@ -189,6 +189,19 @@
   details summary:hover { color:var(--accent); }
   ul, ol { padding-left:22px; margin:0 0 20px; font-size:17px; line-height:1.7; }
   li { margin-bottom:8px; }
+  /* 받아서 써보기 다운로드 버튼: 가운데 정렬 카드. 위에 OS 로고 크게, 빌드 이름, 버전, 맨 아래 "다운로드" 글자 (사용자 결정 2026-10-16, 시안 F).
+     바탕은 본문과 같고 테두리만 둘러 그림 칸(figure)과 같은 결로 맞춘다. 올리면 테두리가 강조색. 모바일은 한 줄에 하나 */
+  .try-downloads { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; margin:28px 0 0; }
+  .try-dl { display:flex; flex-direction:column; align-items:center; gap:6px; padding:22px 16px 18px; border:1px solid var(--line); border-radius:12px; background:var(--bg); color:var(--fg); text-align:center; text-decoration:none; transition:border-color .15s, color .15s; }
+  .try-dl:hover { border-color:var(--accent); color:var(--accent); text-decoration:none; } /* 올리면 바탕은 그대로, 테두리·로고·글자 전체를 강조색으로 바꾼다 (사용자 결정 2026-10-16) */
+  .try-dl:hover .try-dl-ver { color:var(--accent); } /* inherit 로 두면 부모의 전환 중간색(글자색)을 거쳐 깜빡인다. 다운로드 글자는 원래 강조색이라 건드리지 않는다 */
+  .try-dl:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .try-dl-os { width:32px; height:32px; margin-bottom:6px; fill:currentColor; }
+  .try-dl b { font-size:16px; font-weight:700; line-height:1.3; }
+  .try-dl-ver { color:var(--muted); font-family:var(--font-data); font-size:13px; font-weight:500; line-height:1.4; transition:color .15s; font-variant-numeric:tabular-nums; }
+  .try-dl-go { display:inline-flex; align-items:center; gap:6px; margin-top:8px; color:var(--accent); font-size:14px; font-weight:600; line-height:1.4; }
+  .try-dl-go svg { width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+  @media (max-width:600px) { .try-downloads { grid-template-columns:1fr; } }
   .article-footer { margin-top:64px; padding-top:8px; border-top:1px solid var(--line); }
   .footer-top-row { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:0; }
   /* 글 끝 줄: 왼쪽 끝에 글 제목을 작게, 오른쪽에 맨 위로 (사용자 결정 2026-10-08) */
@@ -340,7 +353,7 @@
     .seoul-band img { width:100%; object-fit:cover; object-position:28% 50%; }
   }
 </style>
-<script>try { document.documentElement.dataset.theme = localStorage.getItem('portchallenge-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('portchallenge-theme') || 'light'; } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
 </head>
 <body id="page-top">
 <a class="skip-link" href="#article-title"><span data-lang="en">Skip to content</span><span data-lang="zh-Hant">跳至內文</span><span data-lang="ko">본문 바로가기</span><span data-lang="ja">本文へスキップ</span></a>
@@ -1042,6 +1055,12 @@ public sealed class MacTaskProgress : ITaskProgress
 <p data-lang="zh-Hant">Windows 安裝檔與經過簽署、公證的 macOS DMG 正在準備公開發佈。下載連結會在準備好後加入。無需登入即可使用所有功能，macOS 13 以上版本即可執行。</p>
 <p data-lang="ko">Windows 설치 파일과 서명·공증된 macOS용 DMG 패키지의 공개 배포를 준비 중입니다. 다운로드 링크는 준비되는 대로 추가하겠습니다. 로그인하지 않아도 모든 기능을 쓸 수 있고, macOS는 13 이상에서 실행됩니다.</p>
 <p data-lang="ja">Windows用インストーラーと、署名・公証済みのmacOS用DMGの一般公開を準備しています。ダウンロードリンクは準備が整い次第追加します。ログインしなくてもすべての機能を使え、macOS 13以降で動作します。</p>
+<!-- ponytail: 링크가 아직 없어 href 는 #try 자리표시. 배포 주소가 나오면 바꾼다 -->
+<div class="try-downloads">
+  <a class="try-dl" href="#try"><svg class="try-dl-os" viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h11.4v11.4H0zm12.6 0H24v11.4H12.6zM0 12.6h11.4V24H0zm12.6 0H24V24H12.6z"/></svg><b>WPF</b><span class="try-dl-ver">ezZip 2.0.10.0</span><span class="try-dl-go"><svg viewBox="1.7 0 12.6 16" aria-hidden="true"><path d="M8 2v8m-3-3 3 3 3-3M2.5 10.5v3h11v-3"/></svg><span data-lang="en">Download</span><span data-lang="zh-Hant">下載</span><span data-lang="ko">다운로드</span><span data-lang="ja">ダウンロード</span></span></a>
+  <a class="try-dl" href="#try"><svg class="try-dl-os" viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h11.4v11.4H0zm12.6 0H24v11.4H12.6zM0 12.6h11.4V24H0zm12.6 0H24V24H12.6z"/></svg><b>Avalonia</b><span class="try-dl-ver">ezZip 2.0.1.0</span><span class="try-dl-go"><svg viewBox="1.7 0 12.6 16" aria-hidden="true"><path d="M8 2v8m-3-3 3 3 3-3M2.5 10.5v3h11v-3"/></svg><span data-lang="en">Download</span><span data-lang="zh-Hant">下載</span><span data-lang="ko">다운로드</span><span data-lang="ja">ダウンロード</span></span></a>
+  <a class="try-dl" href="#try"><svg class="try-dl-os" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg><b>macOS</b><span class="try-dl-ver">ezZip 2.0.1.0</span><span class="try-dl-go"><svg viewBox="1.7 0 12.6 16" aria-hidden="true"><path d="M8 2v8m-3-3 3 3 3-3M2.5 10.5v3h11v-3"/></svg><span data-lang="en">Download</span><span data-lang="zh-Hant">下載</span><span data-lang="ko">다운로드</span><span data-lang="ja">ダウンロード</span></span></a>
+</div>
 
 <footer class="article-footer" aria-label="End of article" data-label-en="End of article" data-label-zh-hant="文章結尾" data-label-ko="글의 끝" data-label-ja="記事の終わり">
   <p class="footer-top-row"><span class="footer-title"><span data-lang="en">From WPF to Avalonia: Taking ezZip to macOS</span><span data-lang="zh-Hant">從 WPF 到 Avalonia：將 ezZip 帶到 macOS</span><span data-lang="ko">WPF에서 Avalonia로, ezZip을 macOS까지</span><span data-lang="ja">WPFからAvaloniaへ、ezZipをmacOSまで</span></span><a class="footer-top" href="#page-top"><span data-lang="en">Back to top</span><span data-lang="zh-Hant">回到頂端</span><span data-lang="ko">맨 위로</span><span data-lang="ja">トップへ戻る</span> <span aria-hidden="true">↑</span></a></p>
