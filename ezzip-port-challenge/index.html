@@ -253,7 +253,7 @@
 
   /* 데스크톱 헤더(768px 이상): popo 포트폴리오 데스크톱 헤더를 옮겼다 (사용자 결정 2026-10-08).
      본문 칼럼보다 조금 넓은 폭에 챕터 번호 칩(현재 절만 번호 + 제목, 검정 굵게)과 언어·다운로드 동그라미.
-     바 자체는 바탕이 없고, 스크롤하면 화면 위 116px이 바 뒤 흐림 띠로 덮인다.
+     바 자체는 바탕이 없고, 스크롤하면 화면 위 96px이 바 뒤 흐림 띠로 덮인다.
      바는 모바일과 같이 화면 위 64px 안에 둔다 — 84px 은 흐림 띠가 너무 길었다 (사용자 재지적 2026-10-15) */
   /* 흐림 띠는 데스크톱·모바일 공통, 모바일은 높이만 줄인다 (모바일 알약 대신, 사용자 결정 2026-10-10).
      viewport-fit=cover 라 iOS Safari 에서 top:0 이 화면 맨 위다. 다이나믹 아일랜드·상태 표시줄(--sat)만큼 띠를 늘린다. 음수 top 은 Safari 가 잘라내 안 된다.
@@ -265,7 +265,7 @@
      .mbar 위 여백(20px) 안이라 버튼은 가리지 않는다. 데스크톱 바는 버튼이 10px 부터라 모바일에서만 쓴다 (사용자 결정 2026-10-15) */
   .status-cover { display:none; }
   @media (max-width:767px) { .status-cover { display:block; position:fixed; left:0; right:0; top:0; height:calc(var(--sat) + 12px); background-color:var(--bg); z-index:21; } }
-  .bar-blur { --h:116px; --bar:64px; --tint:75%; --blur:20px; --e:calc(var(--sat) + var(--bar)); --fade:calc(var(--h) - var(--bar)); position:fixed; left:0; right:0; top:0; height:calc(var(--h) + var(--sat)); pointer-events:none; z-index:19; opacity:0; transition:opacity .3s ease; }
+  .bar-blur { --h:96px; --bar:64px; --tint:75%; --blur:20px; --e:calc(var(--sat) + var(--bar)); --fade:calc(var(--h) - var(--bar)); position:fixed; left:0; right:0; top:0; height:calc(var(--h) + var(--sat)); pointer-events:none; z-index:19; opacity:0; transition:opacity .3s ease; }
   :root[data-theme="dark"] .bar-blur { --tint:70%; --blur:30px; }
   .blur-tint, .bar-blur::before, .bar-blur::after { position:absolute; inset:0; }
   .blur-tint { background:linear-gradient(to bottom, color-mix(in srgb, var(--bg) var(--tint), transparent) var(--e), transparent); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); -webkit-mask-image:linear-gradient(to bottom, #000 var(--e), transparent); mask-image:linear-gradient(to bottom, #000 var(--e), transparent); }
@@ -275,7 +275,7 @@
   .bar-blur.is-on { opacity:1; }
   .pbar { display:none; }
   @media (min-width:768px) {
-    h1[id], h2[id] { scroll-margin-top:calc(124px + var(--sat)); } /* 흐림 띠(116px) 아래에 제목이 오도록 — 76px 은 제목이 흐림에 걸렸다 (사용자 지적 2026-10-16) */
+    h1[id], h2[id] { scroll-margin-top:calc(100px + var(--sat)); } /* 흐림 띠(96px) 바로 아래 — 76px 은 제목이 흐림에 걸리고, 124px 은 헤더와 너무 떨어져 시선이 오갔다 (사용자 지적 2026-10-16) */
     .pbar { position:fixed; top:calc(10px + var(--sat)); left:0; right:0; z-index:20; display:flex; align-items:center; justify-content:space-between; gap:16px; max-width:1012px; margin:0 auto; padding:5px max(16px, env(safe-area-inset-right)) 5px max(16px, env(safe-area-inset-left)); }
     .pbar-nav { display:flex; align-items:center; gap:6px; min-width:0; overflow-x:auto; scrollbar-width:none; }
     .pbar-nav::-webkit-scrollbar { display:none; }
@@ -303,7 +303,7 @@
   .mbar, .mbar-scrim { display:none; }
   @media (max-width:767px) {
     main { padding-top:calc(183px + var(--sat)); } /* 위 바(64px) 아래 119px 띄운다 — 60px 는 제목이 바에 붙고 87px 도 좁았다 (사용자 재지적 2026-10-10, 2026-10-15) */
-    h1[id], h2[id] { scroll-margin-top:calc(124px + var(--sat)); } /* 흐림 띠(116px) 아래 */
+    h1[id], h2[id] { scroll-margin-top:calc(100px + var(--sat)); } /* 흐림 띠(96px) 바로 아래 */
     .mbar { position:fixed; top:0; left:0; right:0; z-index:20; display:flex; flex-wrap:wrap; justify-content:center; width:max-content; margin:0 auto; padding:calc(20px + var(--sat)) 0 0; } /* zoom:.9 는 버튼을 40px·글자 11.7px 로 줄여 뺐다 (사용자 결정 2026-10-10) */
     .mbar.is-open { width:auto; padding-bottom:12px; }
     /* 메뉴를 열면 흰 판 대신 흐림 띠를 목차 아래 끝(--menu-h, JS 가 잰다)까지 늘린다. 끝 48px 만 흐려지며 사라진다 (사용자 결정 2026-10-10) */
