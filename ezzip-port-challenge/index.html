@@ -68,14 +68,11 @@
   .meta { margin:24px 0 40px; }
   .meta-author { margin:0 0 4px; color:var(--fg); font-size:16px; font-weight:600; line-height:1.5; }
   .meta-details { display:flex; align-items:baseline; flex-wrap:wrap; gap:6px 10px; color:var(--muted); font-size:13px; line-height:1.6; }
-  .meta-company { font-size:12px; letter-spacing:0.025em; color:inherit; text-decoration:none; }
-  .meta-company:hover { color:var(--accent); text-decoration:none; }
-  .meta-company:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:2px; }
   .meta-details time, .meta-readtime { white-space:nowrap; }
   .meta-separator { color:var(--neutral); }
-  /* 회사·날짜·읽는 시간 앞의 단색 선 아이콘 (글자 크기를 따른다) */
+  /* 날짜·읽는 시간 앞의 단색 선 아이콘 (글자 크기를 따른다) */
   .meta-ico { width:1.1em; height:1.1em; margin-right:0.35em; vertical-align:-0.18em; fill:none; stroke:currentColor; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; }
-  /* 메일·웹: 위 줄(회사·날짜·읽는 시간)과 같은 모양 — 단색 선 아이콘 + 보조색 글자, "/" 구분 (사용자 결정 2026-10-08) */
+  /* 윗줄: 작성일 / 읽는 시간, 아랫줄: 개인 메일(주소 그대로) / 회사 사이트 / 브랜드 사이트 (사용자 결정 2026-10-17). 아래 줄과 같은 모양 — 단색 선 아이콘 + 보조색 글자, "/" 구분 */
   .meta-links { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 10px; margin:4px 0 0; padding:0; list-style:none; font-size:13px; line-height:1.6; }
   .meta-links li { margin:0; }
   .meta-links li + li::before { content:"/"; margin-right:10px; color:var(--neutral); }
@@ -422,10 +419,11 @@
 <h1 id="article-title" tabindex="-1"><span data-lang="en">From WPF to Avalonia: Taking ezZip to macOS</span><span data-lang="zh-Hant">從 WPF 到 Avalonia：將 ezZip 帶到 macOS</span><span data-lang="ko">WPF에서 Avalonia로, ezZip을 macOS까지</span><span data-lang="ja">WPFからAvaloniaへ、ezZipをmacOSまで</span></h1>
 <div class="meta">
   <div class="meta-author"><span data-lang="en">Min-gyu Jang</span><span data-lang="zh-Hant">張珉暌</span><span data-lang="ko">장민규</span><span data-lang="ja">チャン・ミンギュ</span></div>
-  <div class="meta-details"><a class="meta-company" href="https://mobsoft.net/ko" data-mobsoft target="_blank" rel="noopener"><svg class="meta-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 14V3h6.5v11M9.5 6.5H13V14M1.5 14h13M5 5.5h2M5 8h2M5 10.5h2"/></svg>MOBSOFT</a><span class="meta-separator" aria-hidden="true">/</span><time datetime="2026-10-19"><svg class="meta-ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/></svg><span data-lang="en">October 19, 2026</span><span data-lang="zh-Hant">2026年10月19日</span><span data-lang="ko">2026년 10월 19일</span><span data-lang="ja">2026年10月19日</span></time><span class="meta-separator" aria-hidden="true">/</span><span class="meta-readtime"><svg class="meta-ico" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.75"/><path d="M8 5v3.2l2.2 1.4"/></svg><span data-lang="en">13 min read</span><span data-lang="zh-Hant">閱讀約 13 分鐘</span><span data-lang="ko">13분</span><span data-lang="ja">読了時間 13分</span></span></div>
+  <div class="meta-details"><time datetime="2026-10-19"><svg class="meta-ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/></svg><span data-lang="en">October 19, 2026</span><span data-lang="zh-Hant">2026年10月19日</span><span data-lang="ko">2026년 10월 19일</span><span data-lang="ja">2026年10月19日</span></time><span class="meta-separator" aria-hidden="true">/</span><span class="meta-readtime"><svg class="meta-ico" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.75"/><path d="M8 5v3.2l2.2 1.4"/></svg><span data-lang="en">13 min read</span><span data-lang="zh-Hant">閱讀約 13 分鐘</span><span data-lang="ko">13분</span><span data-lang="ja">読了時間 13分</span></span></div>
   <ul class="meta-links">
     <li><button type="button" class="meta-icon" data-copy="mg.jang@ezlab.im" aria-label="Copy email address: mg.jang@ezlab.im" data-label-en="Copy email address: mg.jang@ezlab.im" data-label-zh-hant="複製電子郵件地址：mg.jang@ezlab.im" data-label-ko="이메일 주소 복사: mg.jang@ezlab.im" data-label-ja="メールアドレスをコピー：mg.jang@ezlab.im"><svg class="icon-mail" viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="4" width="16" height="12" rx="2"/><path d="m3 5 7 5 7-5"/></svg><svg class="icon-check" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10.5 3.5 3.5 7-7"/></svg><span>mg.jang@ezlab.im</span></button></li>
-    <li><a class="meta-icon" href="https://ezlab.im/ko/tool/ezzip" data-ezlab target="_blank" rel="noopener" aria-label="Open ezZip website: ezlab.im/tool/ezzip" data-label-en="Open ezZip website: ezlab.im/tool/ezzip" data-label-zh-hant="開啟 ezZip 網站：ezlab.im/tool/ezzip" data-label-ko="ezZip 웹사이트 열기: ezlab.im/tool/ezzip" data-label-ja="ezZipのウェブサイトを開く：ezlab.im/tool/ezzip"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M2 10h16M10 2c2.2 2.3 3.2 5 3.2 8s-1 5.7-3.2 8c-2.2-2.3-3.2-5-3.2-8s1-5.7 3.2-8z"/></svg><span>ezlab.im</span></a></li>
+    <li><a class="meta-icon" href="https://mobsoft.net/ko" data-mobsoft target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 14V3h6.5v11M9.5 6.5H13V14M1.5 14h13M5 5.5h2M5 8h2M5 10.5h2"/></svg>MOBSOFT</a></li>
+    <li><a class="meta-icon" href="https://ezlab.im/ko/tool/ezzip" data-ezlab target="_blank" rel="noopener" aria-label="Open ezZip website: ezlab.im/tool/ezzip" data-label-en="Open ezZip website: ezlab.im/tool/ezzip" data-label-zh-hant="開啟 ezZip 網站：ezlab.im/tool/ezzip" data-label-ko="ezZip 웹사이트 열기: ezlab.im/tool/ezzip" data-label-ja="ezZipのウェブサイトを開く：ezlab.im/tool/ezzip"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M2 10h16M10 2c2.2 2.3 3.2 5 3.2 8s-1 5.7-3.2 8c-2.2-2.3-3.2-5-3.2-8s1-5.7 3.2-8z"/></svg><span>ezLab</span></a></li>
   </ul>
 </div>
 
