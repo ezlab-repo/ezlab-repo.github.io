@@ -427,20 +427,20 @@
   </ul>
 </div>
 
-<p data-lang="en">ezZip is a desktop utility for compressing and extracting files, used by up to around 80,000 people every day. It started as a Windows-only app built with WPF. It couldn't run on Mac, and even on Windows it required a separate .NET 8 desktop runtime installation. To make it usable on Mac while keeping the existing workflow, I started moving it to Avalonia UI in spring 2026.</p>
-<p data-lang="zh-Hant">ezZip 是一款用於壓縮與解壓縮檔案的桌面工具程式，每天最多約有 8 萬人使用。它最初是以 WPF 開發、僅支援 Windows 的應用程式，無法在 Mac 上執行，即使在 Windows 上也需要另外安裝 .NET 8 Desktop 執行階段。為了在維持既有使用流程的同時也能在 Mac 上使用，我從 2026 年春季開始將它移植到 Avalonia UI。</p>
-<p data-lang="ko">ezZip은 파일을 압축하고 푸는 데스크톱 유틸리티로, 매일 최대 약 8만 명이 이용하고 있습니다. 처음에는 WPF로 만든 Windows 전용 앱이었습니다. Mac에서는 사용할 수 없었고, Windows에서도 .NET 8 데스크톱 런타임을 따로 설치해야 했습니다. 기존 사용 흐름을 유지하면서 Mac에서도 쓸 수 있도록, 2026년 봄부터 Avalonia UI로 옮기기 시작했습니다.</p>
-<p data-lang="ja">ezZipは、ファイルを圧縮・解凍するデスクトップ用ユーティリティで、毎日最大約8万人に利用されています。当初はWPFで作られたWindows専用アプリでした。Macでは使えず、Windowsでも.NET 8デスクトップランタイムを別途インストールする必要がありました。これまでの使い慣れた操作感を保ちながらMacでも使えるよう、2026年春からAvalonia UIへの移植を始めました。</p>
+<p data-lang="en">ezZip is a desktop utility for compressing and extracting files, used by tens of thousands of people every day. It started as a Windows-only app built with WPF. It couldn't run on Mac, and even on Windows it required a separate .NET 8 desktop runtime installation. To make it usable on Mac while keeping the existing workflow, I started moving it to Avalonia UI in spring 2026.</p>
+<p data-lang="zh-Hant">ezZip 是一款用於壓縮與解壓縮檔案的桌面工具程式，每天有數萬人使用。它最初是以 WPF 開發、僅支援 Windows 的應用程式，無法在 Mac 上執行，即使在 Windows 上也需要另外安裝 .NET 8 Desktop 執行階段。為了在維持既有使用流程的同時也能在 Mac 上使用，我從 2026 年春季開始將它移植到 Avalonia UI。</p>
+<p data-lang="ko">ezZip은 파일을 압축하고 푸는 데스크톱 유틸리티로, 매일 수만 명이 이용하고 있습니다. 처음에는 WPF로 만든 Windows 전용 앱이었습니다. Mac에서는 사용할 수 없었고, Windows에서도 .NET 8 데스크톱 런타임을 따로 설치해야 했습니다. 기존 사용 흐름을 유지하면서 Mac에서도 쓸 수 있도록, 2026년 봄부터 Avalonia UI로 옮기기 시작했습니다.</p>
+<p data-lang="ja">ezZipは、ファイルを圧縮・解凍するデスクトップ用ユーティリティで、毎日数万人に利用されています。当初はWPFで作られたWindows専用アプリでした。Macでは使えず、Windowsでも.NET 8デスクトップランタイムを別途インストールする必要がありました。これまでの使い慣れた操作感を保ちながらMacでも使えるよう、2026年春からAvalonia UIへの移植を始めました。</p>
 
 <p data-lang="en">Today, a single codebase on Avalonia UI 12.1.3 and .NET 10 produces both the Windows and macOS editions, compiled with Native AOT to run standalone without any external .NET runtime. The main window keeps the same set of features, and on Mac I made the Finder context menu and toolbar, progress gauges on file icons, the Dock progress bar, and menu bar shortcuts available. Virus scanning before extraction remains Windows-only for now. The Windows and macOS editions are nearly complete; iOS and Android work is planned for next year, and Linux is under consideration at the company level.</p>
 <p data-lang="zh-Hant">如今，單一程式碼基底以 Avalonia UI 12.1.3 與 .NET 10 同時產出 Windows 與 macOS 版本，兩者皆以 Native AOT 編譯，無需外部 .NET 執行階段即可執行。主視窗的功能組成維持不變，在 Mac 上則可以使用 Finder 的右鍵選單與工具列、檔案圖示上的進度指示、Dock 進度列，以及選單列的快速鍵。解壓縮前的防毒掃描目前仍僅支援 Windows。Windows 與 macOS 版本已接近完成；iOS 與 Android 預計於明年著手，Linux 則在公司層級評估中。</p>
 <p data-lang="ko">지금은 Avalonia UI 12.1.3과 .NET 10 기반의 코드 한 벌로 Windows와 macOS 버전을 만들고, 두 버전 모두 Native AOT로 컴파일해 별도의 .NET 런타임 없이 실행합니다. 메인 창의 기능 구성은 유지하되, Mac에서는 Finder 우클릭 메뉴와 툴바, 파일 아이콘의 진행 게이지, Dock 진행 막대, 메뉴 바 단축키를 사용할 수 있게 했습니다. 압축 풀기 전 바이러스 검사는 아직 Windows에서만 지원합니다. Windows와 macOS 버전은 거의 완성됐고, 내년에는 iOS와 Android를 작업할 예정이며 Linux도 회사 차원에서 검토 중입니다.</p>
 <p data-lang="ja">現在は、Avalonia UI 12.1.3と.NET 10をベースにした一つのコードからWindows版とmacOS版をビルドし、どちらもNative AOTでコンパイルして、別途.NETランタイムを用意せずに実行しています。メインウィンドウの機能構成は維持しつつ、MacではFinderの右クリックメニューとツールバー、ファイルアイコンの進捗ゲージ、Dockの進捗バー、メニューバーのショートカットを使えるようにしました。解凍前のウイルス検査は、現時点ではWindowsのみの対応です。Windows版とmacOS版はほぼ完成しており、来年はiOSとAndroidに取り組む予定で、Linuxも会社として検討しています。</p>
 
-<p data-lang="en">I did this work alone, using several AI services, and it took about 4.5 months. This article covers the parts I moved over as they were, the parts I redesigned, and the problems I ran into during the port and how I solved them. It also covers the work I left to AI and the points where a person had to make the decision.</p>
-<p data-lang="zh-Hant">我運用多個 AI 服務獨自完成了這次移植，歷時約 4.5 個月。本文整理哪些部分沿用既有實作、哪些部分重新設計，以及移植過程中遇到的問題與解決方式，也會談到交給 AI 的工作與需要由人判斷的地方。</p>
-<p data-lang="ko">혼자서 여러 AI 서비스를 활용해 작업했고, 작업 기간은 약 4.5개월입니다. 이 글에서는 기존 구현을 그대로 옮긴 부분과 다시 설계한 부분, 이식 중 겪은 문제와 해결 과정을 정리합니다. AI에 맡긴 작업과 사람이 판단해야 했던 지점도 함께 다룹니다.</p>
-<p data-lang="ja">複数のAIサービスを活用して1人で作業を進め、作業期間は約4.5か月でした。本稿では、既存の実装をそのまま移した部分と設計し直した部分、移植中に直面した問題とその解決過程をまとめます。AIに任せた作業と、人が判断しなければならなかった点についても取り上げます。</p>
+<p data-lang="en">I worked alone, using several AI services, and ported a WPF program of about 62,000 lines over about 4.5 months. This article covers the parts I moved over as they were, the parts I redesigned, and the problems I ran into during the port and how I solved them. It also covers the work I left to AI and the points where a person had to make the decision.</p>
+<p data-lang="zh-Hant">我運用多個 AI 服務獨自作業，花了約 4.5 個月移植約 62,000 行規模的 WPF 程式。本文整理哪些部分沿用既有實作、哪些部分重新設計，以及移植過程中遇到的問題與解決方式，也會談到交給 AI 的工作與需要由人判斷的地方。</p>
+<p data-lang="ko">혼자서 여러 AI 서비스를 활용해 작업했고, 약 62,000줄 규모의 WPF 프로그램을 약 4.5개월에 걸쳐 이식했습니다. 이 글에서는 기존 구현을 그대로 옮긴 부분과 다시 설계한 부분, 이식 중 겪은 문제와 해결 과정을 정리합니다. AI에 맡긴 작업과 사람이 판단해야 했던 지점도 함께 다룹니다.</p>
+<p data-lang="ja">複数のAIサービスを活用して1人で作業し、約62,000行規模のWPFプログラムを約4.5か月かけて移植しました。本稿では、既存の実装をそのまま移した部分と設計し直した部分、移植中に直面した問題とその解決過程をまとめます。AIに任せた作業と、人が判断しなければならなかった点についても取り上げます。</p>
 
 <h2 id="result"><span data-lang="en">Results first</span><span data-lang="zh-Hant">先看結果</span><span data-lang="ko">결과부터 보면</span><span data-lang="ja">まず結果から</span></h2>
 
