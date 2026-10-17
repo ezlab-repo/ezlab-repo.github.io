@@ -398,7 +398,7 @@
     <a class="pbar-ch" href="#why-avalonia"><span class="pbar-num">02</span><span class="pbar-title"><span data-lang="en">Why Avalonia</span><span data-lang="zh-Hant">為什麼選擇 Avalonia</span><span data-lang="ko">왜 Avalonia였나</span><span data-lang="ja">なぜAvaloniaだったのか</span></span></a>
     <a class="pbar-ch" href="#ui"><span class="pbar-num">03</span><span class="pbar-title"><span data-lang="en">Carrying over existing screens</span><span data-lang="zh-Hant">延續既有畫面</span><span data-lang="ko">기존 화면을 이어 쓰기</span><span data-lang="ja">既存画面の継承</span></span></a>
     <a class="pbar-ch" href="#core"><span class="pbar-num">04</span><span class="pbar-title"><span data-lang="en">Core logic tied to Windows</span><span data-lang="zh-Hant">綁定 Windows 的核心處理</span><span data-lang="ko">Windows에 묶여 있던 핵심 처리</span><span data-lang="ja">Windowsに依存していたコア処理</span></span></a>
-    <a class="pbar-ch" href="#native-aot"><span class="pbar-num">05</span><span class="pbar-title"><span data-lang="en">Shipping with Native AOT</span><span data-lang="zh-Hant">以 Native AOT 發佈</span><span data-lang="ko">Native AOT로 배포하기까지</span><span data-lang="ja">Native AOTでの配布まで</span></span></a>
+    <a class="pbar-ch" href="#native-aot"><span class="pbar-num">05</span><span class="pbar-title"><span data-lang="en">Getting to a Native AOT release</span><span data-lang="zh-Hant">邁向 Native AOT 發佈</span><span data-lang="ko">Native AOT로 배포하기까지</span><span data-lang="ja">Native AOTでの配布まで</span></span></a>
     <a class="pbar-ch" href="#fonts"><span class="pbar-num">06</span><span class="pbar-title"><span data-lang="en">Unexpected font challenges</span><span data-lang="zh-Hant">出乎意料的字型問題</span><span data-lang="ko">예상과 달랐던 폰트 문제</span><span data-lang="ja">予想外だったフォントの課題</span></span></a>
     <a class="pbar-ch" href="#ai"><span class="pbar-num">07</span><span class="pbar-title"><span data-lang="en">Dividing work with AI</span><span data-lang="zh-Hant">與 AI 的分工</span><span data-lang="ko">AI와 사람이 나눈 일</span><span data-lang="ja">AIと人が分担した作業</span></span></a>
     <a class="pbar-ch" href="#try"><span class="pbar-num">08</span><span class="pbar-title"><span data-lang="en">Try it</span><span data-lang="zh-Hant">下載試用</span><span data-lang="ko">받아서 써보기</span><span data-lang="ja">ダウンロードして試す</span></span></a>
@@ -839,7 +839,7 @@ public sealed class MacTaskProgress : ITaskProgress
 
         foreach (PlatformSlotOwnerModel owner in owners) slotInterfaces.Add(owner.InterfaceType);
 
-<span data-lang="en">        // Match adapters and build initialization arguments</span><span data-lang="zh-Hant">        // 比對 Adapter 並組合初始化引數</span><span data-lang="ko">        // 인터페이스에 맞는 Adapter 검색 및 초기화 인자 구성</span><span data-lang="ja">        // Adapterを照合し、初期化引数を構成</span>
+<span data-lang="en">        // Find adapters matching the interface and build initialization arguments</span><span data-lang="zh-Hant">        // 搜尋符合介面的 Adapter 並組合初始化引數</span><span data-lang="ko">        // 인터페이스에 맞는 Adapter 검색 및 초기화 인자 구성</span><span data-lang="ja">        // インターフェースに合うAdapterを検索し、初期化引数を構成</span>
         PlatformCallModel? call = BuildCall(context, compilation, platform, owners, adapters, matched);
         if (call != null) calls.Add(call);
     }
@@ -864,7 +864,7 @@ public sealed class MacTaskProgress : ITaskProgress
 <p data-lang="ko">Windows와 macOS가 함께 쓰는 공유·데스크톱 계층은 C#·AXAML 코드의 86.9%를 차지합니다. Windows 전용 코드는 8.6%, macOS 전용 코드는 4.6%입니다. 함께 쓰는 화면과 기능은 한곳에서 수정하고, OS에 따라 달라지는 동작은 각 프로젝트에서 관리하도록 구성했습니다.</p>
 <p data-lang="ja">WindowsとmacOSで共有する共有層・デスクトップ層は、C#・AXAMLコードの86.9%を占めます。Windows専用コードは8.6%、macOS専用コードは4.6%です。共通の画面と機能は一か所で修正し、OSによって異なる動作は各プロジェクトで管理する構成にしました。</p>
 
-<h2 id="native-aot"><span data-lang="en">Shipping with Native AOT</span><span data-lang="zh-Hant">以 Native AOT 發佈</span><span data-lang="ko">Native AOT로 배포하기까지</span><span data-lang="ja">Native AOTでの配布まで</span></h2>
+<h2 id="native-aot"><span data-lang="en">Getting to a Native AOT release</span><span data-lang="zh-Hant">邁向 Native AOT 發佈</span><span data-lang="ko">Native AOT로 배포하기까지</span><span data-lang="ja">Native AOTでの配布まで</span></h2>
 
 <p data-lang="en">Shipping with Native AOT took more than building the code. I also had to check code that looks up type information at runtime, code that calls OS features, and code that must not be removed during publishing.</p>
 <p data-lang="zh-Hant">要以 Native AOT 發佈，除了建置程式碼之外，還有需要確認的地方。執行時查找型別資訊的程式碼、呼叫作業系統功能的程式碼，以及發佈過程中不能被移除的程式碼，都必須一併檢查。</p>
@@ -936,7 +936,7 @@ public sealed class MacTaskProgress : ITaskProgress
 <div class="timing"><span>OTF</span><span class="timing-track" aria-hidden="true"><i class="timing-bar timing-w" style="width:53.943%"></i></span><span class="value">602 ms</span></div>
 <div class="timing"><span>TTF</span><span class="timing-track" aria-hidden="true"><i class="timing-bar timing-j" style="width:14.785%"></i></span><span class="value">165 ms</span></div>
 <div class="timing"><span><span data-lang="en">TTF Subset</span><span data-lang="zh-Hant">TTF 子集</span><span data-lang="ko">TTF 서브셋</span><span data-lang="ja">TTFサブセット</span></span><span class="timing-track" aria-hidden="true"><i class="timing-bar timing-a" style="width:14.695%"></i></span><span class="value">164 ms</span></div>
-<h4><span data-lang="en">Until the screen is drawn</span><span data-lang="zh-Hant">畫面繪製完成</span><span data-lang="ko">화면이 그려지기까지</span><span data-lang="ja">描画完了まで</span></h4>
+<h4><span data-lang="en">Until the screen is drawn</span><span data-lang="zh-Hant">直到畫面繪製完成</span><span data-lang="ko">화면이 그려지기까지</span><span data-lang="ja">描画完了まで</span></h4>
 <div class="timing"><span>WPF</span><span class="timing-track" aria-hidden="true"><i class="timing-bar timing-wpf" style="width:98.584%"></i></span><span class="value">1,100 ms</span></div>
 <div class="timing"><span>OTF</span><span class="timing-track" aria-hidden="true"><i class="timing-bar timing-w" style="width:100.000%"></i></span><span class="value">1,116 ms</span></div>
 <div class="timing"><span>TTF</span><span class="timing-track" aria-hidden="true"><i class="timing-bar timing-j" style="width:64.247%"></i></span><span class="value">717 ms</span></div>
@@ -958,7 +958,7 @@ public sealed class MacTaskProgress : ITaskProgress
 
 <dl class="measure-overview" data-lang="zh-Hant">
 <div><dt>視窗顯示</dt><dd>從應用程式啟動到視窗首次出現</dd></div>
-<div><dt>畫面繪製完成</dt><dd>從應用程式啟動到視窗內畫面最後一次變化<br>不含確認無變化的 1.5 秒</dd></div>
+<div><dt>直到畫面繪製完成</dt><dd>從應用程式啟動到視窗內畫面最後一次變化<br>不含確認無變化的 1.5 秒</dd></div>
 <div><dt>量測條件</dt><dd>同一台電腦 · Windows 11 · 中位數<br>WPF（.NET 8）：視窗顯示 10 次／畫面繪製 12 次<br>Avalonia UI（Native AOT）：僅字型不同的 3 個建置版本，各 12 次</dd></div>
 <div><dt>解讀注意</dt><dd>畫面繪製完成是觀察像素變化，而非內部繪製完成訊號，可能受動畫或其他視窗遮擋影響。<br>WPF 量測範圍：1,060–4,579 ms<br>量測日期與視窗大小等條件不同，因此不以微小差異判定優劣。</dd></div>
 </dl>
@@ -1056,7 +1056,7 @@ public sealed class MacTaskProgress : ITaskProgress
 <p data-lang="ko">Avalonia UI의 API는 공식 문서를 직접 조회하는 <code>avalonia-docs</code> MCP를 연결해 확인하도록 했습니다. AI가 짐작에 의존하지 않고 공식 문서의 최신 API 사양을 검색해 검증하도록 한 것입니다. 세션을 시작할 때 이 도구가 자동으로 준비되도록 구성해, 작업하는 PC가 바뀌어도 같은 환경에서 작업을 이어갈 수 있게 했습니다.</p>
 <p data-lang="ja">Avalonia UIのAPIは、公式ドキュメントを直接検索できる<code>avalonia-docs</code> MCPを接続して確認させました。AIが推測に頼らず、公式ドキュメントで最新のAPI仕様を調べて検証できるようにしたためです。セッション開始時にこのツールが自動的にセットアップされるよう構成し、作業するPCが変わっても同じ環境で作業を継続できるようにしました。</p>
 
-<h3><span data-lang="en">Making sure the rules are actually followed</span><span data-lang="zh-Hant">讓規則確實落實的自動化機制</span><span data-lang="ko">규칙을 실제로 지키게 하는 장치</span><span data-lang="ja">ルールを実際に守らせる仕組み</span></h3>
+<h3><span data-lang="en">Making sure the rules are actually followed</span><span data-lang="zh-Hant">讓規則確實落實的機制</span><span data-lang="ko">규칙을 실제로 지키게 하는 장치</span><span data-lang="ja">ルールを実際に守らせる仕組み</span></h3>
 
 <p data-lang="en">Items that had to be checked repeatedly were moved to automated checks. A session-end hook checked the encoding of files the AI had modified. Apart from the code content, this also caught changes to the file format during editing.</p>
 <p data-lang="zh-Hant">需要反覆確認的項目改由自動檢查處理。工作階段結束時的 hook 會檢查 AI 修改過的檔案編碼。除了程式碼內容之外，也能發現編輯過程中檔案格式被改變的問題。</p>
