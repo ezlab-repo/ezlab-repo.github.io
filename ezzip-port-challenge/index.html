@@ -19,6 +19,8 @@
     --ava:#1a73d6; 
     --accent:#1565c0; 
     --engine:#5aa3e6; 
+    --engine-text:#5aa3e6;
+    --ava-text:#1565c0;
     --neutral:#94938c; 
     --accent-soft:#e7f1fc; 
     --accent-line:#b5d5f3; 
@@ -34,7 +36,9 @@
      강조색은 두 테마 모두 파비콘·제목 아이콘(#5fa0dc)·글 끝 서울 그림과 같은 하늘색(색상 209~212°, 채도 0.72~0.80)이다.
      라이트는 글자(--accent)·막대(--ava)·옅은 막대(--engine) 세 단계로 나눈다: 글자만 4.5:1 을 넘게 짙게, 막대는 서울 그림처럼 밝게.
      엔진 막대는 흰 바탕 대비 2.7:1 로 3:1 에 조금 못 미치지만 기여율을 막대 아래 글자로도 적어 색에만 기대지 않는다.
-     의미(Avalonia 가장 눈에 띔·엔진 옅게·WPF 따뜻한 회색)는 두 테마 모두 같다 */
+     의미(Avalonia 가장 눈에 띔·엔진 옅게·WPF 따뜻한 회색)는 두 테마 모두 같다.
+     막대 아래 기여율 글자의 엔진 비율은 엔진 막대 계열 색(--engine-text)으로 칠해 어느 막대인지 잇는다. 막대색 그대로는 글자 대비가 모자라 4.5:1 을 넘게 조정.
+     글자에서는 두 파랑이 붙어 보여 다크는 Avalonia 글자(--ava-text)를 더 밝게 벌리고, 라이트는 엔진 글자를 막대색 그대로 써 잇는다(흰 바탕 2.7:1 로 4.5:1 미달이지만 사용자 선택). 굵기는 Avalonia 700 · 엔진 500 으로 다르게 둔다 (사용자 결정 2026-10-17) */
   :root[data-theme="dark"] {
     color-scheme:dark;
     --fg:#e8e7e3;
@@ -45,6 +49,8 @@
     --ava:#5fa0dc;
     --accent:#5fa0dc;
     --engine:#42698f;
+    --engine-text:#5a83ab;
+    --ava-text:#8ec5f2;
     --neutral:#7c7b74;
     --accent-soft:#1b2530;
     --accent-line:#2e4760;
@@ -139,8 +145,8 @@
   .decomp-track { position:relative; min-width:0; }
   .decomp-annotation { margin-left:110px; margin-right:162px; padding:2px 0 4px; }
   .perf-readable .decomp-annotation p { margin:0; text-align:left; font-size:12px; color:var(--muted); line-height:1.4; }
-  .decomp-annotation b { color:var(--accent); font-family:var(--font-data); font-size:12px; font-weight:700; }
-  .decomp-annotation b.engine { color:var(--muted); font-weight:500; font-family:var(--font-sans); }
+  .decomp-annotation b { color:var(--ava-text); font-family:var(--font-data); font-size:12px; font-weight:700; }
+  .decomp-annotation b.engine { color:var(--engine-text); font-weight:500; font-family:var(--font-sans); }
   .decomp-annotation p > span { white-space:nowrap; }
   @media(max-width:480px) {
     .decomp-row { grid-template-columns:64px minmax(0,1fr) 92px; gap:6px; min-height:40px; }
