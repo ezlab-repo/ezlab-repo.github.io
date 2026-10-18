@@ -158,13 +158,14 @@
   .measure-details p { font-size:13.5px; margin-bottom:12px; }
   .measure-overview { margin:16px 0; font-size:13.5px; line-height:1.65; }
   .measure-overview > div { display:grid; grid-template-columns:88px minmax(0,1fr); gap:12px; padding:10px 0; border-bottom:1px solid var(--line); }
+  .measure-overview > div:last-child { border-bottom:0; padding-bottom:0; } /* 맨 끝 칸 아래에 받칠 글이 없어 선과 빈 간격만 남았다 (사용자 지적 2026-10-18) */
+  .measure-details .measure-overview { margin-bottom:0; } /* 언어별 dl 이 나란히 있어 :last-child 로는 보이는 dl 을 못 잡는다 */
   .measure-overview dt { font-weight:600; color:var(--fg); }
   .measure-overview dd { margin:0; }
   .contribution-steps { margin:0 0 12px; padding-left:20px; font-size:inherit; line-height:inherit; } /* 전역 ol 17px 를 받아 측정 상세 13.5px 사이에서 혼자 컸다 */
   .contribution-steps li { margin-bottom:10px; }
   .measure-overview .contribution-formula { margin:12px 0; line-height:1.8; }
   .measure-overview dd > p:last-child { margin-bottom:0; }
-  .measure-details .measure-caveat { color:var(--muted); line-height:1.65; margin:16px 0; }
   @media(max-width:480px) { .measure-overview > div { grid-template-columns:1fr; gap:4px; } }
   /* 한국어 외 언어의 화면 줄바꿈 보정 (한국어 배치는 건드리지 않는다, 사용자 결정 2026-10-10).
      영어·일본어 항목명은 88px 칸에서 단어 중간이 잘렸다(Interpretatio/n, ウィンドウ表/示).
@@ -573,7 +574,6 @@
 <p class="contribution-formula">Avalonia share = Avalonia contribution ÷ (Engine time saved + Avalonia contribution) × 100<br>Engine share = Engine time saved ÷ (Engine time saved + Avalonia contribution) × 100</p>
 <p>The time difference between legacy WPF (.NET 8) and the .NET 10 build comes from runtime and build differences, so it is counted in neither share. Shares are rounded to whole percentages. Window launch has no engine processing and is classified as 100% Avalonia. These figures do not measure the Avalonia library on its own, nor the AOT and UI effects separately.</p></dd></div>
 </dl>
-<p class="measure-caveat" data-lang="en">Compression was evaluated with default settings for each version. Current ZIP files are 2.0–10.5% larger. Contributions are estimates and do not isolate AOT from UI effects.</p>
 
 <dl class="measure-overview" data-lang="zh-Hant">
 <div><dt>比較對象</dt><dd>在同一台電腦上比較舊版 WPF 與目前的 Avalonia UI 版。</dd></div>
@@ -582,17 +582,15 @@
 <p class="contribution-formula">Avalonia 貢獻率 = Avalonia 貢獻 ÷ (引擎縮短時間 + Avalonia 貢獻) × 100<br>引擎貢獻率 = 引擎縮短時間 ÷ (引擎縮短時間 + Avalonia 貢獻) × 100</p>
 <p>舊版 WPF（.NET 8）與 .NET 10 比較版本之間的時間差，來自執行階段與建置的差異，因此不計入任何一方的貢獻率。貢獻率四捨五入至整數。視窗顯示不涉及引擎處理，因此歸類為 Avalonia 100%。這些數值並非單獨量測 Avalonia 函式庫本身的效果，也未分別量測 AOT 與 UI 的效果。</p></dd></div>
 </dl>
-<p class="measure-caveat" data-lang="zh-Hant">壓縮以各版本的預設設定進行比較。目前版本的 ZIP 檔大 2.0–10.5%。貢獻率為估計值，並未區分 AOT 與 UI 各自的效果。</p>
 
-<dl class="measure-overview" data-lang="ko"><div><dt>비교 대상</dt><dd>같은 PC에서 기존 WPF와 현재 Avalonia UI 버전을 비교했습니다.</dd></div><div><dt>측정 조건</dt><dd>Windows 11 · Core Ultra 5 250K Plus<br>예열 1회 후 6회 측정한 중앙값입니다. 앱 기동 시간도 포함합니다.</dd></div><div><dt>기여율 계산</dt><dd><ol class="contribution-steps"><li>기존 WPF와 현재 Avalonia UI 버전의 실행 시간 차이로 <b>전체 단축 시간</b>을 구했습니다.</li><li><b>엔진이 줄인 시간</b>은 별도로 비교했습니다. 같은 WPF 화면과 작업 흐름을 유지하고, 두 비교본의 런타임을 .NET 10으로 맞춘 뒤 기존 엔진과 새 엔진의 실행 시간 차이를 구했습니다.</li><li><b>Avalonia 기여분</b>은 새 엔진을 넣은 .NET 10 비교본과 현재 Avalonia UI 버전의 실행 시간 차이로 구했습니다. Native AOT·UI 표시·앱 구조 변경 효과가 여기에 포함됩니다.</li></ol><p class="contribution-formula">Avalonia 기여율 = Avalonia 기여분 ÷ (엔진이 줄인 시간 + Avalonia 기여분) × 100<br>엔진 기여율 = 엔진이 줄인 시간 ÷ (엔진이 줄인 시간 + Avalonia 기여분) × 100</p><p>기존 WPF(.NET 8)와 .NET 10 비교본 사이의 시간 차이는 런타임과 빌드 차이에서 비롯된 것이므로 어느 쪽 기여율에도 포함하지 않았습니다. 기여율은 정수로 반올림했습니다. 창 표시는 엔진 작업이 없어 Avalonia 100%로 분류했습니다. Avalonia 라이브러리만의 효과나 AOT·UI 각각의 효과를 따로 측정한 값은 아닙니다.</p></dd></div></dl><p class="measure-caveat" data-lang="ko">압축은 각 버전의 기본 설정으로 비교했습니다. 현재 버전의 ZIP은 2.0–10.5% 더 큽니다. 기여율은 추정치이며, AOT와 UI 각각의 효과를 분리한 값은 아닙니다.</p>
-<dl class="measure-overview" data-lang="ja">
+<dl class="measure-overview" data-lang="ko"><div><dt>비교 대상</dt><dd>같은 PC에서 기존 WPF와 현재 Avalonia UI 버전을 비교했습니다.</dd></div><div><dt>측정 조건</dt><dd>Windows 11 · Core Ultra 5 250K Plus<br>예열 1회 후 6회 측정한 중앙값입니다. 앱 기동 시간도 포함합니다.</dd></div><div><dt>기여율 계산</dt><dd><ol class="contribution-steps"><li>기존 WPF와 현재 Avalonia UI 버전의 실행 시간 차이로 <b>전체 단축 시간</b>을 구했습니다.</li><li><b>엔진이 줄인 시간</b>은 별도로 비교했습니다. 같은 WPF 화면과 작업 흐름을 유지하고, 두 비교본의 런타임을 .NET 10으로 맞춘 뒤 기존 엔진과 새 엔진의 실행 시간 차이를 구했습니다.</li><li><b>Avalonia 기여분</b>은 새 엔진을 넣은 .NET 10 비교본과 현재 Avalonia UI 버전의 실행 시간 차이로 구했습니다. Native AOT·UI 표시·앱 구조 변경 효과가 여기에 포함됩니다.</li></ol><p class="contribution-formula">Avalonia 기여율 = Avalonia 기여분 ÷ (엔진이 줄인 시간 + Avalonia 기여분) × 100<br>엔진 기여율 = 엔진이 줄인 시간 ÷ (엔진이 줄인 시간 + Avalonia 기여분) × 100</p><p>기존 WPF(.NET 8)와 .NET 10 비교본 사이의 시간 차이는 런타임과 빌드 차이에서 비롯된 것이므로 어느 쪽 기여율에도 포함하지 않았습니다. 기여율은 정수로 반올림했습니다. 창 표시는 엔진 작업이 없어 Avalonia 100%로 분류했습니다. Avalonia 라이브러리만의 효과나 AOT·UI 각각의 효과를 따로 측정한 값은 아닙니다.</p></dd></div></dl><dl class="measure-overview" data-lang="ja">
 <div><dt>比較対象</dt><dd>同一PC上で従来のWPF版と現在のAvalonia UI版を比較しました。</dd></div>
 <div><dt>測定条件</dt><dd>Windows 11 · Core Ultra 5 250K Plus<br>ウォームアップ1回後、6回測定の中央値。アプリ起動時間を含みます。</dd></div>
 <div><dt>寄与率の計算</dt><dd><ol class="contribution-steps"><li>従来のWPFと現在のAvalonia UI版の実行時間の差から<b>全体の短縮時間</b>を算出しました。</li><li><b>エンジン短縮時間</b>は別個に比較しました。同一のWPF画面とワークフローを維持し、ランタイムを.NET 10に揃えた上で旧エンジンと新エンジンの実行時間差を測定しました。</li><li><b>Avaloniaの寄与分</b>は、新エンジンを入れた.NET 10の比較版と現在のAvalonia UI版の実行時間差から求めました。Native AOT、UI表示、アプリ構造の変更の効果が含まれます。</li></ol>
 <p class="contribution-formula">Avalonia寄与率 = Avaloniaの寄与分 ÷（エンジン短縮時間 + Avaloniaの寄与分）× 100<br>エンジン寄与率 = エンジン短縮時間 ÷（エンジン短縮時間 + Avaloniaの寄与分）× 100</p>
 <p>従来のWPF（.NET 8）と.NET 10の比較版との時間差はランタイムとビルドの違いによるものなので、どちらの寄与率にも含めていません。寄与率は整数に丸めています。ウィンドウ表示にはエンジン処理がないためAvalonia 100%として分類しています。Avaloniaライブラリ単体の効果や、AOT・UIそれぞれの効果を個別に測定した値ではありません。</p></dd></div>
 </dl>
-<p class="measure-caveat" data-lang="ja">圧縮は各バージョンのデフォルト設定で比較しました。現行バージョンのZIPは2.0〜10.5%大きくなります。寄与率は推定値であり、AOTとUIそれぞれの効果を分離した値ではありません。</p></details></figure>
+</details></figure>
 
 <h2 id="why-avalonia"><span data-lang="en">Why Avalonia</span><span data-lang="zh-Hant">為什麼選擇 Avalonia</span><span data-lang="ko">왜 Avalonia였나</span><span data-lang="ja">なぜAvaloniaだったのか</span></h2>
 
