@@ -18,6 +18,7 @@
     --code:#ecebe6; 
     --ava:#1a73d6; 
     --accent:#1565c0; 
+    --data-accent:#1565c0;
     --engine:#5aa3e6; 
     --engine-text:#5aa3e6;
     --ava-text:#1565c0;
@@ -33,7 +34,8 @@
     --font-data:"Space Grotesk", "Noto Sans KR", sans-serif;
   }
   /* 다크 모드: 첫 화면은 라이트로 고정, 위 바의 전환 버튼으로 바꾸면 그 선택을 기억한다(<head> 스크립트가 data-theme 를 칠하기 전에 정한다).
-     강조색은 두 테마 모두 파비콘·제목 아이콘(#5fa0dc)·글 끝 서울 그림과 같은 하늘색(색상 209~212°, 채도 0.72~0.80)이다.
+     화면 강조색(--accent: 링크·마우스 올림·포커스·제목 아이콘)은 라이트는 파비콘·서울 낮 그림의 하늘색, 다크는 서울 야경 그림의 불빛 호박색(#e6b66e)이다 (사용자 결정 2026-10-18).
+     다크는 도표·구조도까지 파랑을 모두 호박색 계열로 바꾼다: 막대·Avalonia 글자는 밝은 호박, 엔진은 짙은 호박 (사용자 결정 2026-10-18).
      라이트는 글자(--accent)·막대(--ava)·옅은 막대(--engine) 세 단계로 나눈다: 글자만 4.5:1 을 넘게 짙게, 막대는 서울 그림처럼 밝게.
      엔진 막대는 흰 바탕 대비 2.7:1 로 3:1 에 조금 못 미치지만 기여율을 막대 아래 글자로도 적어 색에만 기대지 않는다.
      의미(Avalonia 가장 눈에 띔·엔진 옅게·WPF 따뜻한 회색)는 두 테마 모두 같다.
@@ -46,18 +48,19 @@
     --line:#34332f;
     --bg:#141416;
     --code:#232320;
-    --ava:#5fa0dc;
-    --accent:#5fa0dc;
-    --engine:#42698f;
-    --engine-text:#5a83ab;
-    --ava-text:#8ec5f2;
+    --ava:#e6b66e;
+    --accent:#e6b66e;
+    --data-accent:#e6b66e;
+    --engine:#8f6a33;
+    --engine-text:#a8834e;
+    --ava-text:#f2cf94;
     --neutral:#7c7b74;
-    --accent-soft:#1b2530;
-    --accent-line:#2e4760;
+    --accent-soft:#2b2417;
+    --accent-line:#5a4729;
     --neutral-soft:#3a3934;
     --strong:#fff;
-    --timing-w:#2f4a63;
-    --timing-j:#42698f;
+    --timing-w:#5a4729;
+    --timing-j:#8f6a33;
   }
   * { box-sizing:border-box; }
   html:lang(zh-Hant) { --font-sans:"Noto Sans TC", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft JhengHei", "PingFang TC", sans-serif; }
@@ -70,6 +73,7 @@
   /* 제목 위 아이콘: Tabler "transform"(같은 것을 다른 모양으로), 강조색 (사용자 결정 2026-10-08) */
   /* 아이콘은 제목 위 빈 여백(340px) 안에 놓는다: 높이(64)+아래 간격(28)만큼 위로 당겨 제목 위치는 그대로. 왼쪽 -8px로 그림을 제목 첫 글자에 맞춤 */
   .title-mark { display:block; width:64px; height:64px; margin:-92px 0 28px -8px; color:#5fa0dc; } /* 파비콘과 같은 서울 그림 하늘색 계열(색상 약 209°) (사용자 결정 2026-10-10) */
+  :root[data-theme="dark"] .title-mark { color:var(--accent); } /* 다크: 글 끝 서울 야경 그림의 창문·가로등 불빛 호박색(밝은 점 평균 약 #d9b06a 계열)에 맞춘다 (사용자 결정 2026-10-18) */
   @media (max-width:767px) { .title-mark { display:none; } } /* 모바일에서는 숨긴다 */
   .meta { margin:24px 0 40px; }
   .meta-author { margin:0 0 4px; color:var(--fg); font-size:16px; font-weight:600; line-height:1.5; }
@@ -125,8 +129,8 @@
   .perf-section .perf-result:last-child { margin-bottom:0; }
   .perf-result { margin:0 0 14px; }
   .result-heading { display:flex; justify-content:space-between; align-items:baseline; gap:12px; font-size:14px; font-weight:600; }
-  .result-speed { margin-left:8px; white-space:nowrap; font-size:11.5px; font-weight:500; color:var(--accent); background:var(--accent-soft); padding:1px 6px; border-radius:3px; display:inline-block; line-height:1.4; vertical-align:1px; }
-  .result-speed b { font-family:var(--font-data); font-size:12px; font-weight:700; color:var(--accent); margin-right:1px; font-variant-numeric:tabular-nums; }
+  .result-speed { margin-left:8px; white-space:nowrap; font-size:11.5px; font-weight:500; color:var(--data-accent); background:var(--accent-soft); padding:1px 6px; border-radius:3px; display:inline-block; line-height:1.4; vertical-align:1px; }
+  .result-speed b { font-family:var(--font-data); font-size:12px; font-weight:700; color:var(--data-accent); margin-right:1px; font-variant-numeric:tabular-nums; }
   .decomp-legend { display:flex; flex-wrap:wrap; gap:5px 16px; font-size:13px; color:var(--muted); margin-bottom:6px; }
   .decomp-legend > span { display:flex; align-items:center; gap:5px; }
   .decomp-legend i { width:10px; height:10px; display:inline-block; border-radius:2px; }
@@ -240,8 +244,8 @@
   .architecture-chart .heading { font-family:var(--font-data), var(--font-sans); font-size:15px; font-weight:700; fill:var(--fg); letter-spacing:-0.01em; }
   .architecture-chart .label { font-size:14px; font-weight:400; fill:var(--fg); }
   .architecture-chart .subtext { font-size:12px; font-weight:400; fill:var(--muted); }
-  .architecture-chart .link { fill:none; stroke:var(--accent); stroke-width:1.8; }
-  .architecture-key { background:var(--accent); }
+  .architecture-chart .link { fill:none; stroke:var(--data-accent); stroke-width:1.8; }
+  .architecture-key { background:var(--data-accent); }
   #article-title { scroll-margin-top:100vh; } /* 들어가며 = 맨 위 */
   /* 다운로드 버튼: popo 포트폴리오처럼 언어 옆 동그라미 (사용자 결정 2026-10-08) */
   .dl-btn { flex:none; width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border-radius:50%; color:var(--muted); }
@@ -678,7 +682,7 @@
 <desc id="architecture-desc-zh-Hant" data-lang="zh-Hant">Windows 與 macOS 透過 ezZip.Desktop 參照共用專案。Android、iOS 與 ezZip.Mobile 仍在設計階段，計畫透過行動層參照共用專案。藍色箭頭與圖例表示介面與實作在建置時連接，並不會建立專案參照。</desc>
 <desc id="architecture-desc-ko" data-lang="ko">Windows와 macOS는 ezZip.Desktop을 거쳐 공유 프로젝트를 참조합니다. Android와 iOS, ezZip.Mobile은 구조 설계 단계이며, 모바일 계층을 거쳐 공유 프로젝트를 참조하도록 계획한 구조입니다. 파란색 화살표와 범례는 인터페이스와 구현을 빌드 시 연결하는 역할을 뜻하며, 프로젝트 참조 자체를 생성한다는 뜻은 아닙니다.</desc>
 <desc id="architecture-desc-ja" data-lang="ja">WindowsとmacOSはezZip.Desktopを経由して共有プロジェクトを参照します。Android、iOS、ezZip.Mobileは設計段階であり、モバイル層を経由して共有プロジェクトを参照する計画です。青い矢印と凡例は、インターフェースと実装をビルド時に接続する役割を示すもので、プロジェクト参照そのものを作るという意味ではありません。</desc>
-<defs><marker id="architecture-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)"/></marker></defs>
+<defs><marker id="architecture-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--data-accent)"/></marker></defs>
 <rect class="node" x="0" y="48" width="145" height="96" rx="6"/>
 <text x="12" y="78" class="heading">ezZip.Windows</text>
 <text x="12" y="104" class="label">Windows</text>
