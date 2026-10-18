@@ -114,7 +114,7 @@
   #fig-a > figcaption { margin-top:24px; }
   #architecture > figcaption { margin-top:20px; }
   #fig-a { padding-bottom:12px; }
-  #fig-a > .measure-details:not([open]) > summary { margin-bottom:0; }
+  .measure-details:not([open]) > summary { margin-bottom:0; } /* 닫힌 측정 상세가 그림 맨 아래일 때 아래 간격을 다른 그림(패딩만)과 맞춘다 (사용자 지적 2026-10-18) */
   figcaption .cond { color:var(--muted); display:block; }
   figcaption code { overflow-wrap:anywhere; }
   .perf-explainer { margin:0 0 12px; color:var(--muted); font-size:13px; }
