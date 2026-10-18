@@ -621,10 +621,10 @@
 <p data-lang="ko">WPF의 XAML은 Avalonia UI의 AXAML로 대부분 그대로 옮길 수 있었습니다. 기존 화면 구성과 바인딩을 유지하면서, Avalonia UI 문법으로 더 간결하게 표현할 수 있는 부분을 찾아 반영했습니다. 스타일과 레이아웃을 정리하는 과정에서도 화면의 기능 구성과 사용 흐름은 유지했습니다.</p>
 <p data-lang="ja">WPFのXAMLは、ほとんどそのままAvalonia UIのAXAMLへ移せました。既存の画面構成とバインディングを維持しながら、Avalonia UIの構文でより簡潔に書ける箇所を見つけて反映しました。スタイルとレイアウトを整理する過程でも、画面の機能構成と操作の流れは維持しました。</p>
 
-<p data-lang="en">I changed the WPF-specific parts separately. Visual states handled by WPF triggers moved to Avalonia UI styles and display conditions. Window open and close events, previously wired through the <code>Microsoft.Xaml.Behaviors.Wpf</code> NuGet package, now use an <code>AttachedProperty</code> connected to the existing viewmodel commands.</p>
-<p data-lang="zh-Hant">依賴 WPF 的部分則另外修改。原本以 WPF 觸發器處理的畫面狀態，改用 Avalonia UI 的樣式與顯示條件處理。原本透過 <code>Microsoft.Xaml.Behaviors.Wpf</code> NuGet 套件連接的視窗開啟、關閉事件，改為 <code>AttachedProperty</code>，並連接到既有 ViewModel 的命令。</p>
-<p data-lang="ko">WPF에 종속된 부분은 별도로 수정했습니다. WPF 트리거로 처리하던 화면 상태는 Avalonia UI의 스타일과 표시 조건으로 옮겼습니다. <code>Microsoft.Xaml.Behaviors.Wpf</code> NuGet 패키지로 연결하던 창 열기·닫기 이벤트는 <code>AttachedProperty</code>로 바꿔, 기존 뷰모델의 명령에 연결했습니다.</p>
-<p data-lang="ja">WPFに依存する部分は個別に修正しました。WPFのトリガーで扱っていた画面の状態は、Avalonia UIのスタイルと表示条件に移しました。<code>Microsoft.Xaml.Behaviors.Wpf</code> NuGetパッケージでつないでいたウィンドウの開閉イベントは<code>AttachedProperty</code>に置き換え、既存のViewModelのコマンドに接続しました。</p>
+<p data-lang="en">I changed the WPF-specific parts separately. Visual states handled by WPF triggers moved to Avalonia UI styles and display conditions. Window open and close events, previously wired through the <code>Microsoft.Xaml.Behaviors.Wpf</code>, now use an <code>AttachedProperty</code> connected to the existing viewmodel commands.</p>
+<p data-lang="zh-Hant">依賴 WPF 的部分則另外修改。原本以 WPF 觸發器處理的畫面狀態，改用 Avalonia UI 的樣式與顯示條件處理。原本透過 <code>Microsoft.Xaml.Behaviors.Wpf</code> 連接的視窗開啟、關閉事件，改為 <code>AttachedProperty</code>，並連接到既有 ViewModel 的命令。</p>
+<p data-lang="ko">WPF에 종속된 부분은 별도로 수정했습니다. WPF 트리거로 처리하던 화면 상태는 Avalonia UI의 스타일과 표시 조건으로 옮겼습니다. <code>Microsoft.Xaml.Behaviors.Wpf</code>로 연결하던 창 열기·닫기 이벤트는 <code>AttachedProperty</code>로 바꿔, 기존 뷰모델의 명령에 연결했습니다.</p>
+<p data-lang="ja">WPFに依存する部分は個別に修正しました。WPFのトリガーで扱っていた画面の状態は、Avalonia UIのスタイルと表示条件に移しました。<code>Microsoft.Xaml.Behaviors.Wpf</code>でつないでいたウィンドウの開閉イベントは<code>AttachedProperty</code>に置き換え、既存のViewModelのコマンドに接続しました。</p>
 
 <h3><span data-lang="en">From ObservableCollection to AvaloniaList</span><span data-lang="zh-Hant">從 ObservableCollection 到 AvaloniaList</span><span data-lang="ko">ObservableCollection에서 AvaloniaList로</span><span data-lang="ja">ObservableCollectionからAvaloniaListへ</span></h3>
 
